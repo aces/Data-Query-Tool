@@ -165,6 +165,9 @@ $(document).ready(function() {
     $("#DefineFields .selectable").live("click", function(e) {
         el = e.currentTarget;
         defineManager.toggle(el);
+        if(QueryRun == true) {
+            $("#runquery").click();
+        }
     });
 });
 

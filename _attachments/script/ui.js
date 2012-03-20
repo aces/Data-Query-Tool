@@ -1,4 +1,5 @@
 var qmanager;
+var QueryRun = false;
 var resizeAll = function() {
     var header = $(".ui-tabs-nav");
     var tabs = $("#tabs");
@@ -88,6 +89,7 @@ $(document).ready(function() {
     });
     $("#runquery").click(function() {
         var that = qmanager;
+        QueryRun = true;
         qmanager.run(function() {
             var fields = defineManager.getSelected();
             var sessions = that.getSessions();
