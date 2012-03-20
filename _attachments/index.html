@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DQG 2.0</title>
+    <link rel="stylesheet" href="style/themes/smoothness/jquery.ui.all.css" type="text/css">
+    <link rel="stylesheet" href="style/main.css" type="text/css">
+  </head>
+  <body>
+      <script src="/_utils/script/sha1.js"></script>
+      <script src="/_utils/script/json2.js"></script>
+      <script src="/_utils/script/jquery.js"></script>
+      <script src="/_utils/script/jquery.couch.js"></script>
+      <script src="vendor/couchapp/jquery.couchLogin.js"></script>
+      <script src="vendor/couchapp/jquery.couchProfile.js"></script>
+      <script src="vendor/couchapp/md5.js"></script>
+      <script src="vendor/couchapp/jquery.mustache.js"></script>
+      <script src="script/jquery-ui-1.8.18.custom.min.js"></script>
+      <script src="script/jquery-ui-1.8.18.custom.min.js"></script>
+      <script src="script/jquery.dataTables.min.js"></script>
+
+      <script src="script/array_tools.js"></script>
+      <script src="script/categories.js"></script>
+      <script src="script/query.js"></script>
+      <script src="script/ui.js"></script>
+      <div id="tabs">
+          <ul>
+              <li><a href="#DefineFields">Fields</a></li>
+              <li><a href="#DefinePopulation">Define Population</a></li>
+              <li><a href="#ViewPopulation">View Population</a></li>
+              <li><a href="#ViewData">View Data</a></li>
+          </ul>
+          <div id="DefineFields">
+              <div class="half" style="overflow: scroll;">
+                  <div class="header">
+              Choose category:
+                  <select id="categories" onChange="javascript:Categories.show(this.value, 'fields', { selectedManager: defineManager})";></select>
+              </div>
+                  <div class="fieldlist" id="fields">
+                  </div>
+              </div>
+              <div class="half" style="overflow: scroll">
+                  <h2>Selected Fields</h2>
+                  <div id="selectedfields">
+                  </div>
+              </div>
+          </div>
+          <div id="DefinePopulation">
+              <div class="header">
+              Choose category:
+              <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'population_fields', { showOptions: true, selectedManager: popManager })";></select> <button id="newpopulation">Add selected</button>
+              </div>
+              <div class="fieldlist" id="population_fields"></div>
+          </div>
+          <div id="ViewPopulation">
+              Query: <div id="current_filter"></div>
+              Sessions: <div id="current_sessions"></div>
+              <button id="runquery">Run Query</button>
+              
+          </div>
+          <div id="ViewData">
+              <table id="data" border="1">
+                  <thead><tr><th>Identifier</th></tr></thead>
+                  <tbody>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      
+  </body>
+</html>
