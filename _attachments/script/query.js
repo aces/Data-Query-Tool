@@ -72,8 +72,11 @@ var QueryManager = function(div_name) {
                     el.textContent = FormatSessions(sessions_per_query[i]);
                     field.appendChild(el);
                     if(callback && i == length-1) {
+
                         callback();
                     }
+                    // Uncomment for debugging
+                    //$("dd.sessions, dt:contains(Sessions)").hide()
 
                 }
             }

@@ -108,6 +108,7 @@ function PopulateDataTable(Obj) {
 $(document).ready(function() {
     qmanager = new QueryManager("current_filter");
     $("#tabs").tabs();
+    //$("#tabs a[href='#ViewPopulation']").hide();
     resizeAll();
     $(window).resize(resizeAll);
     $("#newpopulation").click(function() {
@@ -118,6 +119,8 @@ $(document).ready(function() {
 
             popManager.toggle(document.getElementById(selected[i]));
         }
+        QueryRun = true;
+        $("#runquery").click();
     });
     $("#runquery").click(function() {
         var that = qmanager;
@@ -179,6 +182,7 @@ $(document).ready(function() {
                 }, create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable));
             }
             document.getElementById("current_sessions").textContent = "[" + sessions.join("], [") + "]";
+            $("a[href='#ViewData']").fadeTo('fast', 0.25); $("a[href='#ViewData']").fadeTo('slow', 1);
         });
     });
     $("#DownloadCSV").click(function() {
@@ -201,5 +205,4 @@ $(document).ready(function() {
         var fs = saveAs(content.getBlob("text/csv;charset=utf-8"), "data.csv");
 
     });
-    //$("#data").dataTable();
 });

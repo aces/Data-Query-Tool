@@ -3,6 +3,7 @@ var defineManager;
 var popManager;
 
 Categories.list = function(selectBox) {
+    var that = this;
     var categories = $.get("_view/categories", { reduce: true, group_level: 2 }, function(d) {
         var i;
         var data = $.parseJSON(d);
@@ -13,6 +14,7 @@ Categories.list = function(selectBox) {
             el.innerText = data.rows[i].key;
             categoriesSelect.appendChild(el);
         }
+        $(categoriesSelect).change();
     });
 
 };
@@ -105,10 +107,9 @@ Categories.show = function(category, output_div, options) {
 var SelectedManager = function(divname) {
     var that = this;
     var container = document.getElementById(divname);
+    var description = {};
     return {
         add: function(el) {
-            var display;
-            var cell;
             $(el).addClass("selected");
             $(el).addClass("ui-state-highlight");
             if(container.tagName == 'DIV') {
@@ -120,19 +121,38 @@ var SelectedManager = function(divname) {
                 container.appendChild(display);
                 $(el).children("[type=checkbox]").attr("checked", "checked");
             } else if(container.tagName == 'TBODY') {
-                display = document.createElement("tr");
-                cell = document.createElement("td");
-                cell.textContent = el.innerText;
-                cell.setAttribute("id", container.id + "_" + el.innerText);
-                cell.setAttribute("class", "selected");
-                display.appendChild(cell);
-                cell = document.createElement("td");
-                cell.textContent = "Unknown";
-                display.appendChild(cell);
-                cell = document.createElement("td");
-                cell.textContent = "Unknown";
-                display.appendChild(cell);
-                container.appendChild(display);
+                var fieldSplit = el.innerText.split(",");
+                $.getJSON("_view/datadictionary", {
+                    key: '["' + fieldSplit[0] + '","' + fieldSplit[1] + '"]',
+                    reduce: false
+                }, (function(el) { return function(data, textStatus) {
+                    var display;
+                    var cell;
+                    display = document.createElement("tr");
+                    cell = document.createElement("td");
+                    cell.textContent = el.innerText;
+                    cell.setAttribute("id", container.id + "_" + el.innerText);
+                    cell.setAttribute("class", "selected");
+                    display.appendChild(cell);
+                    cell = document.createElement("td");
+                    if(data && data.rows && data.rows[0] && data.rows[0].value ) {
+                        cell.textContent = data.rows[0].value.Description;
+                    } else {
+                        cell.textContent = "Unknown";
+                    }
+
+                    display.appendChild(cell);
+                    /*
+                    cell = document.createElement("td");
+                    if(data && data.rows && data.rows[0]) {
+                        cell.textContent = data.rows[0].value.Type;
+                    } else {
+                        cell.textContent = "Unknown";
+                    }
+                    */
+                    display.appendChild(cell);
+                    container.appendChild(display);
+                } })(el));
 
             }
         },

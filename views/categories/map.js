@@ -1,3 +1,5 @@
 function(doc) {
-    emit(doc.Meta.DocType, null);
+    if(doc.Meta && doc.Meta.DocType) {
+        emit(doc.Meta.DocType, null);
+    }
 }
