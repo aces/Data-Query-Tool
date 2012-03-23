@@ -12,12 +12,17 @@ var QueryManager = function(div_name) {
     }
 
     return {
-        getSessions: function() {
-            if(sessions_per_query[0]) {
-                return sessions_per_query[0].intersect(sessions_per_query);
-            } else {
-                return undefined;
+        getAllSessions: function() {
+            if(sessions) {
+                return sessions;
             }
+            return undefined;
+        },
+        getSessions: function() {
+            if(sessions) {
+                return sessions.intersect(sessions_per_query);
+            }
+            return undefined;
         },
         add: function(field, value, operator) {
             if(fields.indexOf(field) >= 0) {
@@ -25,7 +30,7 @@ var QueryManager = function(div_name) {
             }
             var q = document.createElement("dl");
             var el = document.createElement("dt");
-            el.textContent = field;
+            el.textContent = field + ' ' + operator;
             q.appendChild(el);
             el = document.createElement("dd");
             el.textContent = value;
@@ -73,22 +78,64 @@ var QueryManager = function(div_name) {
                 }
             }
             
-            for(i = 0; i < queries.length; i++) {
-                sessions_per_query.push([]);
-                var field = queries[i][0];
-                var split = field.split(",");
-                var val = queries[i][1];
-                if(val == parseFloat(queries[i][1], 10)) {
-                    val = parseFloat(queries[i][1], 10);
-                } else {
-                    val = '"' + queries[i][1] + '"';
+            $.getJSON("_view/sessions", {
+                reduce: true,
+                group: true
+            }, function(data, textStatus) {
+                var i;
+                var identifier_length;
+                sessions = [];
+                for(i = 0;i < data.rows.length; i++) {
+                    sessions.push(data.rows[i].key);
                 }
+                if(sessions[0]) {
+                    var selectBox = document.getElementById("group_level");
+                    var el;
+                    if($(selectBox).children().length == 0) {
+                        identifier_length = sessions[0].length;
+                        $(selectBox).children().remove();
+                        for(var i =0; i < identifier_length; i++) {
+                            el = document.createElement("option");
+                            el.textContent = i;
+                            selectBox.appendChild(el);
+                        }
+                        $(selectBox).change(function() {
+                            $("#runquery").click();
+                        });
+                    }
 
-                $.getJSON("_view/search", { 
-                    key: '["' + split[0] + '","' + split[1] + '",' + val + ']',
-                    reduce: false 
-                    }, create_callback(i, queries[i][0], queries.length));
                 }
-            }
-        };
+                for(i = 0; i < queries.length; i++) {
+                    sessions_per_query.push([]);
+                    var field = queries[i][0];
+                    var split = field.split(",");
+                    var val = queries[i][1];
+                    if(val == parseFloat(queries[i][1], 10)) {
+                        val = parseFloat(queries[i][1], 10);
+                    } else {
+                        val = '"' + queries[i][1] + '"';
+                    }
+
+                    if(queries[i][2] == '=') {
+                        $.getJSON("_view/search", {
+                            key: '["' + split[0] + '","' + split[1] + '",' + val + ']',
+                            reduce: false
+                        }, create_callback(i, queries[i][0], queries.length));
+                    } else if(queries[i][2] == '>=') {
+                        $.getJSON("_view/search", {
+                            startkey: '["' + split[0] + '","' + split[1] + '",' + val + ']',
+                            endkey: '["' + split[0] + '","' + split[1] + '", {}]',
+                            reduce: false
+                        }, create_callback(i, queries[i][0], queries.length));
+                    } else if(queries[i][2] == '<=') {
+                        $.getJSON("_view/search", {
+                            startkey: '["' + split[0] + '","' + split[1] + '"]',
+                            endkey: '["' + split[0] + '","' + split[1] + '",' + val + ']',
+                            reduce: false
+                        }, create_callback(i, queries[i][0], queries.length));
+                    }
+                }
+            });
+        }
+    }
 }

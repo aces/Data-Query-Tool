@@ -2,7 +2,8 @@
 <html>
   <head>
     <title>DQG 2.0</title>
-    <link rel="stylesheet" href="style/themes/smoothness/jquery.ui.all.css" type="text/css">
+    <!--link rel="stylesheet" href="style/themes/base/jquery.ui.all.css" type="text/css"-->
+    <link rel="stylesheet" href="style/themes/smoothness/jquery-ui-1.8.18.custom.css" type="text/css">
     <link rel="stylesheet" href="style/main.css" type="text/css">
   </head>
   <body>
@@ -14,6 +15,8 @@
       <script src="vendor/couchapp/jquery.couchProfile.js"></script>
       <script src="vendor/couchapp/md5.js"></script>
       <script src="vendor/couchapp/jquery.mustache.js"></script>
+      <script type="application/ecmascript" src="script/BlobBuilder.min.js"></script>
+      <script type="application/ecmascript" src="script/FileSaver.min.js"></script>
       <script src="script/jquery-ui-1.8.18.custom.min.js"></script>
       <script src="script/jquery-ui-1.8.18.custom.min.js"></script>
       <script src="script/jquery.dataTables.min.js"></script>
@@ -29,9 +32,9 @@
               <li><a href="#ViewPopulation">View Population</a></li>
               <li><a href="#ViewData">View Data</a></li>
           </ul>
-          <div id="DefineFields">
+          <div id="DefineFields" class="ui-widget-reset ui-widget">
               <div class="half" style="overflow: scroll;">
-                  <div class="header">
+                  <div class="ui-widget-header">
               Choose category:
                   <select id="categories" onChange="javascript:Categories.show(this.value, 'fields', { selectedManager: defineManager})";></select>
               </div>
@@ -40,12 +43,21 @@
               </div>
               <div class="half" style="overflow: scroll">
                   <h2>Selected Fields</h2>
-                  <div id="selectedfields">
-                  </div>
+                  <table width="100%">
+                      <thead>
+                          <tr>
+                              <th>Field</th>
+                              <th>Description</th>
+                              <th>Type</th>
+                          </tr>
+                      </thead>
+                      <tbody id="selectedfields">
+                      </tbody>
+                  </table>
               </div>
           </div>
           <div id="DefinePopulation">
-              <div class="header">
+              <div class="ui-widget-header .ui-corner-all">
               Choose category:
               <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'population_fields', { showOptions: true, selectedManager: popManager })";></select> <button id="newpopulation">Add selected</button>
               </div>
@@ -57,7 +69,11 @@
               <button id="runquery">Run Query</button>
               
           </div>
+
           <div id="ViewData">
+              <button id="DownloadCSV">Download Data as CSV</button>
+              Group Level: <select id="group_level">
+              </select>
               <table id="data" border="1">
                   <thead><tr><th>Identifier</th></tr></thead>
                   <tbody>

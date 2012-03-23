@@ -27,9 +27,11 @@ Categories.show = function(category, output_div, options) {
             if(args == "many") {
                 el = document.createElement("input");
                 el.setAttribute("type", "text");
+                el.setAttribute("class", "queryParam");
                 return el;
             }
             select = document.createElement("select");
+            select.setAttribute("class", "queryParam");
             args = args.sort();
             for(i = 0; i < args.length; i++) {
                 el = document.createElement("option");
@@ -39,6 +41,23 @@ Categories.show = function(category, output_div, options) {
             return select;
         }
         return el;
+    }
+    var createOperatorElement = function(args) {
+        var el, op, i;
+        el = document.createElement("select");
+        el.setAttribute("class", "queryOp");
+        op = document.createElement("option");
+        op.textContent = '=';
+        el.appendChild(op);
+        op = document.createElement("option");
+        op.textContent = '<=';
+        el.appendChild(op);
+        op = document.createElement("option");
+        op.textContent = '>=';
+        el.appendChild(op);
+
+        return el;
+
     }
     var fields = $.get("_view/search", { reduce: true, group_level: 2, startkey: 
         '["' + category + '"]',
@@ -67,13 +86,14 @@ Categories.show = function(category, output_div, options) {
                 el.appendChild(document.createTextNode(data.rows[i].key));
                 
                 if(options.showOptions) {
+                    el.appendChild(createOperatorElement(data.rows[i].value));
                     el.appendChild(createOptionElement(data.rows[i].value));
                 }
                 el.setAttribute("class", "selectable");
 
                 if(options.selectedManager) {
                     if(options.selectedManager.contains(el.innerText)) {
-                        el.setAttribute("class", "selectable selected");
+                        el.setAttribute("class", "selectable selected ui-state-highlight");
                     }
                 }
                 fieldsSelect.appendChild(el);
@@ -84,24 +104,52 @@ Categories.show = function(category, output_div, options) {
 
 var SelectedManager = function(divname) {
     var that = this;
-    var div = document.getElementById(divname);
+    var container = document.getElementById(divname);
     return {
         add: function(el) {
+            var display;
+            var cell;
             $(el).addClass("selected");
-            display = document.createElement("div");
-            display.innerText = el.innerText;
+            $(el).addClass("ui-state-highlight");
+            if(container.tagName == 'DIV') {
+                display = document.createElement("div");
+                display.innerText = el.innerText;
 
-            display.setAttribute("id", div.id + "_" + el.innerText);
-            display.setAttribute("class", "selected");
-            div.appendChild(display);
-            $(el).children("[type=checkbox]").attr("checked", "checked");
+                display.setAttribute("id", container.id + "_" + el.innerText);
+                display.setAttribute("class", "selected");
+                container.appendChild(display);
+                $(el).children("[type=checkbox]").attr("checked", "checked");
+            } else if(container.tagName == 'TBODY') {
+                display = document.createElement("tr");
+                cell = document.createElement("td");
+                cell.textContent = el.innerText;
+                cell.setAttribute("id", container.id + "_" + el.innerText);
+                cell.setAttribute("class", "selected");
+                display.appendChild(cell);
+                cell = document.createElement("td");
+                cell.textContent = "Unknown";
+                display.appendChild(cell);
+                cell = document.createElement("td");
+                cell.textContent = "Unknown";
+                display.appendChild(cell);
+                container.appendChild(display);
+
+            }
         },
         remove: function(el) {
-            $(el).removeClass("selected");
-            var id = div.id + "_" + el.innerText;
+            var id = container.id + "_" + el.innerText;
             var selecto = document.getElementById(id);
-            selecto.parentNode.removeChild(selecto);
-            $(el).children("[type=checkbox]").removeAttr("checked");
+            $(el).removeClass("selected");
+            $(el).removeClass("ui-state-highlight");
+            if(container.tagName == 'DIV') {
+                selecto.parentNode.removeChild(selecto);
+                $(el).children("[type=checkbox]").removeAttr("checked");
+            } else if(container.tagName == 'TBODY') {
+                var parent = $(selecto).parent("tr");
+                if(parent.length > 0) {
+                    parent[0].parentNode.removeChild(parent[0]);
+                }
+            }
         },
         toggle: function(el) {
             var jel = $(el);
@@ -114,7 +162,7 @@ var SelectedManager = function(divname) {
             }
         },
         contains: function(el) {
-            var selecto = document.getElementById(div.id + "_" + el);
+            var selecto = document.getElementById(container.id + "_" + el);
             if(selecto) { 
                 return true;
             } else {
@@ -122,7 +170,7 @@ var SelectedManager = function(divname) {
             }
         },
         getSelected: function() {
-            var selectedEl = $(div).children(".selected");
+            var selectedEl = $(container).find(".selected");
             var selected = [];
             var i = 0;
             var val;
@@ -140,12 +188,22 @@ var SelectedManager = function(divname) {
             return selected;
         },
         getValue: function(id) {
-            var allEls = $(div).children();
+            var allEls = $(container).children();
             var i = 0;
 
             for(i = 0; i < allEls.length; i++) {
                 if(allEls[i].childNodes[1].textContent == id) {
-                    return $(allEls[i]).children("select").val();
+                    return $(allEls[i]).children(".queryParam").val();
+                };
+            }
+        },
+        getOperator: function(id) {
+            var allEls = $(container).children();
+            var i = 0;
+
+            for(i = 0; i < allEls.length; i++) {
+                if(allEls[i].childNodes[1].textContent == id) {
+                    return $(allEls[i]).children("select.queryOp").val();
                 };
             }
         }

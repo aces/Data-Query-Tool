@@ -48,6 +48,32 @@ Array.prototype.contains = function(value)  {
     return false;
 }
 
+Array.prototype.containsPrefix = function(prefix) {
+    var match = false;
+    for(var i = 0; i < this.length; i++) {
+        match = true;
+        if(this[i] instanceof Array) {
+            for(var j = 0; j < prefix.length; j++) {
+                if(this[i][j] !== prefix[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if(match) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+Array.prototype.clone = function() {
+    var a = [];
+    for(var i = 0; i < this.length; i++) {
+        a[i] = this[i];
+    }
+    return a;
+}
 Array.prototype.unique = function () {
     var r = new Array();
     o:for(var i = 0, n = this.length; i < n; i++)
@@ -63,4 +89,3 @@ Array.prototype.unique = function () {
     }
     return r;
 }
-

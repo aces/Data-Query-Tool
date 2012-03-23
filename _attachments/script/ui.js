@@ -17,22 +17,48 @@ function ConvertObjectToTable(obj) {
     var tblrow = [];
     var objrow;
     var columnsIdx = ['Identifier'];
-    for(el in obj) {
-        if(obj.hasOwnProperty(el)) {
-            tblrow = [el];
-            objrow = obj[el];
-            for(col in objrow) {
-                if(objrow.hasOwnProperty(col)) {
-                    if(columnsIdx.indexOf(col) === -1) {
-                        columnsIdx.push(col);
-                    }
-                    idx = columnsIdx.indexOf(col);
-                    tblrow[idx] = objrow[col];
-                }
+    var group_level = document.getElementById("group_level").value;
+    var prefix, sPrefix;
+    var FieldName;
+    var i = parseInt(group_level, 10);
+    var existingRows = {}
+    var Prefixes = [];
+    for(el in obj) if(obj.hasOwnProperty(el)) {
+            identifier = el.split(',');
+            i = parseInt(group_level, 10);
+            prefix = [];
+            while(i--) {
+                prefix.push(identifier.pop());
             }
-            tbl.push(tblrow);
+            sPrefix = prefix.join("_").toUpperCase();
+            if(Prefixes.indexOf(sPrefix) === -1) {
+                Prefixes.push(sPrefix);
+                Prefixes.sort();
+            }
 
-        }
+            if(existingRows[identifier]) {
+                tblrow = existingRows[identifier];
+            } else {
+                tblrow = [identifier.join(",")];
+                existingRows[identifier] = tblrow;
+            }
+            objrow = obj[el];
+            for(col in objrow) if(objrow.hasOwnProperty(col)) {
+                var FieldName;
+                if(sPrefix) {
+                    FieldName = sPrefix + "_" + col;
+                } else {
+                    FieldName = col;
+                }
+                if(columnsIdx.indexOf(FieldName) === -1) {
+                    columnsIdx.push(FieldName);
+                }
+                idx = columnsIdx.indexOf(FieldName);
+                tblrow[idx] = objrow[col];
+            }
+    }
+    for(el in existingRows) if(existingRows.hasOwnProperty(el)) {
+        tbl.push(existingRows[el]);
     }
 
     return { Headers: columnsIdx, Table: tbl };
@@ -40,6 +66,7 @@ function ConvertObjectToTable(obj) {
 
 function PopulateDataTable(Obj) {
     $("#data").dataTable().fnDestroy();
+    $("#data").css('width', '');
     var tbl = document.getElementById("data");
     var row = document.createElement("tr");
     var section;
@@ -62,7 +89,12 @@ function PopulateDataTable(Obj) {
         row = document.createElement("tr");
         for(j = 0; j < Obj.Headers.length; j++) {
             cell = document.createElement("td");
-            cell.textContent = Obj.Table[i][j];
+            if(Obj.Table[i][j] === undefined) {
+                cell.textContent = ".";
+            } else {
+                cell.textContent = Obj.Table[i][j];
+            }
+
             row.appendChild(cell);
         }
         section.appendChild(row);
@@ -82,7 +114,7 @@ $(document).ready(function() {
         var selected = popManager.getSelected();
         var i;
         for(i = 0; i < selected.length; i++) {
-            qmanager.add(selected[i], popManager.getValue(selected[i]), "=");
+            qmanager.add(selected[i], popManager.getValue(selected[i]), popManager.getOperator(selected[i]));
 
             popManager.toggle(document.getElementById(selected[i]));
         }
@@ -103,9 +135,16 @@ $(document).ready(function() {
                     var i = 0, j = 0;
                     var row = undefined;
                     var elements = Fields[DocType];
+                    var group_level = document.getElementById("group_level").value;
+                    var prefix;
                     for(i = 0; i < data.rows.length; i++) {
                         row = data.rows[i];
-                        if(sessions.contains(row.value)) {
+                        prefix = row.value.clone();
+                        j = group_level;
+                        while(j--) {
+                            prefix.pop();
+                        }
+                        if(sessions.containsPrefix(prefix)) {
                             for(j = 0; j < elements.length; j++) {
                                 if(!DataObject[row.value]) {
                                     DataObject[row.value] = [];
@@ -141,6 +180,26 @@ $(document).ready(function() {
             }
             document.getElementById("current_sessions").textContent = "[" + sessions.join("], [") + "]";
         });
+    });
+    $("#DownloadCSV").click(function() {
+        var i = 0;
+        var data = $("#data").dataTable().fnGetData();
+        var headers = $("#data thead th");
+        var row = [];
+        var content = new BlobBuilder();
+        for(i = 0; i < headers.length; i++) {
+            row[i] = headers[i].textContent;
+        }
+        row = row.map(function(val) { return val.replace('"', '""') });
+        //console.log('"' + row.join('","') + '"');
+        content.append('"' + row.join('","') + '"' + "\r\n");
+        for(i = 0; i < data.length; i++) {
+            row = data[i].map(function(val) { return val.replace('"', '""'); });
+            content.append('"' + row.join('","') + '"' + "\r\n");
+            //console.log('"' + row.join('","') + '"');
+        }
+        var fs = saveAs(content.getBlob("text/csv;charset=utf-8"), "data.csv");
+
     });
     //$("#data").dataTable();
 });
