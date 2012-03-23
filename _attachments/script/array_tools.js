@@ -37,6 +37,16 @@ Array.prototype.equals = function(other) {
     
     return true;
 }
+Array.prototype.xlastIndexOf = function(value) {
+    for(var i = 0; i < this.length; i++) {
+        if( (this[i] && this[i].equals && this[i].equals(value))
+                || (this[i] === value) ) {
+            return i;
+        }
+    }
+    return -1;
+
+}
 
 Array.prototype.contains = function(value)  {
     for(var i = 0; i < this.length; i++) {

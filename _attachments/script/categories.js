@@ -57,6 +57,9 @@ Categories.show = function(category, output_div, options) {
         op = document.createElement("option");
         op.textContent = '>=';
         el.appendChild(op);
+        op = document.createElement("option");
+        op.textContent = "startsWith";
+        el.appendChild(op);
 
         return el;
 

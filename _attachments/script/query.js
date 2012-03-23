@@ -30,7 +30,29 @@ var QueryManager = function(div_name) {
             }
             var q = document.createElement("dl");
             var el = document.createElement("dt");
-            el.textContent = field + ' ' + operator;
+            var button= document.createElement("button");
+            button.textContent = "Close";
+            button.setAttribute("style", "width: 20px; height: 20px;margin-right: 15px"); 
+
+            $(button).button({ 
+                text: false,
+                icons: { secondary:  'ui-icon-close' }
+            });
+            var create_callback = function(that, field, value, operator) {
+                return function() {
+                    var i = queries.xlastIndexOf([field, value, operator]);
+                    queries.splice(i, 1);
+                    var i = fields.indexOf(field);
+                    if(i != -1) {
+                        fields.splice(i, 1);
+                        $("#runquery").click();
+                    }
+                    $(this).parents("dl").remove();
+                };
+            }
+            $(button).click(create_callback(that, field, value, operator));
+            el.appendChild(button);
+            el.appendChild(document.createTextNode(field + ' ' + operator));
             q.appendChild(el);
             el = document.createElement("dd");
             el.textContent = value;
@@ -113,11 +135,16 @@ var QueryManager = function(div_name) {
                     var field = queries[i][0];
                     var split = field.split(",");
                     var val = queries[i][1];
-                    if(val == parseFloat(queries[i][1], 10)) {
-                        val = parseFloat(queries[i][1], 10);
+                    if(queries[i][2]== 'startsWith') {
+                        val = queries[i][1];
                     } else {
-                        val = '"' + queries[i][1] + '"';
+                        if(val == parseFloat(queries[i][1], 10)) {
+                            val = parseFloat(queries[i][1], 10);
+                        } else {
+                            val = '"' + queries[i][1] + '"';
+                        }
                     }
+
 
                     if(queries[i][2] == '=') {
                         $.getJSON("_view/search", {
@@ -134,6 +161,12 @@ var QueryManager = function(div_name) {
                         $.getJSON("_view/search", {
                             startkey: '["' + split[0] + '","' + split[1] + '"]',
                             endkey: '["' + split[0] + '","' + split[1] + '",' + val + ']',
+                            reduce: false
+                        }, create_callback(i, queries[i][0], queries.length));
+                    } else if(queries[i][2] == 'startsWith') {
+                        $.getJSON("_view/search", {
+                            startkey: '["' + split[0] + '","' + split[1] + '","' + val + '"]',
+                            endkey: '["' + split[0] + '","' + split[1] + '","' + val + "\u9999\"]",
                             reduce: false
                         }, create_callback(i, queries[i][0], queries.length));
                     }
