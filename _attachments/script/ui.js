@@ -205,4 +205,27 @@ $(document).ready(function() {
         var fs = saveAs(content.getBlob("text/csv;charset=utf-8"), "data.csv");
 
     });
+    $("#addAll").click(function() {
+        var fields = document.getElementById("fields");
+        var allElements = $(fields).children();
+        var curEl;
+        for(i = 0; i < allElements.length; i++) {
+            curEl = allElements[i];
+            if(!($(curEl).hasClass("selected"))) {
+                defineManager.add(curEl);
+            }
+        }
+        //popManager.toggle(document.getElementById(selected[i]));
+    });
+    $("#removeAll").click(function() {
+        var fields = document.getElementById("fields");
+        var allElements = $(fields).children();
+        var curEl;
+        for(i = 0; i < allElements.length; i++) {
+            curEl = allElements[i];
+            if($(curEl).hasClass("selected")) {
+                defineManager.remove(curEl);
+            }
+        }
+    });
 });
