@@ -20,6 +20,9 @@ var QueryManager = function(div_name) {
         },
         getSessions: function() {
             if(sessions) {
+                if(sessions_per_query == []) {
+                    return sessions;
+                }
                 return sessions.intersect(sessions_per_query);
             }
             return undefined;
@@ -170,6 +173,9 @@ var QueryManager = function(div_name) {
                             reduce: false
                         }, create_callback(i, queries[i][0], queries.length));
                     }
+                }
+                if(queries.length == 0 && callback) {
+                    callback();
                 }
             });
         }
