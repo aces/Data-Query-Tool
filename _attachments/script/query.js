@@ -20,7 +20,7 @@ var QueryManager = function(div_name) {
         },
         getSessions: function() {
             if(sessions) {
-                if(sessions_per_query == []) {
+                if(sessions_per_query.equals([])) {
                     return sessions;
                 }
                 return sessions.intersect(sessions_per_query);
@@ -85,6 +85,7 @@ var QueryManager = function(div_name) {
                             sessions[j].textContent = FormatSessions(sessions_per_query[i]);
                             if(callback && i == length-1) {
                                 callback();
+                                document.getElementById("progress").textContent = '';
                             }
                             return;
                         }
@@ -106,10 +107,25 @@ var QueryManager = function(div_name) {
                 }
             }
             
-            $.getJSON("_view/sessions", {
-                reduce: true,
-                group: true
-            }, function(data, textStatus) {
+            var results = $.ajax({
+                url: "_view/sessions", 
+                dataType: 'json',
+                data: {
+                    reduce: true,
+                    group: true
+                },
+                beforeSend: function(jqXHR, settings) {
+                    var xhr = this.xhr();
+                    xhr.onprogress = function(e) {
+                        document.getElementById("progress").textContent = 'Downloaded ' + e.loaded + ' bytes(?)';
+                        console.log(e.loaded);
+                        console.log(e);
+                        //console.log(e.loaded / e.total);
+                    }
+                    this._xhr = xhr;
+                    this.xhr = function() { return this._xhr; }
+                },
+                success: function(data, textStatus) {
                 var i;
                 var identifier_length;
                 sessions = [];
@@ -176,7 +192,9 @@ var QueryManager = function(div_name) {
                 }
                 if(queries.length == 0 && callback) {
                     callback();
+                    document.getElementById("progress").textContent = '';
                 }
+            },
             });
         }
     }

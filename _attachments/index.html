@@ -4,6 +4,7 @@
     <title>DQG 2.0</title>
     <!--link rel="stylesheet" href="style/themes/base/jquery.ui.all.css" type="text/css"-->
     <link rel="stylesheet" href="style/themes/smoothness/jquery-ui-1.8.18.custom.css" type="text/css">
+    <link rel="stylesheet" href="style/jquery.dataTables_themeroller.css" type="text/css">
     <link rel="stylesheet" href="style/main.css" type="text/css">
   </head>
   <body>
@@ -18,8 +19,7 @@
       <script type="application/ecmascript" src="vendor/jquery/BlobBuilder.min.js"></script>
       <script type="application/ecmascript" src="vendor/jquery/FileSaver.min.js"></script>
       <script src="vendor/jquery/jquery-ui-1.8.18.custom.min.js"></script>
-      <script src="vendor/jquery/jquery-ui-1.8.18.custom.min.js"></script>
-      <script src="vendor/jquery/jquery.dataTables.min.js"></script>
+      <script src="vendor/jquery/jquery.dataTables.js"></script>
 
       <script src="script/array_tools.js"></script>
       <script src="script/categories.js"></script>
@@ -71,6 +71,7 @@
           </div>
 
           <div id="ViewData">
+              <div id="progress"></div>
               <button id="DownloadCSV">Download Data as CSV</button>
               Group Level: <select id="group_level">
               </select>
@@ -81,6 +82,5 @@
               </table>
           </div>
       </div>
-      
   </body>
 </html>

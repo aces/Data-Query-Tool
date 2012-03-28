@@ -4,17 +4,29 @@ var popManager;
 
 Categories.list = function(selectBox) {
     var that = this;
-    var categories = $.get("_view/categories", { reduce: true, group_level: 2 }, function(d) {
-        var i;
-        var data = $.parseJSON(d);
-        var categoriesSelect = document.getElementById(selectBox);
-        var el;
-        for(i =0; i < data.rows.length; i++) {
-            el = document.createElement("option");
-            el.innerText = data.rows[i].key;
-            categoriesSelect.appendChild(el);
+    $.ajaxSetup({'beforeSend': function(xhr) {
+        if(xhr.overrideMimeType) {
+            xhr.overrideMimeType("text/plain");
         }
-        $(categoriesSelect).change();
+    }});
+    var categories = $.ajax({
+        url: "_view/categories", 
+        dataType: 'json',
+        data: { reduce: true, group_level: 2, stale: 'ok' }, 
+        success: function(data) {
+            var i;
+            var categoriesSelect = document.getElementById(selectBox);
+            var el;
+            for(i =0; i < data.rows.length; i++) {
+                el = document.createElement("option");
+                el.textContent = data.rows[i].key;
+                categoriesSelect.appendChild(el);
+            }
+            $(categoriesSelect).change();
+        },
+        error: function(e) {
+                   console.log(e);
+        }
     });
 
 };
@@ -24,7 +36,7 @@ Categories.show = function(category, output_div, options) {
         var el, i;
         if(args == null) {
             el = document.createElement("span");
-            el.innerText = "Empty";
+            el.textContent = "Empty";
         } else {
             if(args == "many") {
                 el = document.createElement("input");
@@ -37,7 +49,7 @@ Categories.show = function(category, output_div, options) {
             args = args.sort();
             for(i = 0; i < args.length; i++) {
                 el = document.createElement("option");
-                el.innerText = args[i];
+                el.textContent = args[i];
                 select.appendChild(el);
             }
             return select;
@@ -64,16 +76,19 @@ Categories.show = function(category, output_div, options) {
         return el;
 
     }
-    var fields = $.get("_view/search", { reduce: true, group_level: 2, startkey: 
-        '["' + category + '"]',
-        endkey: 
-        '["' + category + '\u9999"]',
+    $("#tabs").css("cursor", "progress");
+    var fields = $.get("_view/search", { 
+        reduce: true, 
+        group_level: 2, 
+        startkey: '["' + category + '"]',
+        endkey: '["' + category + '\u9999"]',
+        stale: 'ok'
         }, function(d) {
         var i;
         var data = $.parseJSON(d);
         var fieldsSelect = document.getElementById(output_div);
         var el, checkBox;
-        fieldsSelect.innerText = '';
+        fieldsSelect.textContent = '';
 
         if(fieldsSelect.hasChildNodes()) {
             while(fieldsSelect.childNodes.length >= 1) {
@@ -97,13 +112,14 @@ Categories.show = function(category, output_div, options) {
                 el.setAttribute("class", "selectable");
 
                 if(options.selectedManager) {
-                    if(options.selectedManager.contains(el.innerText)) {
+                    if(options.selectedManager.contains(el.textContent)) {
                         el.setAttribute("class", "selectable selected ui-state-highlight");
                     }
                 }
                 fieldsSelect.appendChild(el);
             }
         }
+        $("#tabs").css("cursor", "auto");
     });
 };
 
@@ -117,24 +133,25 @@ var SelectedManager = function(divname) {
             $(el).addClass("ui-state-highlight");
             if(container.tagName == 'DIV') {
                 display = document.createElement("div");
-                display.innerText = el.innerText;
+                display.textContent = el.textContent;
 
-                display.setAttribute("id", container.id + "_" + el.innerText);
+                display.setAttribute("id", container.id + "_" + el.textContent);
                 display.setAttribute("class", "selected");
                 container.appendChild(display);
                 $(el).children("[type=checkbox]").attr("checked", "checked");
             } else if(container.tagName == 'TBODY') {
-                var fieldSplit = el.innerText.split(",");
+                var fieldSplit = el.textContent.split(",");
                 $.getJSON("_view/datadictionary", {
                     key: '["' + fieldSplit[0] + '","' + fieldSplit[1] + '"]',
-                    reduce: false
+                    reduce: false,
+                    stale: 'ok'
                 }, (function(el) { return function(data, textStatus) {
                     var display;
                     var cell;
                     display = document.createElement("tr");
                     cell = document.createElement("td");
-                    cell.textContent = el.innerText;
-                    cell.setAttribute("id", container.id + "_" + el.innerText);
+                    cell.textContent = el.textContent;
+                    cell.setAttribute("id", container.id + "_" + el.textContent);
                     cell.setAttribute("class", "selected");
                     display.appendChild(cell);
                     cell = document.createElement("td");
@@ -160,7 +177,7 @@ var SelectedManager = function(divname) {
             }
         },
         remove: function(el) {
-            var id = container.id + "_" + el.innerText;
+            var id = container.id + "_" + el.textContent;
             var selecto = document.getElementById(id);
             $(el).removeClass("selected");
             $(el).removeClass("ui-state-highlight");

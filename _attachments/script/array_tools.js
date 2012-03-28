@@ -1,43 +1,45 @@
-Array.prototype.intersect = function(arrays) {
-    var i, j;
-    var intersection = [];
-    var missing = false;
-    var el;
-    for(el in this) {
-        if(this.hasOwnProperty(el)) {
+Array.prototype.intersect = function (arrays) {
+    "use strict";
+    var i, intersection = [], missing = false, val, el, array;
+    for (el in this) {
+        if (this.hasOwnProperty(el)) {
             val = this[el];
             missing = false;
-            for(var j = 0; j < arrays.length; j++) {
-                array = arrays[j];
-                if(array.contains(val) === false) {
+            for (i = 0; i < arrays.length; i += 1) {
+                array = arrays[i];
+                if (array.contains(val) === false) {
                     missing = true;
                     break;
                 }
             }
-            if(!missing) {
+            if (!missing) {
                 intersection.push(val);
             }
         }
     }
     return intersection;
-}
+};
 
-Array.prototype.equals = function(other) {
-    if(!(other instanceof Array)) {
+Array.prototype.equals = function (other) {
+    "use strict";
+    var i;
+    if (!(other instanceof Array)) {
         return false;
     }
-    if(this.length != other.length) {
+    if (this.length !== other.length) {
         return false;
     }
-    for(var i = 0; i < this.length; i++) {
-        if(this[i] != other[i]) {
+    for (i = 0; i < this.length; i += 1) {
+        if (this[i] !== other[i]) {
             return false;
         }
     }
     
     return true;
-}
+};
+
 Array.prototype.xlastIndexOf = function(value) {
+    "use strict";
     for(var i = 0; i < this.length; i++) {
         if( (this[i] && this[i].equals && this[i].equals(value))
                 || (this[i] === value) ) {
@@ -49,6 +51,7 @@ Array.prototype.xlastIndexOf = function(value) {
 }
 
 Array.prototype.contains = function(value)  {
+    "use strict";
     for(var i = 0; i < this.length; i++) {
         if( (this[i] && this[i].equals && this[i].equals(value))
                 || (this[i] === value) ) {
@@ -78,6 +81,7 @@ Array.prototype.containsPrefix = function(prefix) {
 }
 
 Array.prototype.clone = function() {
+    "use strict";
     var a = [];
     for(var i = 0; i < this.length; i++) {
         a[i] = this[i];
@@ -85,6 +89,7 @@ Array.prototype.clone = function() {
     return a;
 }
 Array.prototype.unique = function () {
+    "use strict";
     var r = new Array();
     o:for(var i = 0, n = this.length; i < n; i++)
     {

@@ -1,5 +1,6 @@
 var qmanager;
 var QueryRun = false;
+var worker
 var resizeAll = function() {
     var header = $(".ui-tabs-nav");
     var tabs = $("#tabs");
@@ -12,99 +13,64 @@ var resizeAll = function() {
     $(".half").css("height", (workspace_height / 2) - 5);
 }
 
-function ConvertObjectToTable(obj) {
-    var tbl = [];
-    var tblrow = [];
-    var objrow;
-    var columnsIdx = ['Identifier'];
-    var group_level = document.getElementById("group_level").value;
-    var prefix, sPrefix;
-    var FieldName;
-    var i = parseInt(group_level, 10);
-    var existingRows = {}
-    var Prefixes = [];
-    for(el in obj) if(obj.hasOwnProperty(el)) {
-            identifier = el.split(',');
-            i = parseInt(group_level, 10);
-            prefix = [];
-            while(i--) {
-                prefix.push(identifier.pop());
-            }
-            sPrefix = prefix.join("_").toUpperCase();
-            if(Prefixes.indexOf(sPrefix) === -1) {
-                Prefixes.push(sPrefix);
-                Prefixes.sort();
-            }
-
-            if(existingRows[identifier]) {
-                tblrow = existingRows[identifier];
-            } else {
-                tblrow = [identifier.join(",")];
-                existingRows[identifier] = tblrow;
-            }
-            objrow = obj[el];
-            for(col in objrow) if(objrow.hasOwnProperty(col)) {
-                var FieldName;
-                if(sPrefix) {
-                    FieldName = sPrefix + "_" + col;
-                } else {
-                    FieldName = col;
-                }
-                if(columnsIdx.indexOf(FieldName) === -1) {
-                    columnsIdx.push(FieldName);
-                }
-                idx = columnsIdx.indexOf(FieldName);
-                tblrow[idx] = objrow[col];
-            }
+function ConvertObjectToTable(object) {
+    if(worker) {
+        //worker.terminate();
     }
-    for(el in existingRows) if(existingRows.hasOwnProperty(el)) {
-        tbl.push(existingRows[el]);
-    }
+    worker = new Worker('script/ui.tablerender.js');
+    var progress = document.getElementById("progress");
+    var cols = 0;
 
-    return { Headers: columnsIdx, Table: tbl };
-}
-
-function PopulateDataTable(Obj) {
-    $("#data").dataTable().fnDestroy();
     $("#data").css('width', '');
-    var tbl = document.getElementById("data");
-    var row = document.createElement("tr");
-    var section;
-    var cell;
-    var i = 0;
-    $(tbl).children().remove();
-    for(i = 0; i < Obj.Headers.length; i++) {
-        cell = document.createElement("th");
-        cell.textContent = Obj.Headers[i];
-        row.appendChild(cell);
-    }
-
-    section = document.createElement("thead");
-    section.appendChild(row);
-
-    tbl.appendChild(section);
-
-    section = document.createElement("tbody");
-    for(i = 0; i < Obj.Table.length; i++) {
-        row = document.createElement("tr");
-        for(j = 0; j < Obj.Headers.length; j++) {
-            cell = document.createElement("td");
-            if(Obj.Table[i][j] === undefined) {
-                cell.textContent = ".";
-            } else {
-                cell.textContent = Obj.Table[i][j];
+    var dataTable = $("#data").dataTable({ 
+        bJQueryUI: true, 
+        sPaginationType: "full_numbers",
+        bDestroy: true
+    });
+   
+    worker.addEventListener('message', function(e) {
+        if (e.data.cmd == 'Status') {
+            progress.textContent = "Processed " + e.data.RowNum + " / " + e.data.Total
+        } else if (e.data.cmd == "PopulateHeaders") {
+            if(dataTable && dataTable.fnClearTable) {
+                dataTable.fnClearTable();
             }
+            var tbl = $("#data");
+            var thead = $("#data thead");
+            thead.children().remove();
+            thead.append('<tr>');
+            trow = $("#data thead tr");
+            cols = e.data.Headers.length;
+            for(var i = 0; i < cols; i += 1) {
+                trow.append("<th>" + e.data.Headers[i] + "</th>");
+            }
+            dataTable = $("#data").dataTable({ 
+                bJQueryUI: true, 
+                sPaginationType: "full_numbers",
+                bDestroy: true
+            });
 
-            row.appendChild(cell);
+        } else if (e.data.cmd == 'AddRow') {
+            progress.textContent = ("Loading data " + e.data.RowNum + " / " + e.data.TotalRows);
+            if(dataTable.fnAddData) {
+                dataTable.fnAddData(e.data.Row);
+            } else {
+                console.log("Error: could not add data to table");
+            }
+            if(e.data.RowNum == e.data.TotalRows) {
+                progress.textContent = '';
+                worker.terminate();
+            }
+        } else if (e.data.cmd == "Complete") {
         }
-        section.appendChild(row);
-
-    }
-    tbl.appendChild(section);
-    $("#data").dataTable();
-
-    //console.log(Obj);
+    });
+    worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelected()});
+    //return { Headers: columnsIdx, Table: tbl };
 }
+function PopulateDataTable() {
+    console.log("Stub!");
+}
+
 $(document).ready(function() {
     qmanager = new QueryManager("current_filter");
     $("#tabs").tabs();
@@ -125,6 +91,7 @@ $(document).ready(function() {
     $("#runquery").click(function() {
         var that = qmanager;
         QueryRun = true;
+        $("#ViewData").css("cursor", "progress");
         qmanager.run(function() {
             var fields = defineManager.getSelected();
             var sessions = that.getSessions();
@@ -152,12 +119,13 @@ $(document).ready(function() {
                                 if(!DataObject[row.value]) {
                                     DataObject[row.value] = [];
                                 }
-                                DataObject[row.value][elements[j]] = row.doc.data[elements[j]];
+                                DataObject[row.value][row.key[0] + "," + elements[j]] = row.doc.data[elements[j]];
                             }
                         }
                     }
                     if(docidx+1 == maxdocidx && callback) {
                         callback(ConvertObjectToTable(DataObject));
+                        $("#ViewData").css("cursor", "auto");
                     }
 
                 }

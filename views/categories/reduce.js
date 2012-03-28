@@ -15,7 +15,7 @@ function (keys, values, rereduce) {
         return r;
     }
 
-    var tmp = [], 
+    var tmp = [];
     if(rereduce == false) {
         for(i = 0; i < keys.length; i++) {
             val = keys[i][0][0];
