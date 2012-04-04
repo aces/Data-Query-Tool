@@ -7,9 +7,6 @@ var QueryManager = function(div_name) {
     var field_refs = {};
     var div = document.getElementById(div_name);
     var that = this;
-    var FormatSessions = function(array) {
-        return "[" + array.join("], [") + "]"
-    }
 
     return {
         getAllSessions: function() {
@@ -79,31 +76,10 @@ var QueryManager = function(div_name) {
                         sessions_per_query[i].push(data.rows[j].value);
                     }
                     
-                    var sessions = $(field).children("dd.sessions");
-                    for(var j = 0; j < sessions.length; j++) {
-                        if(sessions[j]) {
-                            sessions[j].textContent = FormatSessions(sessions_per_query[i]);
-                            if(callback && i == length-1) {
-                                callback();
-                                document.getElementById("progress").textContent = '';
-                            }
-                            return;
-                        }
-                    }
-                    var el = document.createElement("dt");
-                    el.textContent = 'Sessions';
-                    field.appendChild(el);
-                    var el = document.createElement("dd");
-                    el.setAttribute("class", "sessions");
-                    el.textContent = FormatSessions(sessions_per_query[i]);
-                    field.appendChild(el);
+                    popManager.setSessions(fieldname, sessions_per_query[i]);
                     if(callback && i == length-1) {
-
                         callback();
                     }
-                    // Uncomment for debugging
-                    //$("dd.sessions, dt:contains(Sessions)").hide()
-
                 }
             }
             
@@ -117,10 +93,7 @@ var QueryManager = function(div_name) {
                 beforeSend: function(jqXHR, settings) {
                     var xhr = this.xhr();
                     xhr.onprogress = function(e) {
-                        document.getElementById("progress").textContent = 'Downloaded ' + e.loaded + ' bytes(?)';
-                        console.log(e.loaded);
-                        console.log(e);
-                        //console.log(e.loaded / e.total);
+                        document.getElementById("progress").textContent = 'Downloaded ' + e.loaded + ' bytes';
                     }
                     this._xhr = xhr;
                     this.xhr = function() { return this._xhr; }
@@ -149,48 +122,51 @@ var QueryManager = function(div_name) {
                     }
 
                 }
-                for(i = 0; i < queries.length; i++) {
+                filters = popManager.getSelected();
+                for(i = 0; i < filters.length; i++) {
                     sessions_per_query.push([]);
-                    var field = queries[i][0];
+                    var field = $(filters[i]).children()[0].textContent;
+                    var operator = $(filters[i]).find(".queryOp")[0].value;
+                    var val = $(filters[i]).find(".queryParam")[0].value;
+
                     var split = field.split(",");
-                    var val = queries[i][1];
-                    if(queries[i][2]== 'startsWith') {
-                        val = queries[i][1];
+                    if(operator == 'startsWith') {
+                        val = $(filters[i]).find(".queryParam").value;
                     } else {
-                        if(val == parseFloat(queries[i][1], 10)) {
-                            val = parseFloat(queries[i][1], 10);
+                        if(val == parseFloat(val, 10)) {
+                            val = parseFloat(val, 10);
                         } else {
-                            val = '"' + queries[i][1] + '"';
+                            val = '"' + val + '"';
                         }
                     }
 
 
-                    if(queries[i][2] == '=') {
+                    if(operator == '=') {
                         $.getJSON("_view/search", {
                             key: '["' + split[0] + '","' + split[1] + '",' + val + ']',
                             reduce: false
-                        }, create_callback(i, queries[i][0], queries.length));
-                    } else if(queries[i][2] == '>=') {
+                        }, create_callback(i, field, filters.length));
+                    } else if(operator == '>=') {
                         $.getJSON("_view/search", {
                             startkey: '["' + split[0] + '","' + split[1] + '",' + val + ']',
                             endkey: '["' + split[0] + '","' + split[1] + '", {}]',
                             reduce: false
-                        }, create_callback(i, queries[i][0], queries.length));
-                    } else if(queries[i][2] == '<=') {
+                        }, create_callback(i, field, filters.length));
+                    } else if(operator == '<=') {
                         $.getJSON("_view/search", {
                             startkey: '["' + split[0] + '","' + split[1] + '"]',
                             endkey: '["' + split[0] + '","' + split[1] + '",' + val + ']',
                             reduce: false
-                        }, create_callback(i, queries[i][0], queries.length));
+                        }, create_callback(i, field, filters.length));
                     } else if(queries[i][2] == 'startsWith') {
                         $.getJSON("_view/search", {
                             startkey: '["' + split[0] + '","' + split[1] + '","' + val + '"]',
                             endkey: '["' + split[0] + '","' + split[1] + '","' + val + "\u9999\"]",
                             reduce: false
-                        }, create_callback(i, queries[i][0], queries.length));
+                        }, create_callback(i, field, filters.length));
                     }
                 }
-                if(queries.length == 0 && callback) {
+                if(filters.length == 0 && callback) {
                     callback();
                     document.getElementById("progress").textContent = '';
                 }

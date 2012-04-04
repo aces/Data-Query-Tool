@@ -112,6 +112,7 @@ self.ConvertObjectToTable = function (obj) {
         self.postMessage({ cmd: 'AddRow', Row: existingRows[el], RowNum: i, TotalRows: numRows });
         i += 1;
     }
+    self.close();
 
     /*
     results = { Headers: columnsIdx, Table: tbl };

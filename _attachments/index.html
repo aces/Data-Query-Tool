@@ -27,19 +27,27 @@
       <script src="script/ui.js"></script>
       <div id="tabs">
           <ul>
-              <li><a href="#DefineFields">Fields</a></li>
-              <li><a href="#DefinePopulation">Define Population</a></li>
+              <li><a href="#DefineFields">Define Fields</a></li>
+              <li><a href="#DefinePopulation">Define Filters</a></li>
               <li><a href="#ViewData">View Data</a></li>
-              <li><a href="#ViewPopulation">Modify Population</a></li>
+              <!--li><a href="#ViewPopulation">Modify Population</a></li-->
           </ul>
           <div id="DefineFields" class="ui-widget-reset ui-widget">
               <div class="half" style="overflow: scroll;">
                   <div class="ui-widget-header">
               Choose category:
-              <select id="categories" onChange="javascript:Categories.show(this.value, 'fields', { selectedManager: defineManager})";></select> <button id="addAll">Add all</button> <button id="removeAll">Remove all</button>
+              <select id="categories" onChange="javascript:Categories.show(this.value, 'fieldlist', { selectedManager: defineManager})";></select> <button id="addAll">Add all</button> <button id="removeAll">Remove all</button>
               </div>
-                  <div class="fieldlist" id="fields">
-                  </div>
+                  <table class="fieldlist" id="fields">
+                      <thead>
+                          <tr>
+                              <th>Field</th>
+                              <th>Description</th>
+                          </tr>
+                      </thead>
+                      <tbody id="fieldlist">
+                      </tbody>
+                  </table>
               </div>
               <div class="half" style="overflow: scroll">
                   <h2>Selected Fields</h2>
@@ -57,18 +65,47 @@
               </div>
           </div>
           <div id="DefinePopulation">
-              <div class="ui-widget-header .ui-corner-all">
-              Choose category:
-              <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'population_fields', { showOptions: true, selectedManager: popManager })";></select> <button id="newpopulation">Add selected</button>
+              <div class="half" style="overflow: scroll;">
+                  <div class="ui-widget-header .ui-corner-all">
+                      Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldlist', { selectedManager: popManager })";></select> <button id="newpopulation">Add selected</button>
+                  </div>
+
+                  <table class="fieldlist" id="population_fields">
+                      <thead>
+                          <tr>
+                              <th>Field</th>
+                              <th>Description</th>
+                          </tr>
+                      </thead>
+                      <tbody id="popfieldlist">
+                      </tbody>
+                  </table>
               </div>
-              <div class="fieldlist" id="population_fields"></div>
+              <div class="half" style="overflow: scroll">
+                  <h2>Selected Population</h2>
+                  <button id="runquery">Rerun Query</button>
+                  <table width="100%">
+                      <thead>
+                          <tr>
+                              <th>Field</th>
+                              <th>Operator</th>
+                              <th>Value</th>
+                              <th>Sessions Matching</th>
+                          </tr>
+                      </thead>
+                      <tbody id="population_selected">
+                      </tbody>
+                  </table>
+                  <div id="population_selected"></div>
+                  <div>
+                  Sessions matching all filters: <div id="current_sessions"></div>
+              </div>
+              </div>
           </div>
-          <div id="ViewPopulation">
-              Query: <div id="current_filter"></div>
-              Sessions: <div id="current_sessions"></div>
+          <!--div id="ViewPopulation">
               <button id="runquery">Rerun Query</button>
               
-          </div>
+          </div-->
 
           <div id="ViewData">
               <div id="progress"></div>

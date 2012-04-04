@@ -1,6 +1,7 @@
 var qmanager;
 var QueryRun = false;
-var worker
+var worker;
+var dataTable;
 var resizeAll = function() {
     var header = $(".ui-tabs-nav");
     var tabs = $("#tabs");
@@ -15,22 +16,17 @@ var resizeAll = function() {
 
 function ConvertObjectToTable(object) {
     if(worker) {
-        //worker.terminate();
+        worker.terminate();
     }
     worker = new Worker('script/ui.tablerender.js');
     var progress = document.getElementById("progress");
     var cols = 0;
 
-    $("#data").css('width', '');
-    var dataTable = $("#data").dataTable({ 
-        bJQueryUI: true, 
-        sPaginationType: "full_numbers",
-        bDestroy: true
-    });
-   
     worker.addEventListener('message', function(e) {
         if (e.data.cmd == 'Status') {
-            progress.textContent = "Processed " + e.data.RowNum + " / " + e.data.Total
+            if(e.data.RowNum % 100 == 0) {
+                progress.textContent = "Processed " + e.data.RowNum + " / " + e.data.Total
+            }
         } else if (e.data.cmd == "PopulateHeaders") {
             if(dataTable && dataTable.fnClearTable) {
                 dataTable.fnClearTable();
@@ -49,26 +45,27 @@ function ConvertObjectToTable(object) {
                 sPaginationType: "full_numbers",
                 bDestroy: true
             });
+            $("#data").css('width', 'auto');
+            dataTable.fnAdjustColumnSizing();
 
         } else if (e.data.cmd == 'AddRow') {
-            progress.textContent = ("Loading data " + e.data.RowNum + " / " + e.data.TotalRows);
+            if(e.data.RowNum % 100 == 0) {
+                progress.textContent = ("Loading data " + e.data.RowNum + " / " + e.data.TotalRows);
+            }
             if(dataTable.fnAddData) {
-                dataTable.fnAddData(e.data.Row);
-            } else {
-                console.log("Error: could not add data to table");
+                dataTable.fnAddData(e.data.Row, false);
             }
             if(e.data.RowNum == e.data.TotalRows) {
                 progress.textContent = '';
                 worker.terminate();
+                dataTable.fnDraw();
             }
-        } else if (e.data.cmd == "Complete") {
         }
     });
-    worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelected()});
+    worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelectedNames()});
     //return { Headers: columnsIdx, Table: tbl };
 }
 function PopulateDataTable() {
-    console.log("Stub!");
 }
 
 $(document).ready(function() {
@@ -131,7 +128,7 @@ $(document).ready(function() {
                 }
             }
             for(i = 0; i < fields.length; i++) {
-                field_split = fields[i].split(",");
+                field_split = $(fields[i]).children()[0].textContent.split(",");
                 DocTypes.push(field_split[0]);
                 if(Fields[field_split[0]] == undefined) {
                     Fields[field_split[0]] = [];
@@ -146,7 +143,8 @@ $(document).ready(function() {
                     startkey: '["' + DocTypes[i]+ '"]',
                     endkey: '["' + DocTypes[i]+ '", {}]',
                     include_docs: true,
-                    reduce: false
+                    reduce: false,
+                    stale: 'ok'
                 }, create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable));
             }
             document.getElementById("current_sessions").textContent = "[" + sessions.join("], [") + "]";
