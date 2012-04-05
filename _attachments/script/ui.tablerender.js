@@ -14,7 +14,7 @@ self.addEventListener('message', function(e) {
             self.postMessage('Unknown cmd');
             break;
     }
-});
+}, false);
 
 self.ConvertObjectToTable = function (obj) {
     var tbl = [];

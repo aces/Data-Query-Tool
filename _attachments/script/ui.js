@@ -24,9 +24,9 @@ function ConvertObjectToTable(object) {
 
     worker.addEventListener('message', function(e) {
         if (e.data.cmd == 'Status') {
-            if(e.data.RowNum % 100 == 0) {
+            //if(e.data.RowNum % 100 == 0) {
                 progress.textContent = "Processed " + e.data.RowNum + " / " + e.data.Total
-            }
+            //}
         } else if (e.data.cmd == "PopulateHeaders") {
             if(dataTable && dataTable.fnClearTable) {
                 dataTable.fnClearTable();
@@ -49,9 +49,9 @@ function ConvertObjectToTable(object) {
             dataTable.fnAdjustColumnSizing();
 
         } else if (e.data.cmd == 'AddRow') {
-            if(e.data.RowNum % 100 == 0) {
+            //if(e.data.RowNum % 100 == 0) {
                 progress.textContent = ("Loading data " + e.data.RowNum + " / " + e.data.TotalRows);
-            }
+            //}
             if(dataTable.fnAddData) {
                 dataTable.fnAddData(e.data.Row, false);
             }
@@ -61,7 +61,7 @@ function ConvertObjectToTable(object) {
                 dataTable.fnDraw();
             }
         }
-    });
+    }, true);
     worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelectedNames()});
     //return { Headers: columnsIdx, Table: tbl };
 }
