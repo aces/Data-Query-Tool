@@ -1,5 +1,5 @@
+"use strict";
 Array.prototype.intersect = function (arrays) {
-    "use strict";
     var i, intersection = [], missing = false, val, el, array;
     for (el in this) {
         if (this.hasOwnProperty(el)) {
@@ -21,7 +21,6 @@ Array.prototype.intersect = function (arrays) {
 };
 
 Array.prototype.equals = function (other) {
-    "use strict";
     var i;
     if (!(other instanceof Array)) {
         return false;
@@ -34,73 +33,72 @@ Array.prototype.equals = function (other) {
             return false;
         }
     }
-    
+
     return true;
 };
 
-Array.prototype.xlastIndexOf = function(value) {
-    "use strict";
-    for(var i = 0; i < this.length; i++) {
-        if( (this[i] && this[i].equals && this[i].equals(value))
-                || (this[i] === value) ) {
+Array.prototype.xlastIndexOf = function (value) {
+    var i;
+    for (i = 0; i < this.length; i += 1) {
+        if ((this[i] && this[i].equals && this[i].equals(value))
+                || (this[i] === value)) {
             return i;
         }
     }
     return -1;
+};
 
-}
-
-Array.prototype.contains = function(value)  {
-    "use strict";
-    for(var i = 0; i < this.length; i++) {
-        if( (this[i] && this[i].equals && this[i].equals(value))
-                || (this[i] === value) ) {
+Array.prototype.contains = function (value) {
+    var i;
+    for (i = 0; i < this.length; i += 1) {
+        if ((this[i] && this[i].equals && this[i].equals(value))
+                || (this[i] === value)) {
             return true;
         }
     }
     return false;
-}
+};
 
-Array.prototype.containsPrefix = function(prefix) {
-    var match = false;
-    for(var i = 0; i < this.length; i++) {
+Array.prototype.containsPrefix = function (prefix) {
+    var match = false, i, j;
+    for (i = 0; i < this.length; i += 1) {
         match = true;
-        if(this[i] instanceof Array) {
-            for(var j = 0; j < prefix.length; j++) {
-                if(this[i][j] !== prefix[j]) {
+        if (this[i] instanceof Array) {
+            for (j = 0; j < prefix.length; j += 1) {
+                if (this[i][j] !== prefix[j]) {
                     match = false;
                     break;
                 }
             }
-            if(match) {
+            if (match) {
                 return true;
             }
         }
     }
     return false;
-}
+};
 
-Array.prototype.clone = function() {
-    "use strict";
-    var a = [];
-    for(var i = 0; i < this.length; i++) {
+Array.prototype.clone = function () {
+    var a = [], i;
+    for (i = 0; i < this.length; i += 1) {
         a[i] = this[i];
     }
     return a;
-}
+};
+
 Array.prototype.unique = function () {
-    "use strict";
-    var r = new Array();
-    o:for(var i = 0, n = this.length; i < n; i++)
-    {
-        for(var x = 0, y = r.length; x < y; x++)
-        {
-            if(r[x]==this[i])
-            {
-                continue o;
+    var r = [], i, j, alreadyAdded;
+    for (i = 0; i < this.length; i += 1) {
+        alreadyAdded = false;
+        for (j = 0; j < r.length; j += 1) {
+            if (r[j] === this[i]) {
+                alreadyAdded = true;
+                break;
             }
         }
-        r[r.length] = this[i];
+        if (alreadyAdded !== true) {
+            r[j] = this[i];
+        }
     }
     return r;
-}
+};
