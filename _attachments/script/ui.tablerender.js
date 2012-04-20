@@ -46,7 +46,7 @@ self.ConvertObjectToTable = function (obj) {
             identifier = el.split(',');
             i = parseInt(group_level, 10);
             prefix = [];
-            while (i >= 0) {
+            while (i > 0) {
                 i -= 1;
                 prefix.push(identifier.pop());
             }
@@ -92,7 +92,7 @@ self.ConvertObjectToTable = function (obj) {
             identifier = el.split(',');
             i = parseInt(group_level, 10);
             prefix = [];
-            while (i >= 1) {
+            while (i > 0) {
                 i -= 1;
                 prefix.push(identifier.pop());
             }
