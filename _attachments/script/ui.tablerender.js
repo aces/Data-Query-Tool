@@ -5,7 +5,7 @@ self.addEventListener('message', function (e) {
     switch (data.cmd) {
     case 'ConvertObject':
         self.RowNum = 0;
-        self.GroupLevel = data.group_level;
+        self.GroupLevel = parseInt(data.group_level, 10);
         self.SelectedElements = data.SelectedElements;
         self.ConvertObjectToTable(data.obj);
         break;
@@ -52,8 +52,12 @@ self.ConvertObjectToTable = function (obj) {
             }
             sPrefix = prefix.join("_").toUpperCase();
             // Create a row of the right length. JSLint doesn't like the new Array(length) syntax
-            // so we use a hack of row = [], then setting the length item to undefined.
+            // so we use a hack of row = [], then setting the length'th item to undefined.
             row = [];
+
+            // Take the number of selected columns and multiply by the group level ( + 1 because it's
+            // zero indexed) to get the number of data columns, then add 1 for the identifier column
+            // to get the number of columns for the whole thing.
             row[(Selected.length * (group_level + 1)) + 1] = undefined;
             row[0] = identifier.join(",");
             for (j = 1; j < row.length; j += 1) {
@@ -83,7 +87,7 @@ self.ConvertObjectToTable = function (obj) {
 
     // Now go through the data, and convert it to rows. Join the different
     // documents together into a single array if there's multiple instruments
-    // and add the prefix to put everything in its right column.
+    // and add the prefix to put everything in its right column
     numProcessed = 0;
     for (el in obj) {
         if (obj.hasOwnProperty(el)) {
