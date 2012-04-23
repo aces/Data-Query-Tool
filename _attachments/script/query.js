@@ -94,7 +94,7 @@ var QueryManager = function (div_name) {
                 beforeSend: function (jqXHR, settings) {
                     var xhr = this.xhr();
                     xhr.onprogress = function (e) {
-                        document.getElementById("progress").textContent = 'Downloaded ' + e.loaded + ' bytes';
+                        document.getElementById("progress").textContent = 'Downloaded ' + (e.loaded / 1024) + ' kilobytes';
                     };
                     this.OverloadedXHR = xhr;
                     this.xhr = function () { return this.OverloadedXHR; };
@@ -139,7 +139,7 @@ var QueryManager = function (div_name) {
                         if (operator === 'startsWith') {
                             val = $(filters[i]).find(".queryParam").value;
                         } else {
-                            if (val === parseFloat(val, 10)) {
+                            if (val == parseFloat(val, 10)) {
                                 val = parseFloat(val, 10);
                             } else {
                                 val = '"' + val + '"';

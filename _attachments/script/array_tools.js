@@ -102,3 +102,23 @@ Array.prototype.unique = function () {
     }
     return r;
 };
+
+Array.prototype.convertNumbers = function () {
+    var r = [], i;
+    for (i = 0; i < this.length; i += 1) {
+        if(this[i] instanceof Array) {
+            r[i] = this[i].convertNumbers();
+        } else {
+            if (parseInt(this[i], 10) == this[i]) {
+                r[i] = parseInt(this[i], 10);
+            } else if (parseFloat(this[i], 10) == this[i]) {
+                r[i] = parseFloat(this[i], 10);
+            } else if (this[i] === '.') {
+                r[i] = null;
+            } else {
+                r[i] = this[i];
+            }
+        }
+    }
+    return r;
+};

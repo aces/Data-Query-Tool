@@ -24,7 +24,8 @@ function convertObjectToTable(object) {
     }
     worker = new Worker('script/ui.tablerender.js');
     var progress = document.getElementById("progress"),
-        cols = 0;
+        cols = 0,
+        headers;
 
     worker.addEventListener('message', function (e) {
         var i, tbl, thead, trow;
@@ -50,6 +51,7 @@ function convertObjectToTable(object) {
             });
             $("#data").css('width', 'auto');
             dataTable.fnAdjustColumnSizing();
+            headers = e.data.Headers;
 
         } else if (e.data.cmd === 'AddRow') {
             progress.textContent = ("Loading data " + e.data.RowNum + " / " + e.data.TotalRows);
@@ -60,6 +62,7 @@ function convertObjectToTable(object) {
                 progress.textContent = '';
                 worker.terminate();
                 dataTable.fnDraw();
+                PopulateStatsTable(headers, dataTable.fnGetData().convertNumbers());
             }
         }
     }, true);
@@ -69,6 +72,93 @@ function convertObjectToTable(object) {
 function PopulateDataTable() {
 }
 
+function PopulateStatsTable (headers, data)  {
+    var d = jStat(data),
+        tbl = $("#stats"),
+        thead = $("#stats thead"),
+        tbody = $("#stats tbody"),
+        trow,
+        i;
+
+    thead.children().remove();
+    thead.append('<tr>');
+    trow = $("#stats thead tr");
+    trow.append('<th class="header">Measure</th>');
+    for(i = 1; i < headers.length; i += 1) {
+        trow.append('<th class="header">' + headers[i] + "</th>");
+    }
+
+    tbody.children().remove();
+
+    var addStatsRow = function(header, data, func) {
+        var results = func.call(data)
+
+        trow = $('<tr><th>' + header + '</th></tr>');
+        for(i = 1; i < (results.length - 1); i++) {
+            trow.append('<td>' + results[i] + '</td>');
+        }
+        tbody.append(trow);
+    }
+
+    addStatsRow('Minimum', d, d.min);
+    addStatsRow('Maximum', d, d.max);
+    addStatsRow('Mean', d, d.mean);
+    addStatsRow('Standard Deviation', d, d.stdev);
+    // I'm not actually sure what these mean
+    addStatsRow('Mean Deviation', d, d.meandev);
+    addStatsRow('Mean Square Error', d, d.meansqerr);
+
+    var quartiles = d.quartiles();
+    var fqrow = $('<tr><th>First Quartile</th></tr>');
+    var sqrow = $('<tr><th>Second Quartile</th></tr>');
+    var tqrow = $('<tr><th>Third Quartile</th></tr>');
+    for(i = 1; i < (quartiles.length-1); i++) {
+        fqrow.append('<td>' + quartiles[i][0] + '</td>');
+        sqrow.append('<td>' + quartiles[i][1] + '</td>');
+        tqrow.append('<td>' + quartiles[i][2] + '</td>');
+    }
+    tbody.append(fqrow);
+    tbody.append(sqrow);
+    tbody.append(tqrow);
+
+    var mean = d.mean();
+    var cols = []
+    for(i = 0; i < mean.length; i++) {
+        if(!isNaN(mean[i])) {
+            console.log('Column' + i + 'is numerical. Should plot');
+            cols.push({ Header: headers[i], Index: i });
+        }
+    }
+    plot(cols, d);
+
+}
+function plot(columns, data) {
+    var yAxis, i, d, j , column, plots = [], subscale, identifier, dataSetNo = 1, columnData = {} ;
+    for(j = 0; j < columns.length; j += 1) {
+        column = columns[j].Index;
+        yAxis = [];
+        for(i = 0; i < data.length; i += 1) {
+            identifier = data[i][0].split(',');
+            subscale = identifier.pop();
+            d = data[i][column];
+            if(yAxis[d]) {
+                yAxis[d][1] += 1;
+            } else {
+                yAxis[d] = [d, 1];
+            }
+        }
+        plots.push({
+            label: columns[j].Header,
+            data: yAxis,
+            stack: true,
+            xaxis: dataSetNo,
+            lines: { show: false, steps: false },
+            bars: { show: true, barWidth: 0.9, align: 'center' }
+        });
+        dataSetNo += 1;
+    }
+    $.plot("#plotdiv", plots, {});
+}
 $(document).ready(function () {
     var qmanager = new QueryManager("current_filter");
     $("#tabs").tabs();

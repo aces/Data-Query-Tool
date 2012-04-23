@@ -16,11 +16,14 @@
       <script src="vendor/couchapp/jquery.couchProfile.js"></script>
       <script src="vendor/couchapp/md5.js"></script>
       <script src="vendor/couchapp/jquery.mustache.js"></script>
+      <script src="vendor/jquery/jquery.flot.min.js"></script>
+      <script src="vendor/jquery/jquery.flot.stack.min.js"></script>
       <script src="vendor/jquery/jstat.js"></script>
+      <script src="vendor/jquery/flot.min.js"></script>
+      <script src="vendor/jquery/jquery.dataTables.min.js"></script>
       <script type="application/ecmascript" src="vendor/jquery/BlobBuilder.min.js"></script>
       <script type="application/ecmascript" src="vendor/jquery/FileSaver.min.js"></script>
       <script src="vendor/jquery/jquery-ui-1.8.18.custom.min.js"></script>
-      <script src="vendor/jquery/jquery.dataTables.js"></script>
 
       <script src="script/array_tools.js"></script>
       <script src="script/categories.js"></script>
@@ -31,6 +34,7 @@
               <li><a href="#DefineFields">Define Fields</a></li>
               <li><a href="#DefinePopulation">Define Filters</a></li>
               <li><a href="#ViewData">View Data</a></li>
+              <li><a href="#AnalyseData">Analyse Data</a></li>
               <!--li><a href="#ViewPopulation">Modify Population</a></li-->
           </ul>
           <div id="DefineFields" class="ui-widget-reset ui-widget">
@@ -113,6 +117,49 @@
                   <tbody>
                   </tbody>
               </table>
+          </div>
+          <div id="AnalyseData">
+              <h2>Basic statistics</h2>
+
+              <table id="stats" border="1">
+                  <thead>
+                      <tr>
+                          <th class="header">Measure</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <th>Min</th>
+                      </tr>
+                      <tr>
+                          <th>Max</th>
+                      </tr>
+                      <tr>
+                          <th>Standard Deviation</th>
+                      </tr>
+                      <tr>
+                          <th>Mean</th>
+                      </tr>
+                      <tr>
+                          <th>Mean Deviation</th>
+                      </tr>
+                      <tr>
+                          <th>Mean Squared Error</th>
+                      </tr>
+                      <tr>
+                          <th>First Quartile</th>
+                      </tr>
+                      <tr>
+                          <th>Second Quartile</th>
+                      </tr>
+                      <tr>
+                          <th>Third Quartile</th>
+                      </tr>
+                  </tbody>
+                  </tbody>
+              </table>
+              <div id="plotdiv" style="width: 500px; height: 500px"></div>
+
           </div>
       </div>
   </body>
