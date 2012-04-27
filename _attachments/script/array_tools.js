@@ -106,7 +106,7 @@ Array.prototype.unique = function () {
 Array.prototype.convertNumbers = function () {
     var r = [], i;
     for (i = 0; i < this.length; i += 1) {
-        if(this[i] instanceof Array) {
+        if (this[i] instanceof Array) {
             r[i] = this[i].convertNumbers();
         } else {
             if (parseInt(this[i], 10) == this[i]) {
@@ -121,4 +121,41 @@ Array.prototype.convertNumbers = function () {
         }
     }
     return r;
+};
+
+function isNumber(x) {
+    return x == parseFloat(x);
+}
+
+Array.prototype.min = function () {
+    var i, t_min;
+    for (i = 0; i < this.length; i += 1) {
+        if (t_min === undefined) {
+            if (isNumber(this[i])) {
+                t_min = this[i];
+            }
+        } else if (this[i] < t_min) {
+            if (isNumber(this[i])) {
+                t_min = this[i];
+            }
+        }
+    }
+    return t_min;
+};
+
+Array.prototype.max = function () {
+    var i, t_max;
+
+    for (i = 0; i < this.length; i += 1) {
+        if (t_max === undefined) {
+            if (isNumber(this[i])) {
+                t_max = this[i];
+            }
+        } else if (this[i] > t_max) {
+            if (isNumber(this[i])) {
+                t_max = this[i];
+            }
+        }
+    }
+    return t_max;
 };

@@ -133,7 +133,11 @@ function PopulateStatsTable (headers, data)  {
 
 }
 function plot(columns, data) {
-    var yAxis, i, d, j , column, plots = [], subscale, identifier, dataSetNo = 1, columnData = {} ;
+    var yAxis, i, d, j , column, plots = [], subscale, identifier, dataSetNo = 1, columnData = {},
+        mean = data.mean(), stdev = data.stdev(), normal, showNormal = false, normals = [], min = data.min().min(), max = data.max().max();
+    if(document.getElementById("shownormals").checked === true) {
+        showNormal = true;
+    }
     for(j = 0; j < columns.length; j += 1) {
         column = columns[j].Index;
         yAxis = [];
@@ -150,14 +154,35 @@ function plot(columns, data) {
         plots.push({
             label: columns[j].Header,
             data: yAxis,
-            stack: true,
-            xaxis: dataSetNo,
+            stack: false,
+            //xaxis: dataSetNo,
             lines: { show: false, steps: false },
             bars: { show: true, barWidth: 0.9, align: 'center' }
         });
+        if(showNormal) {
+            if(columns[j].Header) {
+                normal = jStat.normal(mean[column], stdev[column]);
+                normals.push({
+                    label: 'Normal of ' + columns[j].Header,
+                    data: jStat.seq(min, max, 101, function(x) { return [x, normal.pdf(x)] }),
+                    //xaxis: 2,
+                    yaxis: 2,
+                    lines: { show: true, fill: true },
+                    bars: { show: false }
+                });
+            }
+        }
         dataSetNo += 1;
     }
-    $.plot("#plotdiv", plots, {});
+    // Normals are put into a separate array and concatenated so
+    // that we don't lose the order/colour of the already existing
+    // fields when "show normals" is toggled
+    if(showNormal) {
+        plots = plots.concat(normals);
+    }
+    $.plot("#plotdiv", plots, {
+        yaxes: [{}, { position: "right" } ]
+    });
 }
 $(document).ready(function () {
     var qmanager = new QueryManager("current_filter");
@@ -174,6 +199,11 @@ $(document).ready(function () {
             popManager.toggle(document.getElementById(selected[i]));
         }
         QueryRun = true;
+        $("#runquery").click();
+    });
+    $("#shownormals").click(function () {
+        // All the data is already cached, so just rerun it to
+        // update the graph
         $("#runquery").click();
     });
     $("#runquery").click(function () {
