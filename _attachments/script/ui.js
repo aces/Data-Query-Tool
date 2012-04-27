@@ -125,11 +125,24 @@ function PopulateStatsTable (headers, data)  {
     var cols = []
     for(i = 0; i < mean.length; i++) {
         if(!isNaN(mean[i])) {
-            console.log('Column' + i + 'is numerical. Should plot');
             cols.push({ Header: headers[i], Index: i });
         }
     }
     plot(cols, d);
+
+    // Update list of fields for scatterplot
+    var xaxis = document.getElementById("scatter-xaxis");
+    var yaxis = document.getElementById("scatter-yaxis");
+    $(xaxis).children().remove();
+    $(yaxis).children().remove();
+    var el;
+    for (i = 0; i < cols.length; i++) {
+        el = document.createElement('option');
+        el.textContent = cols[i].Header;
+        el.value = cols[i].Index;
+        xaxis.appendChild(el);
+        yaxis.appendChild(el.cloneNode(true));
+    }
 
 }
 function plot(columns, data) {
@@ -290,12 +303,10 @@ $(document).ready(function () {
             row[i] = headers[i].textContent;
         }
         row = row.map(function (val) { return val.replace('"', '""'); });
-        //console.log('"' + row.join('","') + '"');
         content.append('"' + row.join('","') + '"' + "\r\n");
         for (i = 0; i < data.length; i += 1) {
             row = data[i].map(escapeQuote);
             content.append('"' + row.join('","') + '"' + "\r\n");
-            //console.log('"' + row.join('","') + '"');
         }
         fs = saveAs(content.getBlob("text/csv;charset=utf-8"), "data.csv");
 
@@ -325,4 +336,53 @@ $(document).ready(function () {
             }
         }
     });
+
+    var LSFit = function(data)  {
+        var i = 0, means = jStat(data).mean(),
+            xmean = means[0], ymean = means[1], interim = 0,
+            numerator  = 0, denominator = 0, slope, xi, yi;
+
+        for(i = 0; i < data.length; i++) {
+            xi = data[i][0], yi = data[i][1];
+            numerator += (xi - xmean)*(yi-ymean) ;
+            denominator += ((xi - xmean)*(xi - xmean));
+
+        }
+
+        slope = numerator / denominator;
+
+        return [(ymean - slope*xmean), slope];
+
+    };
+    var updateScatterplot = function () {
+        var xaxis = document.getElementById("scatter-xaxis").value,
+            yaxis = document.getElementById("scatter-yaxis").value,
+            data = dataTable.fnGetData(),
+            points = [],
+            min,max;
+
+        for(var i = 0; i < data.length; i++) {
+            points.push([data[i][xaxis], data[i][yaxis]]);
+        };
+
+        min = jStat(points.convertNumbers()).min()[0];
+        max = jStat(points.convertNumbers()).max()[0];
+        var LS = LSFit(points),
+            slope = LS[1],
+            start = LS[0];
+
+
+        $.plot("#scatterplotdiv", [{
+            label: 'Data Points',
+            data: points,
+            points: { show: true }
+        }, // Least Squares Fit
+        {
+            label: 'Least Squares Fit',
+            data: jStat.seq(min, max, 3, function(x) { return [x, start + (slope*x)] }),
+            lines: { show: true }
+        }], {});
+    };
+    $("#scatter-xaxis").change(updateScatterplot);
+    $("#scatter-yaxis").change(updateScatterplot);
 });

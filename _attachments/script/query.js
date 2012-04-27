@@ -94,7 +94,7 @@ var QueryManager = function (div_name) {
                 beforeSend: function (jqXHR, settings) {
                     var xhr = this.xhr();
                     xhr.onprogress = function (e) {
-                        document.getElementById("progress").textContent = 'Downloaded ' + (e.loaded / 1024) + ' kilobytes';
+                        document.getElementById("progress").textContent = 'Downloaded ' + Math.round(e.loaded / 1024) + ' kilobytes';
                     };
                     this.OverloadedXHR = xhr;
                     this.xhr = function () { return this.OverloadedXHR; };
