@@ -51,18 +51,10 @@ self.ConvertObjectToTable = function (obj) {
                 prefix.push(identifier.pop());
             }
             sPrefix = prefix.join("_").toUpperCase();
-            // Create a row of the right length. JSLint doesn't like the new Array(length) syntax
-            // so we use a hack of row = [], then setting the length'th item to undefined.
+            // Create a new row. We'll initialize it to empty after we know how many columns there are,
+            // which depends on how many prefixes are found in this loop.
             row = [];
-
-            // Take the number of selected columns and multiply by the group level ( + 1 because it's
-            // zero indexed) to get the number of data columns, then add 1 for the identifier column
-            // to get the number of columns for the whole thing.
-            row[(Selected.length * (group_level + 1)) + 1] = undefined;
             row[0] = identifier.join(",");
-            for (j = 1; j < row.length; j += 1) {
-                row[j] = '.';
-            }
             existingRows[identifier.join(",")] = row;
             if (Prefixes.indexOf(sPrefix) === -1) {
                 Prefixes.push(sPrefix);
@@ -71,7 +63,6 @@ self.ConvertObjectToTable = function (obj) {
     }
     Prefixes.sort();
 
-    i = 0;
     for (i = 0; i < Selected.length; i += 1) {
         for (j = 0; j < Prefixes.length; j += 1) {
             prefix = Prefixes[j];
@@ -84,6 +75,14 @@ self.ConvertObjectToTable = function (obj) {
     }
     // Instruct the main thread to create the table headers
     self.postMessage({ cmd: 'PopulateHeaders', Headers: columnsIdx});
+    for(row in existingRows) {
+        if(existingRows.hasOwnProperty(row)) {
+            // 0 is identifier, so skip it..
+            for(i = 1; i < columnsIdx.length; i += 1) {
+                existingRows[row][i] = '.';
+            }
+        }
+    }
 
     // Now go through the data, and convert it to rows. Join the different
     // documents together into a single array if there's multiple instruments
@@ -137,85 +136,5 @@ self.ConvertObjectToTable = function (obj) {
         }
     }
     self.close();
-
-    /*
-    results = { Headers: columnsIdx, Table: tbl };
-    self.postMessage({ cmd: 'ConvertResults', results: results});
-    self.EmitTableBody(tbl);
-    */
 };
 
-self.createElement = function (str) {
-    var el = { TagName: str, children: [], textContent: ''};
-    el.appendChild = function (child) {
-        this.children.push(child);
-    };
-    el.render = function () {
-        var i, rendered;
-        if (this.children.length === 0 && this.textContent === '') {
-            return "<" + this.TagName + " />";
-        }
-        rendered = "<" + this.TagName + ">";
-        if (this.hasOwnProperty('textContent') && this.textContent !== '') {
-            rendered += this.textContent;
-        }
-        if (this.children.length > 0) {
-            for (i = 0; i < this.children.length; i += 1) {
-                if (this.children.hasOwnProperty(i)) {
-                    rendered += this.children[i].render();
-                }
-            }
-        }
-        rendered += "</" + this.TagName + ">";
-        return rendered;
-    };
-
-    return el;
-
-};
-
-self.EmitTableBody = function (tbl) {
-    return;
-};
-
-self.CreateTableBody = function (Obj) {
-    var row = self.createElement("tr"),
-        section,
-        cell,
-        i = 0,
-        j,
-        tbl = self.createElement("table"),
-        length;
-    for (i = 0; i < Obj.Headers.length; i += 1) {
-        cell = self.createElement("th");
-        cell.textContent = Obj.Headers[i];
-        row.appendChild(cell);
-    }
-
-    row.render();
-    section = self.createElement("thead");
-    section.appendChild(row);
-
-    tbl.appendChild(section);
-
-    section = self.createElement("tbody");
-    length = Obj.Table.length;
-    for (i = 0; i < length; i += 1) {
-        row = self.createElement("tr");
-        for (j = 0; j < Obj.Headers.length; j += 1) {
-            cell = self.createElement("td");
-            if (Obj.Table[i][j] === undefined) {
-                cell.textContent = ".";
-            } else {
-                cell.textContent = Obj.Table[i][j];
-            }
-            row.appendChild(cell);
-        }
-        section.appendChild(row);
-        self.postMessage({ cmd: 'Status', RowNum: i, Total: length});
-
-    }
-    tbl.appendChild(section);
-    self.postMessage({ cmd: 'CreateTableResults', Table: tbl.render()});
-    //console.log(Obj);
-};
