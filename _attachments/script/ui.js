@@ -313,7 +313,7 @@ $(document).ready(function () {
     });
     $("#addAll").click(function () {
         var fields = document.getElementById("fields"),
-            allElements = $(fields).children(),
+            allElements = $(fields).children("tbody").children(),
             curEl,
             i;
         for (i = 0; i < allElements.length; i += 1) {
@@ -326,7 +326,7 @@ $(document).ready(function () {
     });
     $("#removeAll").click(function () {
         var fields = document.getElementById("fields"),
-            allElements = $(fields).children(),
+            allElements = $(fields).children("tbody").children(),
             curEl,
             i;
         for (i = 0; i < allElements.length; i += 1) {
