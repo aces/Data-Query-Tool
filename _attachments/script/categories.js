@@ -41,6 +41,9 @@ helpers.createOperatorElement = function (args) {
     op.textContent = '=';
     el.appendChild(op);
     op = document.createElement("option");
+    op.textContent = '!=';
+    el.appendChild(op);
+    op = document.createElement("option");
     op.textContent = '<=';
     el.appendChild(op);
     op = document.createElement("option");

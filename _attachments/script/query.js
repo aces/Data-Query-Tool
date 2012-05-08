@@ -80,8 +80,29 @@ var QueryManager = function (div_name) {
                         if (callback && i === length - 1) {
                             callback();
                         }
-                    };
+                    }
+                },
+                create_callback_for_not = function (i, fieldname, length) {
+                    return function (data, textStatus) {
+                        var j = 0,
+                            field = field_refs[fieldname],
+                            s_values = data.rows.map(function (val) {
+                                return val.value;
+                            });
+                        sessions_per_query[i] = [];
+                        for (j = 0; j < sessions.length; j += 1) {
+                            if ( !(s_values.contains(sessions[j]) ) ) {
+                                sessions_per_query[i].push(sessions[j]);
+                            }
+                        }
+
+                        popManager.setSessions(fieldname, sessions_per_query[i]);
+                        if (callback && i === length - 1) {
+                            callback();
+                        }
+                    }
                 };
+
             sessions_per_query = [];
 
             $.ajax({
@@ -163,12 +184,17 @@ var QueryManager = function (div_name) {
                                 endkey: '["' + split[0] + '","' + split[1] + '",' + val + ']',
                                 reduce: false
                             }, create_callback(i, field, filters.length));
-                        } else if (queries[i][2] === 'startsWith') {
+                        } else if (operator === 'startsWith') {
                             $.getJSON("_view/search", {
                                 startkey: '["' + split[0] + '","' + split[1] + '","' + val + '"]',
                                 endkey: '["' + split[0] + '","' + split[1] + '","' + val + "\u9999\"]",
                                 reduce: false
                             }, create_callback(i, field, filters.length));
+                        } else if (operator === '!=') {
+                            $.getJSON("_view/search", {
+                                key: '["' + split[0] + '","' + split[1] + '",' + val + ']',
+                                reduce: false
+                            }, create_callback_for_not(i, field, filters.length));
                         }
                     }
                     if (filters.length === 0 && callback) {
