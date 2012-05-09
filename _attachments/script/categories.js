@@ -222,11 +222,16 @@ var SelectedManager = function (divname, options) {
             }
         },
         setSessions: function (fieldname, value) {
-            var i, selecto;
+            var i, selecto, span;
             selecto = document.getElementById(container.id + "_" + fieldname);
             for (i = 0; i < options.order.length; i += 1) {
                 if (options.order[i] === 'sessions') {
-                    $(selecto).children()[i].textContent  = "[" + value.join(", ") + "]";
+                    span = document.createElement("span");
+                    span.textContent = "See sessions";
+                    span.setAttribute("title", "[" + value.join(", ") + "]");
+
+                    $(selecto).children()[i].appendChild(span);
+                    //textContent  = "<span title=\"" + value.join(", ") + "]\">See sessions</span>";
                 }
             }
         },
