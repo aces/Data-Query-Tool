@@ -66,42 +66,7 @@ var QueryManager = function (div_name) {
 
         },
         run: function (callback) {
-            var i = 0,
-                create_callback = function (i, fieldname, length) {
-                    return function (data, textStatus) {
-                        var j = 0,
-                            field = field_refs[fieldname];
-                        sessions_per_query[i] = [];
-                        for (j = 0; j < data.rows.length; j += 1) {
-                            sessions_per_query[i].push(data.rows[j].value);
-                        }
-
-                        popManager.setSessions(fieldname, sessions_per_query[i]);
-                        if (callback && i === length - 1) {
-                            callback();
-                        }
-                    }
-                },
-                create_callback_for_not = function (i, fieldname, length) {
-                    return function (data, textStatus) {
-                        var j = 0,
-                            field = field_refs[fieldname],
-                            s_values = data.rows.map(function (val) {
-                                return val.value;
-                            });
-                        sessions_per_query[i] = [];
-                        for (j = 0; j < sessions.length; j += 1) {
-                            if ( !(s_values.contains(sessions[j]) ) ) {
-                                sessions_per_query[i].push(sessions[j]);
-                            }
-                        }
-
-                        popManager.setSessions(fieldname, sessions_per_query[i]);
-                        if (callback && i === length - 1) {
-                            callback();
-                        }
-                    }
-                };
+            var i = 0;
 
             sessions_per_query = [];
 
@@ -126,10 +91,59 @@ var QueryManager = function (div_name) {
                         selectBox,
                         el,
                         filters,
+                        filter_complete = [],
                         field,
                         operator,
                         val,
-                        split;
+                        split,
+                        allComplete = function () {
+                            var i;
+                            for (i = 0; i < filter_complete.length; i += 1) {
+                                if(filter_complete[i] === false) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        },
+                        create_callback = function (i, fieldname, length) {
+                            return function (data, textStatus) {
+                                var j = 0,
+                                    field = field_refs[fieldname];
+                                sessions_per_query[i] = [];
+                                for (j = 0; j < data.rows.length; j += 1) {
+                                    sessions_per_query[i].push(data.rows[j].value);
+                                }
+
+                                popManager.setSessions(fieldname, sessions_per_query[i]);
+
+                                filter_complete[i] = true;
+                                if (callback && allComplete()) {
+                                    callback();
+                                }
+                            }
+                        },
+                        create_callback_for_not = function (i, fieldname, length) {
+                            return function (data, textStatus) {
+                                var j = 0,
+                                    field = field_refs[fieldname],
+                                    s_values = data.rows.map(function (val) {
+                                        return val.value;
+                                    });
+                                sessions_per_query[i] = [];
+                                for (j = 0; j < sessions.length; j += 1) {
+                                    if ( !(s_values.contains(sessions[j]) ) ) {
+                                        sessions_per_query[i].push(sessions[j]);
+                                    }
+                                }
+
+                                popManager.setSessions(fieldname, sessions_per_query[i]);
+
+                                filter_complete[i] = true;
+                                if (callback && allComplete()) {
+                                    callback();
+                                }
+                            }
+                        };
                     sessions = [];
                     for (i = 0; i < data.rows.length; i += 1) {
                         sessions.push(data.rows[i].key);
@@ -152,6 +166,7 @@ var QueryManager = function (div_name) {
 
                     filters = popManager.getSelected();
                     for (i = 0; i < filters.length; i += 1) {
+                        filter_complete[i] = false;
                         sessions_per_query.push([]);
                         field = $(filters[i]).children()[0].textContent;
                         operator = $(filters[i]).find(".queryOp")[0].value;
