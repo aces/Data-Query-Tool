@@ -1,6 +1,6 @@
 /*global self: false */
-"use strict";
 self.addEventListener('message', function (e) {
+    "use strict";
     var data = e.data;
     switch (data.cmd) {
     case 'ConvertObject':
@@ -19,6 +19,7 @@ self.addEventListener('message', function (e) {
 }, false);
 
 self.ConvertObjectToTable = function (obj) {
+    "use strict";
     var tbl = [],
         tblrow = [],
         objrow,
@@ -75,10 +76,10 @@ self.ConvertObjectToTable = function (obj) {
     }
     // Instruct the main thread to create the table headers
     self.postMessage({ cmd: 'PopulateHeaders', Headers: columnsIdx});
-    for(row in existingRows) {
-        if(existingRows.hasOwnProperty(row)) {
+    for (row in existingRows) {
+        if (existingRows.hasOwnProperty(row)) {
             // 0 is identifier, so skip it..
-            for(i = 1; i < columnsIdx.length; i += 1) {
+            for (i = 1; i < columnsIdx.length; i += 1) {
                 existingRows[row][i] = '.';
             }
         }
@@ -88,6 +89,8 @@ self.ConvertObjectToTable = function (obj) {
     // documents together into a single array if there's multiple instruments
     // and add the prefix to put everything in its right column
     numProcessed = 0;
+    //self.debug(existingRows);
+    //self.debug(obj);
     for (el in obj) {
         if (obj.hasOwnProperty(el)) {
             numProcessed += 1;
@@ -101,6 +104,7 @@ self.ConvertObjectToTable = function (obj) {
             }
             sPrefix = prefix.join("_").toUpperCase();
 
+            this.debug({ id: "I am", el: el });
             tblrow = existingRows[identifier.join(",")];
             objrow = obj[el];
             for (j = 0; j < Selected.length; j += 1) {
@@ -138,3 +142,7 @@ self.ConvertObjectToTable = function (obj) {
     self.close();
 };
 
+self.debug = function (message) {
+    "use strict";
+    self.postMessage({ cmd: 'Debug', message: message });
+};
