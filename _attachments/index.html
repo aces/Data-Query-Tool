@@ -3,7 +3,7 @@
   <head>
     <title>DQG 2.0</title>
     <!--link rel="stylesheet" href="style/themes/base/jquery.ui.all.css" type="text/css"-->
-    <link rel="stylesheet" href="style/themes/smoothness/jquery-ui-1.8.18.custom.css" type="text/css">
+    <link rel="stylesheet" href="style/themes/redmond/jquery-ui-1.8.18.custom.css" type="text/css">
     <link rel="stylesheet" href="style/jquery.dataTables_themeroller.css" type="text/css">
     <link rel="stylesheet" href="style/main.css" type="text/css">
   </head>
@@ -21,8 +21,7 @@
       <script src="vendor/jquery/jstat.js"></script>
       <script src="vendor/jquery/flot.min.js"></script>
       <script src="vendor/jquery/jquery.dataTables.min.js"></script>
-      <script type="application/ecmascript" src="vendor/jquery/BlobBuilder.min.js"></script>
-      <script type="application/ecmascript" src="vendor/jquery/FileSaver.min.js"></script>
+      <!--script type="application/ecmascript" src="vendor/jquery/FileSaver.min.js"></script-->
       <script src="vendor/jquery/jquery-ui-1.8.18.custom.min.js"></script>
 
       <script src="script/array_tools.js"></script>
@@ -72,7 +71,7 @@
           <div id="DefinePopulation">
               <div class="half" style="overflow: scroll;">
                   <div class="ui-widget-header .ui-corner-all">
-                      Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldlist', { selectedManager: popManager })";></select> <button id="newpopulation">Add selected</button>
+                      Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldlist', { selectedManager: popManager })";></select> 
                   </div>
 
                   <table class="fieldlist" id="population_fields">
@@ -87,8 +86,7 @@
                   </table>
               </div>
               <div class="half" style="overflow: scroll">
-                  <h2>Selected Population</h2>
-                  <button id="runquery">Run Query</button>
+                  <h2>Selected Population</h2><input id="UploadPopulation" type="file" />
                   <table width="100%">
                       <thead>
                           <tr>
@@ -108,10 +106,18 @@
               </div>
           </div>
           <div id="ViewData">
+              <h2>Actions</h2>
+              <div>
+                  <button id="runquery">Run Query</button>
+              </div>
+              <div>
+                  <a download="download" id="DownloadCSV">Download Data as CSV</a>
+              </div>
+              <div>
+                  Change Display Group Level: <select id="group_level"></select>
+              </div>
               <div id="progress"></div>
-              <button id="DownloadCSV">Download Data as CSV</button>
-              Group Level: <select id="group_level">
-              </select>
+              <h2>Data</h2>
               <table id="data" border="1">
                   <thead><tr><th>Identifier</th></tr></thead>
                   <tbody>
@@ -119,6 +125,7 @@
               </table>
           </div>
           <div id="AnalyseData">
+              <button id="drawGraph">(Re)draw Graphs</button>
               <h2>Basic Statistics</h2>
               <table id="stats" border="1">
                   <thead>
@@ -163,13 +170,26 @@
               </div>
               <div id="plotdiv" style="width: 500px; height: 500px"></div>
 
-              <h2>Scatterplot of Numeric Columns</h2>
+              <h2>Relationship Between Numeric Columns</h2>
               <div>
                   Field for X Axis: <select id="scatter-xaxis"></select>
                   Field for Y Axis: <select id="scatter-yaxis"></select>
-                  <div id="scatterplotdiv" style="width: 500px; height: 500px"></div>
-              </div>
 
+                  Group Points by: <select id="scatter-group"></select>
+                  <h3>Scatterplot</h3>
+                  <div id="scatterplotdiv" style="width: 500px; height: 500px"></div>
+                  <h3>Statistics</h3>
+                  <table id="correlationtbl">
+                      <thead>
+                          <tr>
+                              <th>Covariance</th>
+                              <th>Correlation Coefficient</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                  </table>
+              </div>
           </div>
       </div>
   </body>

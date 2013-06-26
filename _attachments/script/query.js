@@ -1,15 +1,25 @@
 /*global document: false, QueryRun: false, $: false, popManager: false, defineManager: false */
-"use strict";
 var QueryManager = function (div_name) {
+    "use strict";
     var that = this,
         sessions = [],
         sessions_per_query = [],
         queries = [],
         fields = [],
         field_refs = {},
-        div = document.getElementById(div_name);
+        div = document.getElementById(div_name),
+        complete_population;
 
     return {
+        setPopulation: function (arr) {
+            complete_population = arr;
+        },
+        populationExplicit: function () {
+            // Determine if the population was explicitly set, or calculated.
+            // Needed to determine if we need to wait for all the queries to finish
+            // or if we should trigger a callback right away.
+            return (complete_population !== undefined);
+        },
         getAllSessions: function () {
             if (sessions) {
                 return sessions;
@@ -17,6 +27,12 @@ var QueryManager = function (div_name) {
             return undefined;
         },
         getSessions: function () {
+            // If setPopulation has been called explicitly (ie from an uploaded population),
+            // return those identifiers. Otherwise, take the intersection of each individual
+            // query criteria
+            if (complete_population !== undefined) {
+                return complete_population;
+            }
             if (sessions) {
                 if (sessions_per_query.equals([])) {
                     return sessions;
@@ -143,6 +159,29 @@ var QueryManager = function (div_name) {
                                     callback();
                                 }
                             };
+                        },
+                        create_callback_for_contains = function (i, fieldname, length, val) {
+                            return function (data, textStatus) {
+                                var j = 0, rows = data.rows;
+                                sessions_per_query[i] = [];
+
+                                for (j = 0; j < rows.length; j += 1) {
+                                    // Key is of format: doctype[0],field[1],value[2], so
+                                    // rows[2] is the value we're checking against..
+                                    // value is the population identifier
+                                    // It might be null, so add a guard..
+                                    if (rows[j].key[2] && rows[j].key[2].indexOf && rows[j].key[2].indexOf(val) !== -1) {
+                                        sessions_per_query[i].push(rows[j].value);
+                                    }
+
+                                }
+                                popManager.setSessions(fieldname, sessions_per_query[i]);
+
+                                filter_complete[i] = true;
+                                if (callback && allComplete()) {
+                                    callback();
+                                }
+                            };
                         };
                     sessions = [];
                     for (i = 0; i < data.rows.length; i += 1) {
@@ -172,8 +211,8 @@ var QueryManager = function (div_name) {
                         operator = $(filters[i]).find(".queryOp")[0].value;
                         val = $(filters[i]).find(".queryParam")[0].value;
                         split = field.split(",");
-                        if (operator === 'startsWith') {
-                            val = $(filters[i]).find(".queryParam").value;
+                        if (operator === 'startsWith' || operator === 'contains') {
+                            val = $(filters[i]).find(".queryParam").val();
                         } else {
                             if (val == parseFloat(val, 10)) {
                                 val = parseFloat(val, 10);
@@ -210,9 +249,16 @@ var QueryManager = function (div_name) {
                                 key: '["' + split[0] + '","' + split[1] + '",' + val + ']',
                                 reduce: false
                             }, create_callback_for_not(i, field, filters.length));
+                        } else if (operator === 'contains') {
+                            $.getJSON("_view/search", {
+                                startkey: '["' + split[0] + '","' + split[1] + '"]',
+                                endkey: '["' + split[0] + '","' + split[1] + '",\"\u9999\"]',
+                                reduce: false
+                            }, create_callback_for_contains(i, field, filters.length, val));
                         }
                     }
-                    if (filters.length === 0 && callback) {
+
+                    if (callback && filters.length === 0) {
                         callback();
                         document.getElementById("progress").textContent = '';
                     }

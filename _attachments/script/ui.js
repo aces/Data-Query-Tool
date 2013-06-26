@@ -479,7 +479,6 @@ $(document).ready(function () {
                     endkey: '["' + DocTypes[i] + '", {}]',
                     include_docs: true,
                     reduce: false,
-                    stale: 'ok'
                 }, create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable));
             }
             document.getElementById("current_sessions").textContent = "[" + sessions.join("], [") + "]";

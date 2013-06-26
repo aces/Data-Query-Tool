@@ -53,6 +53,9 @@ helpers.createOperatorElement = function (args) {
     op = document.createElement("option");
     op.textContent = "startsWith";
     el.appendChild(op);
+    op = document.createElement("option");
+    op.textContent = 'contains';
+    el.appendChild(op);
 
     return el;
 };
@@ -220,15 +223,32 @@ var SelectedManager = function (divname, options) {
             return false;
         },
         setSessions: function (fieldname, value) {
-            var i, selecto, span;
+            var i, j, selecto, span, list, el, r_fieldname = fieldname.replace(",", "-");
             selecto = document.getElementById(container.id + "_" + fieldname);
             for (i = 0; i < options.order.length; i += 1) {
                 if (options.order[i] === 'sessions') {
+
                     span = document.createElement("span");
-                    span.textContent = "See sessions";
-                    span.setAttribute("title", "[" + value.join(", ") + "]");
+                    span.setAttribute("class", "html_tool_tip_trigger");
+                    span.setAttribute("data-tool-tip-id", "tooltip-" + r_fieldname);
+                    span.textContent = "Sessions";
+                    //span.setAttribute("title", "[" + value.join(", ") + "]");
+
+                    list = document.createElement("ul");
+                    list.setAttribute("class", "tooltip");
+                    list.setAttribute("id", "tooltip-" + r_fieldname);
+
+                    for (j = 0; j < value.length; j += 1) {
+                        el = document.createElement("li");
+                        el.textContent = value[j];
+                        list.appendChild(el);
+                    }
+
+
 
                     $(selecto).children()[i].appendChild(span);
+                    $(selecto).children()[i].appendChild(list);
+                    $(list).hide();
                     //textContent  = "<span title=\"" + value.join(", ") + "]\">See sessions</span>";
                 }
             }
