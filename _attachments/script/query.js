@@ -99,7 +99,7 @@ var QueryManager = function (div_name) {
                         allComplete = function () {
                             var i;
                             for (i = 0; i < filter_complete.length; i += 1) {
-                                if(filter_complete[i] === false) {
+                                if (filter_complete[i] === false) {
                                     return false;
                                 }
                             }
@@ -120,7 +120,7 @@ var QueryManager = function (div_name) {
                                 if (callback && allComplete()) {
                                     callback();
                                 }
-                            }
+                            };
                         },
                         create_callback_for_not = function (i, fieldname, length) {
                             return function (data, textStatus) {
@@ -131,7 +131,7 @@ var QueryManager = function (div_name) {
                                     });
                                 sessions_per_query[i] = [];
                                 for (j = 0; j < sessions.length; j += 1) {
-                                    if ( !(s_values.contains(sessions[j]) ) ) {
+                                    if (!(s_values.contains(sessions[j]))) {
                                         sessions_per_query[i].push(sessions[j]);
                                     }
                                 }
@@ -142,7 +142,7 @@ var QueryManager = function (div_name) {
                                 if (callback && allComplete()) {
                                     callback();
                                 }
-                            }
+                            };
                         };
                     sessions = [];
                     for (i = 0; i < data.rows.length; i += 1) {
@@ -217,6 +217,30 @@ var QueryManager = function (div_name) {
                         document.getElementById("progress").textContent = '';
                     }
                 }
+            });
+        },
+        saveQuery: function () {
+            var SavedStub = {
+                    Meta : {
+                        DocType : "SavedQuery",
+                        User    : "driusan"
+                    },
+                    Fields: [],
+                    Conditions: [
+                        {
+                            Field: "Instrument,Fiel",
+                            Operator: "=",
+                            Value : ""
+                        }
+                    ]
+
+                },
+                filters = popManager.getSelected();
+
+            $.ajax("SavedQuery", {
+                type: "POST",
+                dataType: 'json',
+                data: SavedStub
             });
         }
     };

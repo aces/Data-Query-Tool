@@ -25,12 +25,13 @@ helpers.createInputForType = function (type) {
             select.appendChild(el);
         }
         return select;
-    } else {
-        el = document.createElement("input");
-        el.setAttribute("type", "text");
-        el.setAttribute("class", "queryParam");
-        return el;
     }
+    /* jslint prefers the falling through to having an else with a return
+     * so consider below to be "else" .. */
+    el = document.createElement("input");
+    el.setAttribute("type", "text");
+    el.setAttribute("class", "queryParam");
+    return el;
 };
 
 helpers.createOperatorElement = function (args) {
@@ -62,7 +63,6 @@ helpers.createValueInputForField = function (fieldname, cell) {
         fields;
     fields = $.getJSON("_view/datadictionary", {
         key: jKey,
-        stale: 'ok',
         reduce: false
     }, function (d) {
         var type, el;
@@ -84,7 +84,7 @@ Categories.list = function (selectBox) {
     categories = $.ajax({
         url: "_view/categories",
         dataType: 'json',
-        data: { reduce: true, group_level: 2, stale: 'ok' },
+        data: { reduce: true, group_level: 2 },
         success: function (data) {
             var i, el, categoriesSelect = document.getElementById(selectBox);
             for (i = 0; i < data.rows.length; i += 1) {
@@ -114,7 +114,6 @@ Categories.show = function (category, output_div, options) {
         reduce: false,
         startkey: '["' + category + '"]',
         endkey: '["' + category + '\u9999"]',
-        stale: 'ok'
     }, function (d) {
         var i,
             data = $.parseJSON(d),
@@ -217,9 +216,8 @@ var SelectedManager = function (divname, options) {
             var selecto = document.getElementById(container.id + "_" + el);
             if (selecto) {
                 return true;
-            } else {
-                return false;
             }
+            return false;
         },
         setSessions: function (fieldname, value) {
             var i, selecto, span;
