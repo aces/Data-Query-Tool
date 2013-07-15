@@ -259,8 +259,7 @@ function PopulateDataTable() {
 
 
 $(document).ready(function () {
-    var qmanager = new QueryManager("current_filter"),
-        lsFit = function (data) {
+    var    lsFit = function (data) {
             var i = 0, means = jStat(data).mean(),
                 xmean = means[0], ymean = means[1], interim = 0,
                 numerator  = 0, denominator = 0, slope, xi, yi;
@@ -382,6 +381,7 @@ $(document).ready(function () {
             $("#correlationtbl tbody").children().remove();
             $("#correlationtbl tbody").append("<tr><td>" + jStat.covariance(field1, field2) + "</td><td>" + jStat.corrcoeff(field1, field2) + "</td></tr>");
         };
+    qmanager = new QueryManager("current_filter"),
     $("#tabs").tabs();
     resizeAll();
     $(window).resize(resizeAll);
