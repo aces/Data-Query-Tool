@@ -45,22 +45,24 @@ describe("query runner", function() {
             it("should make an AJAX call", function() {
                 var FakeOp = $('<tr><td>Instrument,Field</td><td><select class="queryOp"><option>=</option></select></td><td><input type="text" class="queryParam" value="3"></td>');
                 var el = FakeOp[0];
-                FakeOp
+                window.user = new User();
                 spyOn(jQuery, "ajax");
                 spyOn(popManager, "getSelected").andReturn([el]);
+                spyOn(window.user, "getUsername").andReturn("FakeUser");
 
                 //this.QM.add("Instrument,Field", "3", "=");
                 this.QM.saveQuery();
                 expect(popManager.getSelected).toHaveBeenCalled();
+                expect(window.user.getUsername).toHaveBeenCalled();
                 expect(jQuery.ajax).toHaveBeenCalledWith(
                     "SavedQuery",
                     {
-                        type: "POST",
+                        type: "PUT",
                         dataType: 'json',
                         data: {
                             Meta : {
                                 DocType : "SavedQuery",
-                                User : "driusan",
+                                User : "FakeUser",
                             },
                             Conditions: [
                                 { 

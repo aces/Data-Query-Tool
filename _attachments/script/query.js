@@ -269,7 +269,7 @@ var QueryManager = function (div_name) {
             var SavedStub = {
                     Meta : {
                         DocType : "SavedQuery",
-                        User    : "driusan"
+                        User    : window.user.getUsername()
                     },
                     Conditions: []
                 },
@@ -284,7 +284,7 @@ var QueryManager = function (div_name) {
                 });
             }
             $.ajax("SavedQuery", {
-                type: "POST",
+                type: "PUT",
                 dataType: 'json',
                 data: SavedStub
             });
