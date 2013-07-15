@@ -31,7 +31,7 @@
         <script src="script/query.js"></script>
         <script src="script/ui.js"></script>
         <div id="logged_in" class="section">
-            Welcome, <span id="username">undefined</span>
+            Welcome, <span id="username">undefined</span> (<a href="javascript:window.user.logout()">Logout</a>)
             <div id="tabs">
                 <ul>
                     <li><a href="#DefineFields">Define Fields</a></li>
@@ -197,7 +197,7 @@
                 </div>
             </div>
         </div>
-        <div id="logged_out">
+        <div id="logged_out" class="section">
             <form id="login">
                     <table align="center" class="login" border="0" cellpadding="2" cellspacing="0" width="100%" style="height:100%">
                         <tr>
