@@ -93,7 +93,9 @@ Categories.list = function (selectBox) {
             for (i = 0; i < data.rows.length; i += 1) {
                 el = document.createElement("option");
                 el.textContent = data.rows[i].key;
+                if (categoriesSelect) {
                 categoriesSelect.appendChild(el);
+                }
             }
             $(categoriesSelect).change();
         },

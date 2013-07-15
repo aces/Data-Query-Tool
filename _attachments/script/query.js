@@ -271,18 +271,18 @@ var QueryManager = function (div_name) {
                         DocType : "SavedQuery",
                         User    : "driusan"
                     },
-                    Fields: [],
-                    Conditions: [
-                        {
-                            Field: "Instrument,Fiel",
-                            Operator: "=",
-                            Value : ""
-                        }
-                    ]
-
+                    Conditions: []
                 },
-                filters = popManager.getSelected();
+                filters = popManager.getSelected(),
+                i = 0;
 
+            for (i = 0; i < filters.length; i += 1) {
+                SavedStub.Conditions.push({
+                            Field: $(filters[i]).children()[0].textContent,
+                            Operator: $(filters[i]).find(".queryOp")[0].value,
+                            Value: $(filters[i]).find(".queryParam")[0].value
+                });
+            }
             $.ajax("SavedQuery", {
                 type: "POST",
                 dataType: 'json',

@@ -579,4 +579,17 @@ $(document).ready(function () {
 
         tool_tip.hide();
     });
+
+    // User login/logout
+    window.user = new User();
+    window.user.logout();
+
+    $("#loginbutton").click(function () {
+        window.user.login(
+            document.getElementById("username_form").value,
+            document.getElementById("password_form").value
+            );
+        return false;
+
+    });
 });

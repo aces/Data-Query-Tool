@@ -1,196 +1,256 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>DQG 2.0</title>
-    <!--link rel="stylesheet" href="style/themes/base/jquery.ui.all.css" type="text/css"-->
-    <link rel="stylesheet" href="style/themes/redmond/jquery-ui-1.8.18.custom.css" type="text/css">
-    <link rel="stylesheet" href="style/jquery.dataTables_themeroller.css" type="text/css">
-    <link rel="stylesheet" href="style/main.css" type="text/css">
-  </head>
-  <body>
-      <script src="/_utils/script/sha1.js"></script>
-      <script src="/_utils/script/json2.js"></script>
-      <script src="/_utils/script/jquery.js"></script>
-      <script src="/_utils/script/jquery.couch.js"></script>
-      <script src="vendor/couchapp/jquery.couchLogin.js"></script>
-      <script src="vendor/couchapp/jquery.couchProfile.js"></script>
-      <script src="vendor/couchapp/md5.js"></script>
-      <script src="vendor/couchapp/jquery.mustache.js"></script>
-      <script src="vendor/jquery/jquery.flot.min.js"></script>
-      <script src="vendor/jquery/jquery.flot.stack.min.js"></script>
-      <script src="vendor/jquery/jstat.js"></script>
-      <script src="vendor/jquery/flot.min.js"></script>
-      <script src="vendor/jquery/jquery.dataTables.min.js"></script>
-      <!--script type="application/ecmascript" src="vendor/jquery/FileSaver.min.js"></script-->
-      <script src="vendor/jquery/jquery-ui-1.8.18.custom.min.js"></script>
+    <head>
+        <title>DQG 2.0</title>
+        <!--link rel="stylesheet" href="style/themes/base/jquery.ui.all.css" type="text/css"-->
+        <link rel="stylesheet" href="style/themes/redmond/jquery-ui-1.8.18.custom.css" type="text/css">
+        <link rel="stylesheet" href="style/jquery.dataTables_themeroller.css" type="text/css">
+        <link rel="stylesheet" href="style/main.css" type="text/css">
+    </head>
+    <body>
+        <script src="vendor/sha1.js"></script>
+        <script src="vendor/json2.js"></script>
+        <script src="vendor/jquery.js"></script>
+        <script src="vendor/jquery.couch.js"></script>
+        <script src="vendor/couchapp/jquery.couchLogin.js"></script>
+        <script src="vendor/couchapp/jquery.couchProfile.js"></script>
+        <script src="vendor/couchapp/md5.js"></script>
+        <script src="vendor/couchapp/jquery.mustache.js"></script>
+        <script src="vendor/jquery/jquery.flot.min.js"></script>
+        <script src="vendor/jquery/jquery.flot.stack.min.js"></script>
+        <script src="vendor/jquery/jstat.js"></script>
+        <script src="vendor/jquery/flot.min.js"></script>
+        <script src="vendor/jquery/jquery.dataTables.min.js"></script>
+        <!--script type="application/ecmascript" src="vendor/jquery/FileSaver.min.js"></script-->
+        <script src="vendor/jquery/jquery-ui-1.8.18.custom.min.js"></script>
 
-      <script src="script/array_tools.js"></script>
-      <script src="script/categories.js"></script>
-      <script src="script/query.js"></script>
-      <script src="script/ui.js"></script>
-      <div id="tabs">
-          <ul>
-              <li><a href="#DefineFields">Define Fields</a></li>
-              <li><a href="#DefinePopulation">Define Filters</a></li>
-              <li><a href="#ViewData">View Data</a></li>
-              <li><a href="#AnalyseData">Analyse Data</a></li>
-              <!--li><a href="#ViewPopulation">Modify Population</a></li-->
-          </ul>
-          <div id="DefineFields" class="ui-widget-reset ui-widget">
-              <div class="half" style="overflow: scroll;">
-                  <div class="ui-widget-header">
-              Choose category:
-              <select id="categories" onChange="javascript:Categories.show(this.value, 'fieldlist', { selectedManager: defineManager})";></select> <button id="addAll">Add all</button> <button id="removeAll">Remove all</button>
-              </div>
-                  <table class="fieldlist" id="fields">
-                      <thead>
-                          <tr>
-                              <th>Field</th>
-                              <th>Description</th>
-                          </tr>
-                      </thead>
-                      <tbody id="fieldlist">
-                      </tbody>
-                  </table>
-              </div>
-              <div class="half" style="overflow: scroll">
-                  <h2>Selected Fields</h2>
-                  <table width="100%">
-                      <thead>
-                          <tr>
-                              <th>Field</th>
-                              <th>Description</th>
-                              <!--th>Type</th-->
-                          </tr>
-                      </thead>
-                      <tbody id="selectedfields">
-                      </tbody>
-                  </table>
-              </div>
-          </div>
-          <div id="DefinePopulation">
-              <div class="half" style="overflow: scroll;">
-                  <div class="ui-widget-header .ui-corner-all">
-                      Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldlist', { selectedManager: popManager })";></select> 
-                  </div>
+        <script src="script/user.js"></script>
+        <script src="script/array_tools.js"></script>
+        <script src="script/categories.js"></script>
+        <script src="script/query.js"></script>
+        <script src="script/ui.js"></script>
+        <div id="logged_in" class="section">
+            Welcome, <span id="username">undefined</span>
+            <div id="tabs">
+                <ul>
+                    <li><a href="#DefineFields">Define Fields</a></li>
+                    <li><a href="#DefinePopulation">Define Filters</a></li>
+                    <li><a href="#ViewData">View Data</a></li>
+                    <li><a href="#AnalyseData">Analyse Data</a></li>
+                    <!--li><a href="#ViewPopulation">Modify Population</a></li-->
+                </ul>
+                <div id="DefineFields" class="ui-widget-reset ui-widget">
+                    <div class="half" style="overflow: scroll;">
+                        <div class="ui-widget-header">
+                            Choose category:
+                            <select id="categories" onChange="javascript:Categories.show(this.value, 'fieldlist', { selectedManager: defineManager})";></select> <button id="addAll">Add all</button> <button id="removeAll">Remove all</button>
+                        </div>
+                        <table class="fieldlist" id="fields">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fieldlist">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="half" style="overflow: scroll">
+                        <h2>Selected Fields</h2>
+                        <table width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Description</th>
+                                    <!--th>Type</th-->
+                                </tr>
+                            </thead>
+                            <tbody id="selectedfields">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="DefinePopulation">
+                    <div class="half" style="overflow: scroll;">
+                        <div class="ui-widget-header .ui-corner-all">
+                            Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldlist', { selectedManager: popManager })";></select> 
+                        </div>
 
-                  <table class="fieldlist" id="population_fields">
-                      <thead>
-                          <tr>
-                              <th>Field</th>
-                              <th>Description</th>
-                          </tr>
-                      </thead>
-                      <tbody id="popfieldlist">
-                      </tbody>
-                  </table>
-              </div>
-              <div class="half" style="overflow: scroll">
-                  <h2>Selected Population</h2><input id="UploadPopulation" type="file" />
-                  <table width="100%">
-                      <thead>
-                          <tr>
-                              <th>Field</th>
-                              <th>Operator</th>
-                              <th>Value</th>
-                              <th>Sessions Matching</th>
-                          </tr>
-                      </thead>
-                      <tbody id="population_selected">
-                      </tbody>
-                  </table>
-                  <div id="population_selected"></div>
-                  <div>
-                  Sessions matching all filters: <div id="current_sessions"></div>
-              </div>
-              </div>
-          </div>
-          <div id="ViewData">
-              <h2>Actions</h2>
-              <div>
-                  <button id="runquery">Run Query</button>
-              </div>
-              <div>
-                  <a download="download" id="DownloadCSV">Download Data as CSV</a>
-              </div>
-              <div>
-                  Change Display Group Level: <select id="group_level"></select>
-              </div>
-              <div id="progress"></div>
-              <h2>Data</h2>
-              <table id="data" border="1">
-                  <thead><tr><th>Identifier</th></tr></thead>
-                  <tbody>
-                  </tbody>
-              </table>
-          </div>
-          <div id="AnalyseData">
-              <button id="drawGraph">(Re)draw Graphs</button>
-              <h2>Basic Statistics</h2>
-              <table id="stats" border="1">
-                  <thead>
-                      <tr>
-                          <th class="header">Measure</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr>
-                          <th>Min</th>
-                      </tr>
-                      <tr>
-                          <th>Max</th>
-                      </tr>
-                      <tr>
-                          <th>Standard Deviation</th>
-                      </tr>
-                      <tr>
-                          <th>Mean</th>
-                      </tr>
-                      <tr>
-                          <th>Mean Deviation</th>
-                      </tr>
-                      <tr>
-                          <th>Mean Squared Error</th>
-                      </tr>
-                      <tr>
-                          <th>First Quartile</th>
-                      </tr>
-                      <tr>
-                          <th>Second Quartile</th>
-                      </tr>
-                      <tr>
-                          <th>Third Quartile</th>
-                      </tr>
-                  </tbody>
-              </table>
+                        <table class="fieldlist" id="population_fields">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="popfieldlist">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="half" style="overflow: scroll">
+                        <h2>Selected Population</h2><input id="UploadPopulation" type="file" />
+                        <table width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Operator</th>
+                                    <th>Value</th>
+                                    <th>Sessions Matching</th>
+                                </tr>
+                            </thead>
+                            <tbody id="population_selected">
+                            </tbody>
+                        </table>
+                        <div id="population_selected"></div>
+                        <div>
+                            Sessions matching all filters: <div id="current_sessions"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="ViewData">
+                    <h2>Actions</h2>
+                    <div>
+                        <button id="runquery">Run Query</button>
+                    </div>
+                    <div>
+                        <a download="download" id="DownloadCSV">Download Data as CSV</a>
+                    </div>
+                    <div>
+                        Change Display Group Level: <select id="group_level"></select>
+                    </div>
+                    <div id="progress"></div>
+                    <h2>Data</h2>
+                    <table id="data" border="1">
+                        <thead><tr><th>Identifier</th></tr></thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="AnalyseData">
+                    <button id="drawGraph">(Re)draw Graphs</button>
+                    <h2>Basic Statistics</h2>
+                    <table id="stats" border="1">
+                        <thead>
+                            <tr>
+                                <th class="header">Measure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Min</th>
+                            </tr>
+                            <tr>
+                                <th>Max</th>
+                            </tr>
+                            <tr>
+                                <th>Standard Deviation</th>
+                            </tr>
+                            <tr>
+                                <th>Mean</th>
+                            </tr>
+                            <tr>
+                                <th>Mean Deviation</th>
+                            </tr>
+                            <tr>
+                                <th>Mean Squared Error</th>
+                            </tr>
+                            <tr>
+                                <th>First Quartile</th>
+                            </tr>
+                            <tr>
+                                <th>Second Quartile</th>
+                            </tr>
+                            <tr>
+                                <th>Third Quartile</th>
+                            </tr>
+                        </tbody>
+                    </table>
 
-              <h2>Histogram of Numeric Columns</h2>
-              <div>
-              Show normals: <input type="checkbox" id="shownormals">
-              </div>
-              <div id="plotdiv" style="width: 500px; height: 500px"></div>
+                    <h2>Histogram of Numeric Columns</h2>
+                    <div>
+                        Show normals: <input type="checkbox" id="shownormals">
+                    </div>
+                    <div id="plotdiv" style="width: 500px; height: 500px"></div>
 
-              <h2>Relationship Between Numeric Columns</h2>
-              <div>
-                  Field for X Axis: <select id="scatter-xaxis"></select>
-                  Field for Y Axis: <select id="scatter-yaxis"></select>
+                    <h2>Relationship Between Numeric Columns</h2>
+                    <div>
+                        Field for X Axis: <select id="scatter-xaxis"></select>
+                        Field for Y Axis: <select id="scatter-yaxis"></select>
 
-                  Group Points by: <select id="scatter-group"></select>
-                  <h3>Scatterplot</h3>
-                  <div id="scatterplotdiv" style="width: 500px; height: 500px"></div>
-                  <h3>Statistics</h3>
-                  <table id="correlationtbl">
-                      <thead>
-                          <tr>
-                              <th>Covariance</th>
-                              <th>Correlation Coefficient</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                      </tbody>
-                  </table>
-              </div>
-          </div>
-      </div>
-  </body>
+                        Group Points by: <select id="scatter-group"></select>
+                        <h3>Scatterplot</h3>
+                        <div id="scatterplotdiv" style="width: 500px; height: 500px"></div>
+                        <h3>Statistics</h3>
+                        <table id="correlationtbl">
+                            <thead>
+                                <tr>
+                                    <th>Covariance</th>
+                                    <th>Correlation Coefficient</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="logged_out">
+            <form method="post" id="login">
+                    <table align="center" class="login" border="0" cellpadding="2" cellspacing="0" width="100%" style="height:100%">
+                        <tr>
+                            <th align="center" class="loginheader" colspan="3" style="padding:5px;"  background="images/title_background.jpg">
+                                Data Query Tool
+                                </br>
+                            </th>
+                        </tr>
+                        <td align="center" colspan="2">&nbsp;</td>
+                    </tr>
+                </table>
+
+                <br>
+                <table align="center">
+                    <tr>
+                    </tr>
+                    <tr>
+                        <th align="right" style="color:#000; font-size:12px;" >User:</th>
+                        <td align="left" width="70%"><input name="username" size="33" tabindex="1" type="text" value="" style="background-color : #e8e8e8;"/></td>
+                        <td align="left" rowspan="2" valign="center"><input class="button" name="login" type="submit" value="login" /></td>
+                    </tr>
+                    <tr>
+                        <th align="right" style="color:#000; font-size:12px;" >Password:</th>
+                        <td align="center" width="70%"><input name="password" size="33" tabindex="2" type="password" style="background-color: #e8e8e8"/></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td align="center"><a style="color:#0645AD;" href="lost_password.php">Forgot your password?</a></td>
+                    </tr>
+                </table>
+
+                <table class="LoginFooter" align="center">
+                    <tr>
+                    </tr>       
+                    <tr>
+                        <td align="center" colspan="1" style="color:#fff" >A WebGL-compatible browser is required for full functionality (Mozilla Firefox, Google Chrome)</td>
+                    </tr>   
+                    <tr>
+                        <td align="center" colspan="1" style="color:#fff" >Powered by LORIS &copy; 2013. All rights reserved.</td>
+                    </tr>   
+                    <tr>
+                        <td align="center" colspan="1"><a href="http://cbrain.mcgill.ca" style="color: #348b8d;" target="_blank">Created by ACElab</a></td>
+                    </tr>
+                </table>
+
+            <!--form id="login">
+                Username: <input id="username_form" type="text"><br>
+                Password: <input type="password" id="password_form"><br>
+                <input type="submit" id="loginbutton">
+            </form-->
+
+        </div>
+    </body>
 </html>
