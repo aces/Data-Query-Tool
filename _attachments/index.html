@@ -197,7 +197,7 @@
             </div>
         </div>
         <div id="logged_out">
-            <form method="post" id="login">
+            <form id="login">
                     <table align="center" class="login" border="0" cellpadding="2" cellspacing="0" width="100%" style="height:100%">
                         <tr>
                             <th align="center" class="loginheader" colspan="3" style="padding:5px;"  background="images/title_background.jpg">
@@ -215,12 +215,12 @@
                     </tr>
                     <tr>
                         <th align="right" style="color:#000; font-size:12px;" >User:</th>
-                        <td align="left" width="70%"><input name="username" size="33" tabindex="1" type="text" value="" style="background-color : #e8e8e8;"/></td>
-                        <td align="left" rowspan="2" valign="center"><input class="button" name="login" type="submit" value="login" /></td>
+                        <td align="left" width="70%"><input name="username" size="33" tabindex="1" type="text" id="username_form" value="" style="background-color : #e8e8e8;"/></td>
+                        <td align="left" rowspan="2" valign="center"><input class="button" id="loginbutton" type="submit" value="login" /></td>
                     </tr>
                     <tr>
                         <th align="right" style="color:#000; font-size:12px;" >Password:</th>
-                        <td align="center" width="70%"><input name="password" size="33" tabindex="2" type="password" style="background-color: #e8e8e8"/></td>
+                        <td align="center" width="70%"><input id="password_form" name="password" size="33" tabindex="2" type="password" style="background-color: #e8e8e8"/></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -244,12 +244,14 @@
                         <td align="center" colspan="1"><a href="http://cbrain.mcgill.ca" style="color: #348b8d;" target="_blank">Created by ACElab</a></td>
                     </tr>
                 </table>
+            </form>
 
             <!--form id="login">
                 Username: <input id="username_form" type="text"><br>
                 Password: <input type="password" id="password_form"><br>
                 <input type="submit" id="loginbutton">
             </form-->
+
 
         </div>
     </body>

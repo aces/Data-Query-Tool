@@ -33,7 +33,9 @@ describe("User class", function() {
     describe("user.onLoginSuccess", function () {
         this.user.login("abc", "def");
         this.user._onLoginSuccess();
-        expect(this.user.getUsername())
+        it("should update the logged in user", function () {
+            expect(this.user.getUsername()).toBe("abc");
+        }
     });
 
     it("should let you logout", function () {
