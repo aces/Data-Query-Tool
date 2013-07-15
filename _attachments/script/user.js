@@ -1,22 +1,23 @@
 "use strict";
 var User = function () {
-    var username;
+    var username, that
 
     return {
         getUsername: function () {
             return username;
         },
         login: function (user, pass) {
-            this._attemptedUsername = user;
+            that = this;
+            that._attemptedUsername = user;
             $.post(
                     "/_session",
                     { "name" : user, "password" : pass },
-                    this._onLoginSuccess
+                    that._onLoginSuccess
                     );
         },
         _onLoginSuccess : function () {
             var div = document.getElementById("username");
-            username = this._attemptedUsername;
+            username = that._attemptedUsername;
             div.textContent = username;
             $(".section").hide();
             $("#logged_in").show();

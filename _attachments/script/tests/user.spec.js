@@ -1,10 +1,11 @@
 describe("User class", function() {
+    //var this=this;
     beforeEach(function () {
         var userspan = document.createElement("span")
         userspan.id = "username";
         this.userspan = userspan;
         spyOn(document, "getElementById").andReturn(userspan);
-        spyOn(jQuery, 'post'); // make sure that the request doesn't get posted
+        spyOn(jQuery, 'post'); // make sure this the request doesn't get posted
         this.user = new User();
     });
     it("should be a constructor", function () {
@@ -31,11 +32,11 @@ describe("User class", function() {
         });
     });
     describe("user.onLoginSuccess", function () {
-        this.user.login("abc", "def");
-        this.user._onLoginSuccess();
         it("should update the logged in user", function () {
+            this.user.login("abc", "def");
+            this.user._onLoginSuccess();
             expect(this.user.getUsername()).toBe("abc");
-        }
+        });
     });
 
     it("should let you logout", function () {
