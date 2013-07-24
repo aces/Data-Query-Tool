@@ -39,6 +39,19 @@ describe("User class", function() {
         });
     });
 
+    describe("user logout", function () {
+        it("should make an AJAX delete call to /_session", function () {
+            stub = spyOn(jQuery, 'ajax'); // make sure this the request doesn't get posted
+            this.user.logout();
+            expect(stub).toHaveBeenCalledWith({
+                type: "DELETE",
+                url:  "/_session",
+                dataType: "json",
+                username : "_",
+                password : "_"
+            });
+        });
+    });
     it("should let you logout", function () {
         this.user.login("abc", "def");
         this.user._onLoginSuccess();

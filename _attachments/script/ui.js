@@ -582,7 +582,6 @@ $(document).ready(function () {
 
     // User login/logout
     window.user = new User();
-    window.user.logout();
 
     $("#loginbutton").click(function () {
         window.user.login(
@@ -591,5 +590,12 @@ $(document).ready(function () {
             );
         return false;
 
+    });
+    $.getJSON("/_session", function(data) {
+        if(data.userCtx && data.userCtx.name) {
+            window.user._cookieLogin(data.userCtx.name);
+        } else {
+            window.user.logout();
+        }
     });
 });

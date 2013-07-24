@@ -1,6 +1,6 @@
 "use strict";
 var User = function () {
-    var username, that
+    var username, that;
 
     return {
         getUsername: function () {
@@ -14,6 +14,11 @@ var User = function () {
                     { "name" : user, "password" : pass },
                     that._onLoginSuccess
                     );
+        },
+        _cookieLogin : function(uname) {
+            that = this;
+            that._attemptedUsername = uname;
+            that._onLoginSuccess();
         },
         _onLoginSuccess : function () {
             var div = document.getElementById("username");
@@ -29,6 +34,15 @@ var User = function () {
             username = undefined;
             $(".section").hide();
             $("#logged_out").show();
+            $.ajax({
+                type: "DELETE",
+                url:  "/_session",
+                dataType: "json",
+                username : "_",
+                password : "_"
+
+
+            });
         }
     };
 };
