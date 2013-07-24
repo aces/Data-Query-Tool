@@ -31,15 +31,20 @@
         <script src="script/query.js"></script>
         <script src="script/ui.js"></script>
         <div id="logged_in" class="section">
-            Welcome, <span id="username">undefined</span> (<a href="javascript:window.user.logout()">Logout</a>)
             <div id="tabs">
                 <ul>
+                    <li><a href="#Home">Home</a></li>
                     <li><a href="#DefineFields">Define Fields</a></li>
                     <li><a href="#DefinePopulation">Define Filters</a></li>
                     <li><a href="#ViewData">View Data</a></li>
                     <li><a href="#AnalyseData">Analyse Data</a></li>
                     <!--li><a href="#ViewPopulation">Modify Population</a></li-->
+                    <li>
+                    <a onclick="javascript:window.user.logout()" href="#">Logout</a>
                 </ul>
+                <div id="Home" class="ui-widget-reset ui-widget">
+                    Welcome, <span id="username">undefined</span>
+                </div>
                 <div id="DefineFields" class="ui-widget-reset ui-widget">
                     <div class="half" style="overflow: scroll;">
                         <div class="ui-widget-header">
