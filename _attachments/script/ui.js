@@ -474,12 +474,23 @@ $(document).ready(function () {
             DocTypes = DocTypes.unique();
 
             for (i = 0; i < DocTypes.length; i += 1) {
-                $.getJSON("_view/instruments", {
-                    startkey: '["' + DocTypes[i] + '"]',
-                    endkey: '["' + DocTypes[i] + '", {}]',
-                    include_docs: true,
-                    reduce: false,
-                }, create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable));
+                var keys = [], sessionsIdx, merged;
+                for (sessionsIdx = 0; sessionsIdx < sessions.length; sessionsIdx += 1) {
+                    merged = [];
+                    merged.push(DocTypes[i]);
+                    merged = merged.concat(sessions[sessionsIdx]);
+
+                    keys.push(merged);
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "_view/instruments?include_docs=true&reduce=false",
+                    data: JSON.stringify({ 'keys' : keys }),
+                    success: create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable),
+                    contentType: 'application/json',
+                    dataType: 'json'
+                });
             }
             document.getElementById("current_sessions").textContent = "[" + sessions.join("], [") + "]";
             $("a[href='#ViewData']").fadeTo('fast', 0.25);
