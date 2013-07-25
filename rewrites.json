@@ -1,6 +1,11 @@
 [
     {
         "from": "",
+        "to"  : "../../",
+        "method" : "POST"
+    },
+    {
+        "from": "",
         "to": "index.html"
     },
     {

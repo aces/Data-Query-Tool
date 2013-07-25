@@ -269,7 +269,7 @@ var QueryManager = function (div_name) {
             var SavedStub = {
                     Meta : {
                         DocType : "SavedQuery",
-                        User    : window.user.getUsername()
+                        user    : window.user.getUsername()
                     },
                     Conditions: []
                 },
@@ -283,10 +283,16 @@ var QueryManager = function (div_name) {
                             Value: $(filters[i]).find(".queryParam")[0].value
                 });
             }
-            $.ajax("SavedQuery", {
-                type: "PUT",
-                dataType: 'json',
-                data: SavedStub
+            $.ajax({
+                type: "POST",
+                url: "",
+                data: JSON.stringify(SavedStub),
+                success: function (data) {
+                    console.log(data);
+                },
+                contentType: 'application/json',
+                dataType: 'json'
+
             });
         }
     };

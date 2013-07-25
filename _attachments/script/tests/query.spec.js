@@ -62,7 +62,7 @@ describe("query runner", function() {
                         data: {
                             Meta : {
                                 DocType : "SavedQuery",
-                                User : "FakeUser",
+                                user : "FakeUser",
                             },
                             Conditions: [
                                 { 

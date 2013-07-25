@@ -591,6 +591,9 @@ $(document).ready(function () {
         return false;
 
     });
+    $("#SaveQuery").click(function () {
+        qmanager.saveQuery();
+    });
     $.getJSON("/_session", function(data) {
         if(data.userCtx && data.userCtx.name) {
             window.user._cookieLogin(data.userCtx.name);

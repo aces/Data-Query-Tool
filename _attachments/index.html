@@ -22,7 +22,6 @@
         <script src="vendor/jquery/jstat.js"></script>
         <script src="vendor/jquery/flot.min.js"></script>
         <script src="vendor/jquery/jquery.dataTables.min.js"></script>
-        <!--script type="application/ecmascript" src="vendor/jquery/FileSaver.min.js"></script-->
         <script src="vendor/jquery/jquery-ui-1.8.18.custom.min.js"></script>
 
         <script src="script/user.js"></script>
@@ -118,15 +117,17 @@
                     <h2>Actions</h2>
                     <div>
                         <button id="runquery">Run Query</button>
+                        <button id="SaveQuery">Save Query</button>
                     </div>
                     <div>
                         <a download="download" id="DownloadCSV">Download Data as CSV</a>
                     </div>
+
+                    <div id="progress"></div>
+                    <h2>Data</h2>
                     <div>
                         Change Display Group Level: <select id="group_level"></select>
                     </div>
-                    <div id="progress"></div>
-                    <h2>Data</h2>
                     <table id="data" border="1">
                         <thead><tr><th>Identifier</th></tr></thead>
                         <tbody>
