@@ -71,6 +71,8 @@ function plot(columns, data) {
         yaxes: [{}, { position: "right" } ]
     });
 }
+
+// Move all the stats stuff to a different file?
 function populateStatsTable(headers, data) {
     var d = jStat(data),
         tbl = $("#stats"),
@@ -251,15 +253,12 @@ function convertObjectToTable(object) {
         }
     }, true);
     worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelectedNames()});
-    //return { Headers: columnsIdx, Table: tbl };
-}
-function PopulateDataTable() {
 }
 
 
 
 $(document).ready(function () {
-    var    lsFit = function (data) {
+    var lsFit = function (data) {
             var i = 0, means = jStat(data).mean(),
                 xmean = means[0], ymean = means[1], interim = 0,
                 numerator  = 0, denominator = 0, slope, xi, yi;
@@ -385,16 +384,6 @@ $(document).ready(function () {
     $("#tabs").tabs();
     resizeAll();
     $(window).resize(resizeAll);
-    $("#newpopulation").click(function () {
-        var selected = popManager.getSelected(),
-            i;
-        for (i = 0; i < selected.length; i += 1) {
-            qmanager.add(selected[i], popManager.getValue(selected[i]), popManager.getOperator(selected[i]));
-            popManager.toggle(document.getElementById(selected[i]));
-        }
-        QueryRun = true;
-        $("#runquery").click();
-    });
     $("#shownormals").click(function () {
         // All the data is already cached, so just rerun it to
         // update the graph
@@ -592,7 +581,7 @@ $(document).ready(function () {
 
     });
     $("#SaveQuery").click(function () {
-        qmanager.saveQuery();
+        $("#SaveDialog").dialog("open");
     });
     $.getJSON("/_session", function(data) {
         if(data.userCtx && data.userCtx.name) {
@@ -600,5 +589,137 @@ $(document).ready(function () {
         } else {
             window.user.logout();
         }
+    });
+
+    window.user._loadSavedQueries = function (data) {
+        var saved = document.getElementById("savedqueries"),
+            tblEl,
+            tblRow,
+            btn,
+            i,
+            row,
+            j, label, body = saved.querySelector("tbody");
+        body.textContent = '';
+        for(i = 0; i < data.length; i += 1) {
+            row = data[i];
+            tblRow = document.createElement("tr");
+
+            // Actions
+            tblEl  = document.createElement("td");
+            btn = document.createElement("button");
+            btn.textContent = "Load";
+            $(btn).click(function (row, tblRow) {
+                return function () {
+                    var i = 0, el, cell, addedEl; 
+
+                    for (i = 0; i < row.Conditions.length; i += 1) {
+                        el = document.createElement("tr");
+                        el.classList.add("selectable");
+                        cell = document.createElement("td");
+                        cell.textContent = row.Conditions[i].Field;
+                        el.appendChild(cell);
+
+                        cell = document.createElement("td");
+                        cell.textContent = "";
+                        el.appendChild(cell);
+                        addedEl = popManager.add(el, row.Conditions[i].Value);
+                        $(addedEl).children(".queryOp").val(row.Conditions[i].Operator);
+                    }
+                };
+            }(row, tblRow));
+            tblEl.appendChild(btn);
+            btn = document.createElement("button");
+            btn.textContent = "Delete";
+            $(btn).click(function (row, tblRow) {
+                return function() {
+                    var del = document.getElementById("deletequery");
+
+                    del.textContent = row._id;
+                    del.setAttribute("data-rev", row._rev);
+                    $("#DeleteDialog").dialog("option", "Row", tblRow);
+
+                    $("#DeleteDialog").dialog("open");
+                };
+            }(row, tblRow));
+            tblEl.appendChild(btn);
+            tblRow.appendChild(tblEl);
+
+
+
+            // Name
+            tblEl = document.createElement("td");
+            tblEl.textContent = row._id;
+            tblRow.appendChild(tblEl);
+
+            // Conditions
+            tblEl = document.createElement("td");
+            for(j = 0; j < row.Conditions.length; j += 1) {
+                label = '';
+                label += row.Conditions[j].Field;
+                label += row.Conditions[j].Operator;
+                label += row.Conditions[j].Value;
+                tblEl.appendChild(document.createTextNode(label));
+                tblEl.appendChild(document.createElement("br"));
+            }
+            tblRow.appendChild(tblEl);
+
+            body.appendChild(tblRow);
+
+        }
+    }
+    $("#DeleteDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        buttons: [
+            {
+                text: "Confirm delete",
+                click: function () {
+                    var ele = document.getElementById("deletequery"), 
+    tblRow = $(this).dialog("option", "Row");
+                    qmanager.deleteQuery(ele.textContent, ele.getAttribute("data-rev"));
+
+                    $(tblRow).remove();
+
+                    $(this).dialog("close");
+                }
+            }, 
+            {
+                text: "Cancel",
+                click: function () {
+                    $(this).dialog("close");
+                }
+            }
+        ]
+
+        });
+    $("#SaveDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        buttons: [
+            {
+                text: "Save query",
+                click: function () {
+                    var el = document.getElementById("SaveDialogName"), error = document.getElementById("SaveDialogError");
+                    error.textContent = '';
+
+                    if(el === undefined || el.value === '') {
+                        error.textContent = "A name must be provided for the saved query.";
+                    } else {
+                        qmanager.saveQuery(el.value, window.user.getSavedQueries);
+                        // Reload the saved queries, because
+                        // it's fast enough and easier than
+                        // reparsing everything.
+                        //window.user.getSavedQueries();
+                        $(this).dialog("close");
+                    }
+                }
+            },
+            {
+                text: "Cancel",
+                click: function () {
+                    $(this).dialog("close");
+                }
+            }
+    ]
     });
 });

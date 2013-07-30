@@ -3,6 +3,15 @@
         "from": "",
         "to"  : "../../",
         "method" : "POST"
+    },{
+        "from" : "*",
+        "to"  : "../../*",
+        "method" : "PUT"
+    },
+    {
+        "from" : "*",
+        "to"  : "../../*",
+        "method" : "DELETE"
     },
     {
         "from": "",

@@ -51,15 +51,14 @@ describe("query runner", function() {
                 spyOn(window.user, "getUsername").andReturn("FakeUser");
 
                 //this.QM.add("Instrument,Field", "3", "=");
-                this.QM.saveQuery();
+                this.QM.saveQuery("abc");
                 expect(popManager.getSelected).toHaveBeenCalled();
                 expect(window.user.getUsername).toHaveBeenCalled();
                 expect(jQuery.ajax).toHaveBeenCalledWith(
-                    "SavedQuery",
                     {
                         type: "PUT",
-                        dataType: 'json',
-                        data: {
+                        url: "abc",
+                        data: JSON.stringify({
                             Meta : {
                                 DocType : "SavedQuery",
                                 user : "FakeUser",
@@ -71,8 +70,28 @@ describe("query runner", function() {
                                     Value : "3"
                                 }
                             ]
-                        }
+                        }),
+                        contentType: 'application/json',
+                        dataType: 'json',
                     });
+            });
+        });
+        describe("deleteQuery function", function () {
+            it("should exist", function () {
+                expect(this.QM.deleteQuery).toBeDefined();
+            });
+            it("should make an AJAX call", function () {
+                spyOn(jQuery, "ajax");
+
+                this.QM.deleteQuery("FakeQuery", "rev-1");
+                expect(jQuery.ajax).toHaveBeenCalledWith(
+                    {
+                        type: "DELETE",
+                        url:  "FakeQuery?rev=rev-1",
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    }
+                    );
             });
         });
     });

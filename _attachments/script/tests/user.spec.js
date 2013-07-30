@@ -6,6 +6,7 @@ describe("User class", function() {
         this.userspan = userspan;
         spyOn(document, "getElementById").andReturn(userspan);
         spyOn(jQuery, 'post'); // make sure this the request doesn't get posted
+        spyOn(jQuery, 'ajax');
         this.user = new User();
     });
     it("should be a constructor", function () {
@@ -33,17 +34,18 @@ describe("User class", function() {
     });
     describe("user.onLoginSuccess", function () {
         it("should update the logged in user", function () {
+            saved = spyOn(this.user, "getSavedQueries");
             this.user.login("abc", "def");
             this.user._onLoginSuccess();
             expect(this.user.getUsername()).toBe("abc");
+            expect(saved).toHaveBeenCalled();
         });
     });
 
     describe("user logout", function () {
         it("should make an AJAX delete call to /_session", function () {
-            stub = spyOn(jQuery, 'ajax'); // make sure this the request doesn't get posted
             this.user.logout();
-            expect(stub).toHaveBeenCalledWith({
+            expect(jQuery.ajax).toHaveBeenCalledWith({
                 type: "DELETE",
                 url:  "/_session",
                 dataType: "json",
@@ -66,5 +68,28 @@ describe("User class", function() {
         this.user._onLoginSuccess();
         expect(document.getElementById).toHaveBeenCalledWith("username");
         expect(this.userspan.textContent).toBe("abc");
+    });
+    describe("getSavedQueries", function () {
+        it("should make an AJAX call", function () {
+            this.user.login("abc", "def");
+            this.user._onLoginSuccess();
+            // getSavedQueries is called from _onLoginSuccess
+            //this.user.getSavedQueries();
+            expect(jQuery.ajax).toHaveBeenCalledWith({
+                type: "GET",
+                url: "_view/savedqueries",
+                dataType: "json",
+                /* 
+                 * Success callback is a little fickle for testing,
+                 * so accept any function
+                 */
+                success: jasmine.any(Function),
+                data: {
+                    key: JSON.stringify('abc'),
+                    reduce: false,
+                    include_docs: true
+                }
+            });
+        });
     });
 });

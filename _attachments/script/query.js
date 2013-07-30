@@ -265,7 +265,7 @@ var QueryManager = function (div_name) {
                 }
             });
         },
-        saveQuery: function () {
+        saveQuery: function (savename, callback) {
             var SavedStub = {
                     Meta : {
                         DocType : "SavedQuery",
@@ -284,16 +284,22 @@ var QueryManager = function (div_name) {
                 });
             }
             $.ajax({
-                type: "POST",
-                url: "",
+                type: "PUT",
+                url: savename,
                 data: JSON.stringify(SavedStub),
-                success: function (data) {
-                    console.log(data);
-                },
                 contentType: 'application/json',
-                dataType: 'json'
+                dataType: 'json',
+                success: callback
 
             });
+        },
+        deleteQuery: function(name, rev) {
+            $.ajax({
+                type: "DELETE",
+                url: name + "?rev=" + rev,
+                contentType: 'application/json',
+                dataType: 'json'
+            });
         }
-    };
+    }
 };

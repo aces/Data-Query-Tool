@@ -42,7 +42,21 @@
                     <a onclick="javascript:window.user.logout()" href="#">Logout</a>
                 </ul>
                 <div id="Home" class="ui-widget-reset ui-widget">
-                    Welcome, <span id="username">undefined</span>
+                    <div id="DeleteDialog">
+                        Are you really super sure you want to delete <span id="deletequery">undefined</span>
+                    </div>
+                    <p>Welcome, <span id="username">undefined</span></p>
+                    <p>You have saved the following queries:
+                        <table id="savedqueries">
+                            <thead>
+                                <th>Actions</th>
+                                <th>Name</th>
+                                <th>Conditions</th>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </p>
                 </div>
                 <div id="DefineFields" class="ui-widget-reset ui-widget">
                     <div class="half" style="overflow: scroll;">
@@ -114,6 +128,23 @@
                     </div>
                 </div>
                 <div id="ViewData">
+                    <div id="SaveDialog">
+                        Enter the name you would like to save this query under:
+                        <form id="SaveDialogForm">
+                        <div>
+                            <ul>
+                                <li>Save fields: <input type="checkbox" checked="checked" /></li>
+                                <li>Save conditions: <input type="checkbox" checked="checked" /></li>
+                            </ul>
+                        </div>
+                            <div>
+                            Name:<input type="text" id="SaveDialogName" />
+                        </div>
+                        <div id="SaveDialogError" class="error">
+                        </div>
+                        </form>
+
+                    </div>
                     <h2>Actions</h2>
                     <div>
                         <button id="runquery">Run Query</button>

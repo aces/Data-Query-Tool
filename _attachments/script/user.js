@@ -15,7 +15,7 @@ var User = function () {
                     that._onLoginSuccess
                     );
         },
-        _cookieLogin : function(uname) {
+        _cookieLogin : function (uname) {
             that = this;
             that._attemptedUsername = uname;
             that._onLoginSuccess();
@@ -26,6 +26,7 @@ var User = function () {
             div.textContent = username;
             $(".section").hide();
             $("#logged_in").show();
+            that.getSavedQueries();
         },
         _onLoginFailure : function () {
         },
@@ -43,6 +44,31 @@ var User = function () {
 
 
             });
+        },
+
+        getSavedQueries: function () {
+            var options = {
+                type: "GET",
+                url: "_view/savedqueries",
+                dataType: "json",
+                success: function (data) {
+                    var arr = data.rows.map(function (el) {
+                        return el.doc;
+                    });
+                    that._loadSavedQueries(arr);
+                },
+                data: {
+                    key: JSON.stringify(that.getUsername()),
+                    reduce: false,
+                    include_docs: true
+                }
+            };
+            $.ajax(options);
+        },
+        _loadSavedQueries: function(queries_json) {
+            // This is overwritten by ui.js. It should
+            // maybe be a callback parameter to getSavedQueries
+            // instead of an object method.
         }
     };
 };

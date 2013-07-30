@@ -60,7 +60,7 @@ helpers.createOperatorElement = function (args) {
     return el;
 };
 
-helpers.createValueInputForField = function (fieldname, cell) {
+helpers.createValueInputForField = function (fieldname, cell, DefaultVal) {
     var i, split_fieldname = fieldname.split(","),
         jKey = '["' + split_fieldname.join('","') + '"]',
         fields;
@@ -72,6 +72,9 @@ helpers.createValueInputForField = function (fieldname, cell) {
         type = d.rows[0].value.Type;
         el = helpers.createInputForType(type);
         cell.appendChild(el);
+        if (DefaultVal) {
+            $(cell).children(".queryParam").val(DefaultVal);
+        }
     });
 };
 
@@ -160,7 +163,7 @@ var SelectedManager = function (divname, options) {
         container = document.getElementById(divname),
         description = {};
     return {
-        add: function (el) {
+        add: function (el, DefaultVal) {
             var AddedRow, ClickedRow, FieldName, Description, cell, i, row;
             if (!$(el).hasClass("selectable")) {
                 return;
@@ -186,7 +189,7 @@ var SelectedManager = function (divname, options) {
                     } else if (options.order[i] === "value") {
                         cell = document.createElement("td");
                         row.appendChild(cell);
-                        helpers.createValueInputForField(FieldName, cell);
+                        helpers.createValueInputForField(FieldName, cell, DefaultVal);
                     } else if (options.order[i] === "sessions") {
                         row = helpers.addCell(row, "");
                     } else {
@@ -197,6 +200,7 @@ var SelectedManager = function (divname, options) {
                 container.appendChild(row);
 
             }
+            return row;
         },
         remove: function (el) {
             var id = container.id + "_" + $(el).children()[0].textContent,
