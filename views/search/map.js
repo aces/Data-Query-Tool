@@ -2,7 +2,7 @@ function(doc) {
     var data = doc.data;
     var DocType = doc.Meta.DocType;
     var val;
-    if(data && DocType && doc.Meta.identifier) {
+    if(data && DocType && doc.Meta.identifier && doc.Meta.DocType !== 'SavedQuery') {
         for(el in data) {
             if(data.hasOwnProperty(el) && el[0] != '_') {
                 val = data[el];
