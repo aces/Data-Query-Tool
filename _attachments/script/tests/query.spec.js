@@ -43,7 +43,7 @@ describe("query runner", function() {
                 expect(this.QM.saveQuery).toBeDefined();
             });
             it("should make an AJAX call", function() {
-                var FakeOp = $('<tr><td>Instrument,Field</td><td><select class="queryOp"><option>=</option></select></td><td><input type="text" class="queryParam" value="3"></td>');
+                var FakeOp = $('<tr><td><button>Remove</button></td><td class="queryField">Instrument,Field</td><td><select class="queryOp"><option>=</option></select></td><td><input type="text" class="queryParam" value="3"></td>');
                 var el = FakeOp[0];
                 window.user = new User();
                 spyOn(jQuery, "ajax");

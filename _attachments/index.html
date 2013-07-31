@@ -62,16 +62,17 @@
                     <div class="half" style="overflow: scroll;">
                         <div class="ui-widget-header">
                             Choose category:
-                            <select id="categories" onChange="javascript:Categories.show(this.value, 'fieldlist', { selectedManager: defineManager})";></select> <button id="addAll">Add all</button> <button id="removeAll">Remove all</button>
+                            <select id="categories" onChange="javascript:Categories.show(this.value, 'fieldslist', { selectedManager: defineManager})";></select> <button id="addAll">Add all</button> <button id="removeAll">Remove all</button>
                         </div>
                         <table class="fieldlist" id="fields">
                             <thead>
                                 <tr>
+                                    <th>Actions</th>
                                     <th>Field</th>
                                     <th>Description</th>
                                 </tr>
                             </thead>
-                            <tbody id="fieldlist">
+                            <tbody id="fieldslist">
                             </tbody>
                         </table>
                     </div>
@@ -80,6 +81,7 @@
                         <table width="100%">
                             <thead>
                                 <tr>
+                                    <th>Actions</th>
                                     <th>Field</th>
                                     <th>Description</th>
                                     <!--th>Type</th-->
@@ -93,17 +95,17 @@
                 <div id="DefinePopulation">
                     <div class="half" style="overflow: scroll;">
                         <div class="ui-widget-header .ui-corner-all">
-                            Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldlist', { selectedManager: popManager })";></select> 
+                            Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldslist', { selectedManager: popManager })";></select> 
                         </div>
 
-                        <table class="fieldlist" id="population_fields">
+                        <table class="fieldlist" id="popfields">
                             <thead>
                                 <tr>
                                     <th>Field</th>
                                     <th>Description</th>
                                 </tr>
                             </thead>
-                            <tbody id="popfieldlist">
+                            <tbody id="popfieldslist">
                             </tbody>
                         </table>
                     </div>
@@ -112,16 +114,17 @@
                         <table width="100%">
                             <thead>
                                 <tr>
+                                    <th>Actions</th>
                                     <th>Field</th>
                                     <th>Operator</th>
                                     <th>Value</th>
                                     <th>Sessions Matching</th>
                                 </tr>
                             </thead>
-                            <tbody id="population_selected">
+                            <tbody id="selectedpopfields">
                             </tbody>
                         </table>
-                        <div id="population_selected"></div>
+                        <div id="popfieldslist"></div>
                         <div>
                             Sessions matching all filters: <div id="current_sessions"></div>
                         </div>
