@@ -5,9 +5,12 @@ var defineManager;
 var popManager;
 
 var helpers = {};
-helpers.addCell = function (row, value) {
+helpers.addCell = function (row, value, className) {
     var el = document.createElement("td");
     el.textContent = value;
+    if (className) {
+        el.classList.add(className);
+    }
     row.appendChild(el);
     return row;
 };
@@ -180,10 +183,12 @@ var SelectedManager = function (divname, options) {
                 row.setAttribute("id", container.id + "_" + FieldName);
 
                 for (i = 0; i < options.order.length; i += 1) {
-                    if (options.order[i] === "field") {
-                        row = helpers.addCell(row, FieldName);
+                    if (options.order[i] === "actions") {
+                        row = helpers.addCell(row, "Hello");
+                    } else if (options.order[i] === "field") {
+                        row = helpers.addCell(row, FieldName, "queryField");
                     } else if (options.order[i] === "description") {
-                        row = helpers.addCell(row, Description);
+                        row = helpers.addCell(row, Description, "queryDescription");
                     } else if (options.order[i] === "operator") {
                         row.appendChild(helpers.createOperatorElement());
                     } else if (options.order[i] === "value") {
@@ -270,7 +275,7 @@ var SelectedManager = function (divname, options) {
                 val;
 
             for (i = 0; i < selectedEl.length; i += 1) {
-                val = selectedEl[i].childNodes[0].textContent;
+                val = $(selectedEl[i]).children(".queryField")[0].textContent;
                 if (val && val !== '') {
                     selected.push(val);
                 }
@@ -303,8 +308,8 @@ var SelectedManager = function (divname, options) {
 };
 
 $(document).ready(function () {
-    defineManager = new SelectedManager("selectedfields", { order: ["field", "description"] });
-    popManager = new SelectedManager("population_selected", { order: ["field", "operator", "value", "sessions"] });
+    defineManager = new SelectedManager("selectedfields", { order: ["actions", "field", "description"] });
+    popManager = new SelectedManager("population_selected", { order: ["actions", "field", "operator", "value", "sessions"] });
     Categories.list("categories");
     Categories.list("categories_pop");
     $("#DefinePopulation .selectable").live("click", function (e) {

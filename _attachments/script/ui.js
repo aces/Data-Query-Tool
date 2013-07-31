@@ -176,6 +176,9 @@ function populateStatsTable(headers, data) {
 
 
 }
+
+function PopulateDataTable() {
+}
 function convertObjectToTable(object) {
     if (worker) {
         worker.terminate();
@@ -452,7 +455,7 @@ $(document).ready(function () {
                     };
                 };
             for (i = 0; i < fields.length; i += 1) {
-                field_split = $(fields[i]).children()[0].textContent.split(",");
+                field_split = $(fields[i]).children(".queryField")[0].textContent.split(",");
                 DocTypes.push(field_split[0]);
                 if (Fields[field_split[0]] === undefined) {
                     Fields[field_split[0]] = [];

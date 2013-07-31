@@ -207,7 +207,7 @@ var QueryManager = function (div_name) {
                     for (i = 0; i < filters.length; i += 1) {
                         filter_complete[i] = false;
                         sessions_per_query.push([]);
-                        field = $(filters[i]).children()[0].textContent;
+                        field = $(filters[i]).find(".queryField")[0].textContent;
                         operator = $(filters[i]).find(".queryOp")[0].value;
                         val = $(filters[i]).find(".queryParam")[0].value;
                         split = field.split(",");
