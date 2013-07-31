@@ -81,6 +81,13 @@ helpers.createValueInputForField = function (fieldname, cell, DefaultVal) {
     });
 };
 
+helpers.createActionsCell = function (fieldname, cell) {
+    var el = document.createElement('button');
+    el.textContent = "Remove";
+    el.classList.add("actionRemove");
+    cell.appendChild(el);
+    return cell;
+};
 
 Categories.list = function (selectBox) {
     var that = this, categories;
@@ -95,12 +102,14 @@ Categories.list = function (selectBox) {
         dataType: 'json',
         data: { reduce: true, group_level: 2 },
         success: function (data) {
-            var i, el, categoriesSelect = document.getElementById(selectBox);
+            var i,
+                el,
+                categoriesSelect = document.getElementById(selectBox);
             for (i = 0; i < data.rows.length; i += 1) {
                 el = document.createElement("option");
                 el.textContent = data.rows[i].key;
                 if (categoriesSelect) {
-                categoriesSelect.appendChild(el);
+                    categoriesSelect.appendChild(el);
                 }
             }
             $(categoriesSelect).change();
@@ -154,6 +163,7 @@ Categories.show = function (category, output_div, options) {
                 row = helpers.addCell(row, data.rows[i].key);
                 row = helpers.addCell(row, data.rows[i].value.Description);
 
+                row.setAttribute("id", "selectable_" + output_div.replace("list", "") + "_" + data.rows[i].key);
                 fieldsSelect.appendChild(row);
             }
         }
@@ -167,7 +177,10 @@ var SelectedManager = function (divname, options) {
         description = {};
     return {
         add: function (el, DefaultVal) {
-            var AddedRow, ClickedRow, FieldName, Description, cell, i, row;
+            var AddedRow, ClickedRow, FieldName, Description, cell, i, row,
+                removeCallback = function () {
+                    that.remove(FieldName);
+                };
             if (!$(el).hasClass("selectable")) {
                 return;
             }
@@ -184,7 +197,11 @@ var SelectedManager = function (divname, options) {
 
                 for (i = 0; i < options.order.length; i += 1) {
                     if (options.order[i] === "actions") {
-                        row = helpers.addCell(row, "Hello");
+                        cell = document.createElement("td");
+                        helpers.createActionsCell(FieldName, cell);
+                        row.appendChild(cell);
+                        that = this;
+                        $(row).find(".actionRemove").click(removeCallback);
                     } else if (options.order[i] === "field") {
                         row = helpers.addCell(row, FieldName, "queryField");
                     } else if (options.order[i] === "description") {
@@ -208,8 +225,18 @@ var SelectedManager = function (divname, options) {
             return row;
         },
         remove: function (el) {
-            var id = container.id + "_" + $(el).children()[0].textContent,
-                selecto = document.getElementById(id);
+            var id, selecto, otherdivname;
+
+            if (typeof el === "string") {
+                id = container.id + "_" + el;
+                otherdivname = divname.replace("selected", "");
+                el = document.getElementById("selectable" + "_" + otherdivname + "_" + el);
+            } else {
+                id = container.id + "_" + $(el).children()[0].textContent;
+            }
+
+            selecto = document.getElementById(id);
+
             $(el).removeClass("selected");
             $(el).removeClass("ui-state-highlight");
             if (selecto && selecto.parentNode) {
@@ -309,7 +336,7 @@ var SelectedManager = function (divname, options) {
 
 $(document).ready(function () {
     defineManager = new SelectedManager("selectedfields", { order: ["actions", "field", "description"] });
-    popManager = new SelectedManager("population_selected", { order: ["actions", "field", "operator", "value", "sessions"] });
+    popManager = new SelectedManager("selectedpopfields", { order: ["actions", "field", "operator", "value", "sessions"] });
     Categories.list("categories");
     Categories.list("categories_pop");
     $("#DefinePopulation .selectable").live("click", function (e) {

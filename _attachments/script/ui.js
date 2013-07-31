@@ -1,4 +1,4 @@
-/*global document: false, $: false, window: false, Worker: false, defineManager: false, QueryManager: false, popManager: false, jStat: false, FileReader: false, jQuery: false  */
+/*global document: false, $: false, window: false, Worker: false, defineManager: false, QueryManager: false, popManager: false, jStat: false, FileReader: false, jQuery: false, User: false  */
 "use strict";
 var qmanager;
 var QueryRun = false;
@@ -383,7 +383,7 @@ $(document).ready(function () {
             $("#correlationtbl tbody").children().remove();
             $("#correlationtbl tbody").append("<tr><td>" + jStat.covariance(field1, field2) + "</td><td>" + jStat.corrcoeff(field1, field2) + "</td></tr>");
         };
-    qmanager = new QueryManager("current_filter"),
+    qmanager = new QueryManager("current_filter");
     $("#tabs").tabs();
     resizeAll();
     $(window).resize(resizeAll);
@@ -409,6 +409,9 @@ $(document).ready(function () {
                 DataObject = {},
                 CompleteBitmask = [],
                 WaitForCallback = !(that.populationExplicit()),
+                keys,
+                sessionsIdx,
+                merged,
                 create_callback = function (DocType, docidx, maxdocidx, callback) {
                     return function (data, textStatus) {
                         var i = 0,
@@ -466,7 +469,7 @@ $(document).ready(function () {
             DocTypes = DocTypes.unique();
 
             for (i = 0; i < DocTypes.length; i += 1) {
-                var keys = [], sessionsIdx, merged;
+                keys = [];
                 for (sessionsIdx = 0; sessionsIdx < sessions.length; sessionsIdx += 1) {
                     merged = [];
                     merged.push(DocTypes[i]);
@@ -579,15 +582,15 @@ $(document).ready(function () {
         window.user.login(
             document.getElementById("username_form").value,
             document.getElementById("password_form").value
-            );
+        );
         return false;
 
     });
     $("#SaveQuery").click(function () {
         $("#SaveDialog").dialog("open");
     });
-    $.getJSON("/_session", function(data) {
-        if(data.userCtx && data.userCtx.name) {
+    $.getJSON("/_session", function (data) {
+        if (data.userCtx && data.userCtx.name) {
             window.user._cookieLogin(data.userCtx.name);
         } else {
             window.user.logout();
@@ -601,9 +604,11 @@ $(document).ready(function () {
             btn,
             i,
             row,
-            j, label, body = saved.querySelector("tbody");
+            j,
+            label,
+            body = saved.querySelector("tbody");
         body.textContent = '';
-        for(i = 0; i < data.length; i += 1) {
+        for (i = 0; i < data.length; i += 1) {
             row = data[i];
             tblRow = document.createElement("tr");
 
@@ -613,7 +618,7 @@ $(document).ready(function () {
             btn.textContent = "Load";
             $(btn).click(function (row, tblRow) {
                 return function () {
-                    var i = 0, el, cell, addedEl; 
+                    var i = 0, el, cell, addedEl;
 
                     for (i = 0; i < row.Conditions.length; i += 1) {
                         el = document.createElement("tr");
@@ -634,7 +639,7 @@ $(document).ready(function () {
             btn = document.createElement("button");
             btn.textContent = "Delete";
             $(btn).click(function (row, tblRow) {
-                return function() {
+                return function () {
                     var del = document.getElementById("deletequery");
 
                     del.textContent = row._id;
@@ -656,7 +661,7 @@ $(document).ready(function () {
 
             // Conditions
             tblEl = document.createElement("td");
-            for(j = 0; j < row.Conditions.length; j += 1) {
+            for (j = 0; j < row.Conditions.length; j += 1) {
                 label = '';
                 label += row.Conditions[j].Field;
                 label += row.Conditions[j].Operator;
@@ -669,7 +674,7 @@ $(document).ready(function () {
             body.appendChild(tblRow);
 
         }
-    }
+    };
     $("#DeleteDialog").dialog({
         autoOpen: false,
         modal: true,
@@ -677,15 +682,15 @@ $(document).ready(function () {
             {
                 text: "Confirm delete",
                 click: function () {
-                    var ele = document.getElementById("deletequery"), 
-    tblRow = $(this).dialog("option", "Row");
+                    var ele = document.getElementById("deletequery"),
+                        tblRow = $(this).dialog("option", "Row");
                     qmanager.deleteQuery(ele.textContent, ele.getAttribute("data-rev"));
 
                     $(tblRow).remove();
 
                     $(this).dialog("close");
                 }
-            }, 
+            },
             {
                 text: "Cancel",
                 click: function () {
@@ -694,7 +699,7 @@ $(document).ready(function () {
             }
         ]
 
-        });
+    });
     $("#SaveDialog").dialog({
         autoOpen: false,
         modal: true,
@@ -705,7 +710,7 @@ $(document).ready(function () {
                     var el = document.getElementById("SaveDialogName"), error = document.getElementById("SaveDialogError");
                     error.textContent = '';
 
-                    if(el === undefined || el.value === '') {
+                    if (el === undefined || el.value === '') {
                         error.textContent = "A name must be provided for the saved query.";
                     } else {
                         qmanager.saveQuery(el.value, window.user.getSavedQueries);
@@ -723,6 +728,6 @@ $(document).ready(function () {
                     $(this).dialog("close");
                 }
             }
-    ]
+        ]
     });
 });

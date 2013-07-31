@@ -1,4 +1,4 @@
-/*global document: false, QueryRun: false, $: false, popManager: false, defineManager: false */
+/*global document: false, QueryRun: false, $: false, popManager: false, defineManager: false, window: false */
 var QueryManager = function (div_name) {
     "use strict";
     var that = this,
@@ -278,9 +278,9 @@ var QueryManager = function (div_name) {
 
             for (i = 0; i < filters.length; i += 1) {
                 SavedStub.Conditions.push({
-                            Field: $(filters[i]).children()[0].textContent,
-                            Operator: $(filters[i]).find(".queryOp")[0].value,
-                            Value: $(filters[i]).find(".queryParam")[0].value
+                    Field: $(filters[i]).find(".queryField")[0].textContent,
+                    Operator: $(filters[i]).find(".queryOp")[0].value,
+                    Value: $(filters[i]).find(".queryParam")[0].value
                 });
             }
             $.ajax({
@@ -293,7 +293,7 @@ var QueryManager = function (div_name) {
 
             });
         },
-        deleteQuery: function(name, rev) {
+        deleteQuery: function (name, rev) {
             $.ajax({
                 type: "DELETE",
                 url: name + "?rev=" + rev,
@@ -301,5 +301,5 @@ var QueryManager = function (div_name) {
                 dataType: 'json'
             });
         }
-    }
+    };
 };
