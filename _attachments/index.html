@@ -38,12 +38,11 @@
                     <li><a href="#ViewData">View Data</a></li>
                     <li><a href="#AnalyseData">Analyse Data</a></li>
                     <!--li><a href="#ViewPopulation">Modify Population</a></li-->
-                    <li>
-                    <a onclick="javascript:window.user.logout()" href="#">Logout</a>
+                    <li><a onclick="javascript:window.user.logout()" href="#">Logout</a></li>
                 </ul>
                 <div id="Home" class="ui-widget-reset ui-widget">
                     <div id="DeleteDialog">
-                        Are you really super sure you want to delete <span id="deletequery">undefined</span>
+                        Are you really sure you want to delete <span id="deletequery">undefined</span>
                     </div>
                     <p>Welcome, <span id="username">undefined</span></p>
                     <p>You have saved the following queries:
@@ -67,7 +66,6 @@
                         <table class="fieldlist" id="fields">
                             <thead>
                                 <tr>
-                                    <th>Actions</th>
                                     <th>Field</th>
                                     <th>Description</th>
                                 </tr>
@@ -110,7 +108,9 @@
                         </table>
                     </div>
                     <div class="half" style="overflow: scroll">
-                        <h2>Selected Population</h2><input id="UploadPopulation" type="file" />
+                        <h2>Selected Filters</h2>
+                        <p>After choosing the fields to use as filters in the frame above, specify the criteria you would
+                        like to have them match below.</p>
                         <table width="100%">
                             <thead>
                                 <tr>
@@ -128,6 +128,9 @@
                         <div>
                             Sessions matching all filters: <div id="current_sessions"></div>
                         </div>
+                        <h3>OR</h3>
+                        <p>You can upload a CSV of the sessions that you would like to retrieve the data for by selecting a file below.</p>
+                        <input id="UploadPopulation" type="file" />
                     </div>
                 </div>
                 <div id="ViewData">
@@ -174,36 +177,19 @@
                     <table id="stats" border="1">
                         <thead>
                             <tr>
-                                <th class="header">Measure</th>
+                                <th>Measure</th>
+                                <th>Min</th>
+                                <th>Max</th>
+                                <th>Standard Deviation</th>
+                                <th>Mean</th>
+                                <th>Mean Deviation</th>
+                                <th>Mean Squared Error</th>
+                                <th>First Quartile</th>
+                                <th>Second Quartile</th>
+                                <th>Third Quartile</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th>Min</th>
-                            </tr>
-                            <tr>
-                                <th>Max</th>
-                            </tr>
-                            <tr>
-                                <th>Standard Deviation</th>
-                            </tr>
-                            <tr>
-                                <th>Mean</th>
-                            </tr>
-                            <tr>
-                                <th>Mean Deviation</th>
-                            </tr>
-                            <tr>
-                                <th>Mean Squared Error</th>
-                            </tr>
-                            <tr>
-                                <th>First Quartile</th>
-                            </tr>
-                            <tr>
-                                <th>Second Quartile</th>
-                            </tr>
-                            <tr>
-                                <th>Third Quartile</th>
                             </tr>
                         </tbody>
                     </table>
@@ -261,14 +247,10 @@
                     </tr>
                     <tr>
                         <th align="right" style="color:#000; font-size:12px;" >Password:</th>
-                        <td align="center" width="70%"><input id="password_form" name="password" size="33" tabindex="2" type="password" style="background-color: #e8e8e8"/></td>
+                        <td align="left" width="70%"><input id="password_form" name="password" size="33" tabindex="2" type="password" style="background-color: #e8e8e8"/></td>
                     </tr>
                     <tr>
                         <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td align="center"><a style="color:#0645AD;" href="lost_password.php">Forgot your password?</a></td>
                     </tr>
                 </table>
 
@@ -276,10 +258,10 @@
                     <tr>
                     </tr>       
                     <tr>
-                        <td align="center" colspan="1" style="color:#fff" >A WebGL-compatible browser is required for full functionality (Mozilla Firefox, Google Chrome)</td>
+                        <td align="center" colspan="1" style="color:#fff" >An HTML5-compatible browser is required for full functionality (Mozilla Firefox, Google Chrome). <b>Note that Safari is not currently functional</b></td>
                     </tr>   
                     <tr>
-                        <td align="center" colspan="1" style="color:#fff" >Powered by LORIS &copy; 2013. All rights reserved.</td>
+                        <td align="center" colspan="1" style="color:#fff" >Powered by alternating current (probably) &copy; 2013. All rights reserved.</td>
                     </tr>   
                     <tr>
                         <td align="center" colspan="1"><a href="http://cbrain.mcgill.ca" style="color: #348b8d;" target="_blank">Created by ACElab</a></td>

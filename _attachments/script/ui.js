@@ -80,28 +80,33 @@ function populateStatsTable(headers, data) {
         tbody = $("#stats tbody"),
         trow,
         i,
-        addStatsRow = function (header, data, func) {
-            var results = func.call(data),
-                i;
+        addStatsCol = function (header, data, i) {
+                el;
+            el = document.createElement('td');
+            if(data[i] == null) {
+                el.textContent = '.';
+            }
+            el.textContent = data[i];
+            return el;
 
+            /*
             trow = $('<tr><th>' + header + '</th></tr>');
             for (i = 1; i < (results.length - 1); i += 1) {
                 trow.append('<td>' + results[i] + '</td>');
             }
             tbody.append(trow);
+            */
         },
         quartiles,
-        fqrow,
-        sqrow,
-        tqrow,
         mean,
         cols,
         group_cols,
         xaxis,
         yaxis,
         el,
-        groups;
+        groups, row, j;
 
+    /*
     thead.children().remove();
     thead.append('<tr>');
     trow = $("#stats thead tr");
@@ -109,35 +114,60 @@ function populateStatsTable(headers, data) {
     for (i = 1; i < headers.length; i += 1) {
         trow.append('<th class="header">' + headers[i] + "</th>");
     }
+    */
 
     tbody.children().remove();
 
-    addStatsRow('Minimum', d, d.min);
-    addStatsRow('Maximum', d, d.max);
-    addStatsRow('Mean', d, d.mean);
-    addStatsRow('Standard Deviation', d, d.stdev);
-    // I'm not actually sure what these mean
-    addStatsRow('Mean Deviation', d, d.meandev);
-    addStatsRow('Mean Square Error', d, d.meansqerr);
+    for (i = 1; i < headers.length; i += 1) {
+        row = document.createElement('tr');
+        el = document.createElement('td');
+        el.textContent = headers[i];
+        row.appendChild(el);
 
-    quartiles = d.quartiles();
-    fqrow = $('<tr><th>First Quartile</th></tr>');
-    sqrow = $('<tr><th>Second Quartile</th></tr>');
-    tqrow = $('<tr><th>Third Quartile</th></tr>');
-    for (i = 1; i < (quartiles.length - 1); i += 1) {
-        if (quartiles[i] === null) {
-            fqrow.append('<td>null</td>');
-            sqrow.append('<td>null</td>');
-            tqrow.append('<td>null</td>');
-        } else {
-            fqrow.append('<td>' + quartiles[i][0] + '</td>');
-            sqrow.append('<td>' + quartiles[i][1] + '</td>');
-            tqrow.append('<td>' + quartiles[i][2] + '</td>');
-        }
+        row.appendChild(addStatsCol('Minimum', d.min(), i));
+        row.appendChild(addStatsCol('Maximum', d.max(), i));
+        row.appendChild(addStatsCol('Standard Deviation', d.stdev(), i));
+        row.appendChild(addStatsCol('Mean', d.mean(), i));
+        row.appendChild(addStatsCol('Mean Deviation', d.meandev(), i));
+        row.appendChild(addStatsCol('Mean Squared Error', d.meansqerr(), i));
+
+        quartiles = d.quartiles();
+
+        // First Quartile
+        el = document.createElement('td');
+        el.textContent = quartiles[i][0];
+        row.appendChild(el);
+
+        // Second Quartile
+        el = document.createElement('td');
+        el.textContent = quartiles[i][1];
+        row.appendChild(el);
+
+        // Third Quartile
+        el = document.createElement('td');
+        el.textContent = quartiles[i][2];
+        row.appendChild(el);
+
+
+
+        tbody.append(row);
     }
-    tbody.append(fqrow);
-    tbody.append(sqrow);
-    tbody.append(tqrow);
+    $("#stats").dataTable().fnGetData(),
+
+    /*
+
+    row.appendChild(addStatsCol('Maximum', d, d.max));
+    row.appendChild(addStatsCol('Mean', d, d.mean));
+    row.appendChild(addStatsCol('Standard Deviation', d, d.stdev));
+    // I'm not actually sure what these mean
+    row.appendChild(addStatsCol('Mean Deviation', d, d.meandev));
+    row.appendChild(addStatsCol('Mean Square Error', d, d.meansqerr));
+
+    quartiles = d.quartiles;
+    for (i = 1; i < (quartiles.length - 1); i += 1) {
+
+    }
+    */
 
     mean = d.mean();
     cols = [];
@@ -385,6 +415,8 @@ $(document).ready(function () {
         };
     qmanager = new QueryManager("current_filter");
     $("#tabs").tabs();
+    // Enable the logout button so that it's not greyed out.
+    $("#tabs").tabs("enable", 5);
     resizeAll();
     $(window).resize(resizeAll);
     $("#shownormals").click(function () {
@@ -592,6 +624,24 @@ $(document).ready(function () {
     $.getJSON("/_session", function (data) {
         if (data.userCtx && data.userCtx.name) {
             window.user._cookieLogin(data.userCtx.name);
+
+            //defineManager.refresh(); //= new SelectedManager("selectedfields", { order: ["actions", "field", "description"] });
+            //popManager.refresh(); // = new SelectedManager("selectedpopfields", { order: ["actions", "field", "operator", "value", "sessions"] });
+            Categories.list("categories");
+            Categories.list("categories_pop");
+            /*$("#DefinePopulation .selectable").live("click", function (e) {
+                var el = e.currentTarget;
+                popManager.toggle(el);
+            });
+            $("#DefineFields .selectable").live("click", function (e) {
+                var el = e.currentTarget;
+                defineManager.toggle(el);
+                if (QueryRun === true) {
+                    $("#runquery").click();
+                }
+            });
+            */
+
         } else {
             window.user.logout();
         }

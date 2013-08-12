@@ -27,6 +27,8 @@ var User = function () {
             $(".section").hide();
             $("#logged_in").show();
             that.getSavedQueries();
+            Categories.list("categories");
+            Categories.list("categories_pop");
         },
         _onLoginFailure : function () {
         },
