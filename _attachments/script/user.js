@@ -7,21 +7,37 @@ var User = function () {
             return username;
         },
         login: function (user, pass) {
+            var ajaxOptions = {
+                type: "POST",
+                url: "/_session",
+                data: { "name" : user, "password" : pass }
+            };
             that = this;
             that._attemptedUsername = user;
-            $.post(
-                    "/_session",
-                    { "name" : user, "password" : pass },
-                    that._onLoginSuccess
-                    );
+
+            ajaxOptions.success = that._onLoginSuccess;
+            ajaxOptions.error = that._onLoginFailure;
+
+            /*
+            if(that._cookieLogin !== true) {
+                ajaxOptions.statusCode = {
+                    401: that._onLoginFailure
+                };
+            }
+            */
+            $.ajax(ajaxOptions);
         },
+
         _cookieLogin : function (uname) {
             that = this;
             that._attemptedUsername = uname;
+            that._cookieLogin = true;
             that._onLoginSuccess();
         },
         _onLoginSuccess : function () {
-            var div = document.getElementById("username");
+            var error = document.getElementById("loginerror"),
+            div = document.getElementById("username");
+            error.textContent = '';
             username = that._attemptedUsername;
             div.textContent = username;
             $(".section").hide();
@@ -31,10 +47,25 @@ var User = function () {
             Categories.list("categories_pop");
         },
         _onLoginFailure : function () {
+            var error = document.getElementById("loginerror");
+
+            if (that) {
+                that._attemptedUsername = undefined;
+                that._cookieLogin = false;
+            }
+            error.textContent = 'Invalid username or password';
         },
 
         logout: function () {
+            that = this;
             username = undefined;
+
+            that._explicitLogout = true;
+            if (that) {
+                that._attemptedUsername = undefined;
+                that._cookieLogin = false;
+            }
+            
             $(".section").hide();
             $("#logged_out").show();
             $.ajax({
@@ -42,9 +73,9 @@ var User = function () {
                 url:  "/_session",
                 dataType: "json",
                 username : "_",
-                password : "_"
-
-
+                password : "_",
+                success: function () { },
+                error:   function () { }
             });
         },
 

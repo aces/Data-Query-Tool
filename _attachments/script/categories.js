@@ -105,6 +105,7 @@ Categories.list = function (selectBox) {
             var i,
                 el,
                 categoriesSelect = document.getElementById(selectBox);
+            $(categoriesSelect).children().remove();
             for (i = 0; i < data.rows.length; i += 1) {
                 el = document.createElement("option");
                 el.textContent = data.rows[i].key;
@@ -176,21 +177,50 @@ var SelectedManager = function (divname, options) {
         container = document.getElementById(divname),
         description = {};
     return {
+        clear: function () {
+            $(container).children().remove();
+        },
+        refreshDescriptions: function () {
+            console.log("Hello");
+
+        },
         add: function (el, DefaultVal) {
             var AddedRow, ClickedRow, FieldName, Description, cell, i, row,
                 removeCallback = function () {
                     that.remove(FieldName);
-                };
+                }, 
+                descriptionCallback = function (row) {
+                    var otherRow = row;
+                    return function (d) {
+                        var type, el, Description;
+                        Description = d.rows[0].value.Description;
+                        $(row).find(".queryDescription").text(Description);
+                    }
+                },
+                id, otherdivname, FieldNameArray;
+            if (typeof el === "string") {
+                id = container.id + "_" + el;
+                otherdivname = divname.replace("selected", "");
+                FieldName = el;
+                FieldNameArray = FieldName.split(",");
+                el = document.getElementById("selectable" + "_" + otherdivname + "_" + el);
+
+            };
+            /*
             if (!$(el).hasClass("selectable")) {
                 return;
             }
+            */
             $(el).addClass("selected");
             $(el).addClass("ui-state-highlight");
             if (container.tagName === 'TBODY') {
                 ClickedRow = $(el).children();
 
-                FieldName = ClickedRow[0].textContent;
-                Description = ClickedRow[1].textContent;
+                if (FieldName === undefined) {
+                    FieldName = ClickedRow[0].textContent;
+                    Description = ClickedRow[1].textContent;
+                }
+
 
                 row = document.createElement("tr");
                 row.setAttribute("id", container.id + "_" + FieldName);
@@ -219,6 +249,14 @@ var SelectedManager = function (divname, options) {
                     }
                 }
 
+                if(FieldNameArray !== undefined) {
+                    // Was called by API, not by clicking.
+                    $.getJSON("_view/datadictionary", {
+                        key: JSON.stringify(FieldNameArray),
+                        reduce: false
+                    }, descriptionCallback(row)
+                    );
+                }
                 container.appendChild(row);
 
             }

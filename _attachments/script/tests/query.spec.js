@@ -49,11 +49,13 @@ describe("query runner", function() {
                 spyOn(jQuery, "ajax");
                 spyOn(popManager, "getSelected").andReturn([el]);
                 spyOn(window.user, "getUsername").andReturn("FakeUser");
+                spyOn(defineManager, "getSelectedNames").andReturn(['Instrument,Field','Instrument2,Anotherfield']);
 
                 //this.QM.add("Instrument,Field", "3", "=");
                 this.QM.saveQuery("abc");
                 expect(popManager.getSelected).toHaveBeenCalled();
                 expect(window.user.getUsername).toHaveBeenCalled();
+                expect(defineManager.getSelectedNames).toHaveBeenCalled();
                 expect(jQuery.ajax).toHaveBeenCalledWith(
                     {
                         type: "PUT",
@@ -63,6 +65,7 @@ describe("query runner", function() {
                                 DocType : "SavedQuery",
                                 user : "FakeUser",
                             },
+                            Fields : ['Instrument,Field', 'Instrument2,Anotherfield'],
                             Conditions: [
                                 { 
                                     Field : "Instrument,Field",

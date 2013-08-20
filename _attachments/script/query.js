@@ -271,9 +271,11 @@ var QueryManager = function (div_name) {
                         DocType : "SavedQuery",
                         user    : window.user.getUsername()
                     },
+                    Fields: [],
                     Conditions: []
                 },
                 filters = popManager.getSelected(),
+                fields = defineManager.getSelectedNames(),
                 i = 0;
 
             for (i = 0; i < filters.length; i += 1) {
@@ -283,6 +285,9 @@ var QueryManager = function (div_name) {
                     Value: $(filters[i]).find(".queryParam")[0].value
                 });
             }
+
+            SavedStub.Fields = fields;
+
             $.ajax({
                 type: "PUT",
                 url: savename,

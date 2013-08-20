@@ -625,25 +625,12 @@ $(document).ready(function () {
         if (data.userCtx && data.userCtx.name) {
             window.user._cookieLogin(data.userCtx.name);
 
-            //defineManager.refresh(); //= new SelectedManager("selectedfields", { order: ["actions", "field", "description"] });
-            //popManager.refresh(); // = new SelectedManager("selectedpopfields", { order: ["actions", "field", "operator", "value", "sessions"] });
             Categories.list("categories");
             Categories.list("categories_pop");
-            /*$("#DefinePopulation .selectable").live("click", function (e) {
-                var el = e.currentTarget;
-                popManager.toggle(el);
-            });
-            $("#DefineFields .selectable").live("click", function (e) {
-                var el = e.currentTarget;
-                defineManager.toggle(el);
-                if (QueryRun === true) {
-                    $("#runquery").click();
-                }
-            });
-            */
-
         } else {
-            window.user.logout();
+            if(window.user._explicitLogout !== true) {
+                window.user.logout();
+            }
         }
     });
 
@@ -657,6 +644,7 @@ $(document).ready(function () {
             j,
             label,
             body = saved.querySelector("tbody");
+        $("#savedqueries").dataTable().fnDestroy();
         body.textContent = '';
         for (i = 0; i < data.length; i += 1) {
             row = data[i];
@@ -669,7 +657,18 @@ $(document).ready(function () {
             $(btn).click(function (row, tblRow) {
                 return function () {
                     var i = 0, el, cell, addedEl;
+                    /* Load fields */
+                    defineManager.clear();
+                    for (i = 0; i < row.Fields.length; i += 1) {
+                        console.log(row.Fields[i]);
+                        defineManager.add(row.Fields[i]);
+                    }
+                    $("a[href='#DefineFields']").fadeTo('fast', 0.25);
+                    $("a[href='#DefineFields']").fadeTo('slow', 1);
 
+
+                    /* Load conditions */
+                    popManager.clear();
                     for (i = 0; i < row.Conditions.length; i += 1) {
                         el = document.createElement("tr");
                         el.classList.add("selectable");
@@ -683,6 +682,10 @@ $(document).ready(function () {
                         addedEl = popManager.add(el, row.Conditions[i].Value);
                         $(addedEl).children(".queryOp").val(row.Conditions[i].Operator);
                     }
+                    $("a[href='#DefinePopulation']").fadeTo('fast', 0.25);
+                    $("a[href='#DefinePopulation']").fadeTo('slow', 1);
+                    Categories.list("categories");
+                    Categories.list("categories_pop");
                 };
             }(row, tblRow));
             tblEl.appendChild(btn);
@@ -709,6 +712,14 @@ $(document).ready(function () {
             tblEl.textContent = row._id;
             tblRow.appendChild(tblEl);
 
+            // Fields
+            tblEl = document.createElement("td");
+            for (j = 0; row.Fields && j < row.Fields.length; j += 1) {
+                tblEl.appendChild(document.createTextNode(row.Fields[j]));
+                tblEl.appendChild(document.createElement("br"));
+            }
+            tblRow.appendChild(tblEl);
+
             // Conditions
             tblEl = document.createElement("td");
             for (j = 0; j < row.Conditions.length; j += 1) {
@@ -724,6 +735,16 @@ $(document).ready(function () {
             body.appendChild(tblRow);
 
         }
+        $("#savedqueries").dataTable({
+            bJQueryUI: true,
+            bAutoWidth: false,
+            sPaginationType: "full_numbers",
+            bDestroy: true,
+            "oLanguage" : {
+                "sZeroRecords" : "No saved queries found."
+            }
+        });
+
     };
     $("#DeleteDialog").dialog({
         autoOpen: false,
@@ -736,8 +757,17 @@ $(document).ready(function () {
                         tblRow = $(this).dialog("option", "Row");
                     qmanager.deleteQuery(ele.textContent, ele.getAttribute("data-rev"));
 
+                    $("#savedqueries").dataTable().fnDestroy();
                     $(tblRow).remove();
 
+                    $("#savedqueries").dataTable({
+                        "oLanguage": {
+                            "sZeroRecords" : "No saved queries found."
+                        },
+                        bJQueryUI: true,
+                        sPaginationType: "full_numbers",
+                        bDestroy: true
+                    });
                     $(this).dialog("close");
                 }
             },
@@ -764,6 +794,8 @@ $(document).ready(function () {
                         error.textContent = "A name must be provided for the saved query.";
                     } else {
                         qmanager.saveQuery(el.value, window.user.getSavedQueries);
+                        $("a[href='#Home']").fadeTo('fast', 0.25);
+                        $("a[href='#Home']").fadeTo('slow', 1);
                         // Reload the saved queries, because
                         // it's fast enough and easier than
                         // reparsing everything.
