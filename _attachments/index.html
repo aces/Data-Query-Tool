@@ -36,9 +36,9 @@
                     <li><a href="#DefineFields">Define Fields</a></li>
                     <li><a href="#DefinePopulation">Define Filters</a></li>
                     <li><a href="#ViewData">View Data</a></li>
-                    <li><a href="#AnalyseData">Analyse Data</a></li>
+                    <li><a href="#AnalyseData">Statistical Analysis</a></li>
                     <!--li><a href="#ViewPopulation">Modify Population</a></li-->
-                    <li><a onclick="javascript:window.user.logout()" href="#">Logout</a></li>
+                    <li><a onclick="javascript:window.user.logout(); return false;" href="#">Logout</a></li>
                 </ul>
                 <div id="Home" class="ui-widget-reset ui-widget">
                     <div id="DeleteDialog">
@@ -46,11 +46,12 @@
                     </div>
                     <p>Welcome, <span id="username">undefined</span></p>
                     <p>You have saved the following queries:
-                        <table id="savedqueries">
+                        <table id="savedqueries" width="100%">
                             <thead>
                                 <th>Actions</th>
                                 <th>Name</th>
-                                <th>Conditions</th>
+                                <th>Fields</th>
+                                <th>Filters</th>
                             </thead>
                             <tbody>
                             </tbody>
@@ -239,6 +240,9 @@
                 <br>
                 <table align="center">
                     <tr>
+                        <td colspan="3" id="loginerror">
+
+                        </td>
                     </tr>
                     <tr>
                         <th align="right" style="color:#000; font-size:12px;" >User:</th>
@@ -258,7 +262,7 @@
                     <tr>
                     </tr>       
                     <tr>
-                        <td align="center" colspan="1" style="color:#fff" >An HTML5-compatible browser is required for full functionality (Mozilla Firefox, Google Chrome). <b>Note that Safari is not currently functional</b></td>
+                        <td align="center" colspan="1" style="color:#fff" >An HTML5-compatible browser is required. (ie. Mozilla Firefox, Google Chrome) <b>Note that Safari is not currently supported.</b></td>
                     </tr>   
                     <tr>
                         <td align="center" colspan="1" style="color:#fff" >Powered by alternating current (probably) &copy; 2013. All rights reserved.</td>
