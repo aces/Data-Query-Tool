@@ -239,7 +239,11 @@ function convertObjectToTable(object) {
             dataTable = $("#data").dataTable({
                 bJQueryUI: true,
                 sPaginationType: "full_numbers",
-                bDestroy: true
+                bDestroy: true,
+                "bAutoWidth" : false,
+                "sScrollX": "100%",
+                /*"sScrollXInner" : "110%", */
+                bScrollCollapse: true
             });
             $("#data").css('width', 'auto');
             dataTable.fnAdjustColumnSizing();
@@ -422,9 +426,6 @@ $(document).ready(function () {
     $("#shownormals").click(function () {
         // All the data is already cached, so just rerun it to
         // update the graph
-        $("#runquery").click();
-    });
-    $("#drawGraph").click(function () {
         $("#runquery").click();
     });
     $("#runquery").click(function () {
@@ -744,7 +745,24 @@ $(document).ready(function () {
                 "sZeroRecords" : "No saved queries found."
             }
         });
+        // This doesn't really belong in _loadSavedQueries, but putting
+        // it here is the easiest way to ensure it gets called regardless
+        // of if login happened through a cookie or through entering 
+        // username/password
+        $.ajax({
+                    type: "GET",
+                    url: "_view/runlog?reduce=false&limit=1&descending=true",
+                    /* data: JSON.stringify({ 'keys' : keys }),*/
+                    success: function(resp) {
+                        var el = document.getElementById("updatetime");
 
+                        el.textContent = new Date(resp.rows[0].key);
+                    },
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }
+
+              );
     };
     $("#DeleteDialog").dialog({
         autoOpen: false,

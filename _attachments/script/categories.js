@@ -259,6 +259,7 @@ var SelectedManager = function (divname, options) {
                 }
                 container.appendChild(row);
 
+                row.scrollIntoView();
             }
             return row;
         },
