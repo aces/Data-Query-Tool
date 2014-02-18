@@ -9,6 +9,7 @@
 	<link rel="stylesheet" href="style/login.css" type="text/css">
     </head>
     <body>
+        <script src="vendor/jszip.min.js"></script>
         <script src="vendor/sha1.js"></script>
         <script src="vendor/json2.js"></script>
         <script src="vendor/jquery.js"></script>
@@ -70,6 +71,7 @@
                                 <tr>
                                     <th>Field</th>
                                     <th>Description</th>
+                                    <th>Downloadable File</th>
                                 </tr>
                             </thead>
                             <tbody id="fieldslist">
@@ -84,7 +86,7 @@
                                     <th>Actions</th>
                                     <th>Field</th>
                                     <th>Description</th>
-                                    <!--th>Type</th-->
+                                    <th>Downloadable File</th>
                                 </tr>
                             </thead>
                             <tbody id="selectedfields">
@@ -103,6 +105,7 @@
                                 <tr>
                                     <th>Field</th>
                                     <th>Description</th>
+                                    <th>Downloadable File</th>
                                 </tr>
                             </thead>
                             <tbody id="popfieldslist">
@@ -159,7 +162,8 @@
                         <button id="SaveQuery">Save Query</button>
                     </div>
                     <div>
-                        <a download="download" id="DownloadCSV">Download Data as CSV</a>
+                        <a download="download" id="DownloadCSV">Download Table Data as CSV</a>
+                        <button id="SaveZip">Download All Files as ZIP</button>
                     </div>
 
                     <div id="progress"></div>

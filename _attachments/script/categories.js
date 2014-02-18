@@ -138,6 +138,7 @@ Categories.show = function (category, output_div, options) {
     }, function (d) {
         var i,
             data = $.parseJSON(d),
+            datarow,
             fieldsSelect = document.getElementById(output_div),
             el,
             checkBox,
@@ -152,7 +153,8 @@ Categories.show = function (category, output_div, options) {
         }
 
         for (i = 0; i < data.rows.length; i += 1) {
-            if (data.rows[i].value !== null || !options.showOptions) {
+                datarow = data.rows[i];
+            if (datarow.value !== null || !options.showOptions) {
                 row = document.createElement("tr");
 
                 if (options.selectedManager && options.selectedManager.contains(data.rows[i].key)) {
@@ -161,8 +163,14 @@ Categories.show = function (category, output_div, options) {
                     row.setAttribute("class", "selectable");
                 }
 
-                row = helpers.addCell(row, data.rows[i].key);
-                row = helpers.addCell(row, data.rows[i].value.Description);
+                row = helpers.addCell(row, datarow.key);
+                row = helpers.addCell(row, datarow.value.Description);
+
+                if(datarow.value.IsFile === true) {
+                    row = helpers.addCell(row, "Yes");
+                } else {
+                    row = helpers.addCell(row, "No");
+                }
 
                 row.setAttribute("id", "selectable_" + output_div.replace("list", "") + "_" + data.rows[i].key);
                 fieldsSelect.appendChild(row);
@@ -185,19 +193,27 @@ var SelectedManager = function (divname, options) {
 
         },
         add: function (el, DefaultVal) {
-            var AddedRow, ClickedRow, FieldName, Description, cell, i, row,
+            var AddedRow,
+                ClickedRow, FieldName, Description, 
+                cell, i, row,
                 removeCallback = function () {
                     that.remove(FieldName);
                 }, 
                 descriptionCallback = function (row) {
                     var otherRow = row;
                     return function (d) {
-                        var type, el, Description;
-                        Description = d.rows[0].value.Description;
+                        var type, el, Description, 
+                            row = d.rows[0].value;
+                        Description = row.Description;
                         $(row).find(".queryDescription").text(Description);
+                        if(row.IsFile === true) {
+                            $(row).find(".queryIsFile").text("Yes");
+                        } else {
+                            $(row).find(".queryIsFile").text("No");
+                        }
                     }
                 },
-                id, otherdivname, FieldNameArray;
+                id, otherdivname, FieldNameArray, IsFile;
             if (typeof el === "string") {
                 id = container.id + "_" + el;
                 otherdivname = divname.replace("selected", "");
@@ -219,6 +235,7 @@ var SelectedManager = function (divname, options) {
                 if (FieldName === undefined) {
                     FieldName = ClickedRow[0].textContent;
                     Description = ClickedRow[1].textContent;
+                    IsFile = ClickedRow[2].textContent;
                 }
 
 
@@ -238,6 +255,8 @@ var SelectedManager = function (divname, options) {
                         row = helpers.addCell(row, Description, "queryDescription");
                     } else if (options.order[i] === "operator") {
                         row.appendChild(helpers.createOperatorElement());
+                    } else if (options.order[i] === "isfile") {
+                        row = helpers.addCell(row, IsFile, "queryIsFile");
                     } else if (options.order[i] === "value") {
                         cell = document.createElement("td");
                         row.appendChild(cell);
@@ -368,13 +387,21 @@ var SelectedManager = function (divname, options) {
                     return $(allEls[i]).children("select.queryOp").val();
                 }
             }
+        },
+
+        isFileField: function (FieldName) {
+            var row = document.getElementById(container.id + "_" + FieldName);
+
+            return ($(row).find(".queryIsFile").text() === "Yes");
+            //console.log(FieldName);
+            //return false;
         }
 
     };
 };
 
 $(document).ready(function () {
-    defineManager = new SelectedManager("selectedfields", { order: ["actions", "field", "description"] });
+    defineManager = new SelectedManager("selectedfields", { order: ["actions", "field", "description", "isfile"] });
     popManager = new SelectedManager("selectedpopfields", { order: ["actions", "field", "operator", "value", "sessions"] });
     Categories.list("categories");
     Categories.list("categories_pop");

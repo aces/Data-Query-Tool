@@ -55,7 +55,7 @@ var QueryManager = function (div_name) {
                         i = fields.indexOf(field);
                         if (i !== -1) {
                             fields.splice(i, 1);
-                            $("#runquery").click();
+                            //$("#runquery").click();
                         }
                         $(this).parents("dl").remove();
                     };

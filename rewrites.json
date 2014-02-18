@@ -14,6 +14,11 @@
         "method" : "DELETE"
     },
     {
+        "from": "files/*",
+        "to"  : "../../*",
+        "method" : "GET"
+    },
+    {
         "from": "",
         "to": "index.html"
     },

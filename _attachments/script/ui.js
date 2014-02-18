@@ -453,7 +453,8 @@ $(document).ready(function () {
                             elements = Fields[DocType],
                             group_level = document.getElementById("group_level").value,
                             prefix,
-                            Completed;
+                            Completed,
+                            FieldName;
                         for (i = 0; i < data.rows.length; i += 1) {
                             row = data.rows[i];
                             prefix = row.value.clone();
@@ -467,10 +468,25 @@ $(document).ready(function () {
                                     if (!DataObject[row.value]) {
                                         DataObject[row.value] = [];
                                     }
-                                    if (row.doc.data) {
-                                        DataObject[row.value][row.key[0] + "," + elements[j]] = row.doc.data[elements[j]];
+
+                                    FieldName = row.key[0] + "," + elements[j];
+
+                                    if (row.doc.data && row.doc.data[elements[j]] !== null) {
+                                        DataObject[row.value][FieldName] = {
+                                            TextValue: row.doc.data[elements[j]],
+                                            IsFile: false,
+                                            DocID: row.id
+                                        }
                                     } else {
-                                        DataObject[row.value][row.key[0] + "," + elements[j]] = '.';
+                                        DataObject[row.value][FieldName] = {
+                                            TextValue: '.',
+                                            IsFile: false,
+                                            DocID: row.id
+                                        }
+                                    }
+
+                                    if(defineManager.isFileField([DocType, elements[j]])) {
+                                        DataObject[row.value][FieldName].IsFile = true;
                                     }
                                 }
                             }
@@ -756,7 +772,9 @@ $(document).ready(function () {
                     success: function(resp) {
                         var el = document.getElementById("updatetime");
 
+                        if(resp.rows[0]) {
                         el.textContent = new Date(resp.rows[0].key);
+                        }
                     },
                     contentType: 'application/json',
                     dataType: 'json'
@@ -829,5 +847,17 @@ $(document).ready(function () {
                 }
             }
         ]
+    });
+    $("#SaveZip").click(function() {
+        var zip = new JSZip();
+        // Get list of files. Need helper function/
+        // data structure for this?
+        //
+        // make ajax call to retrieve each file.
+        // for each one 
+        //    call zip.file(filename, content)
+        //
+        // Maybe do this in batches?
+        // .. then save
     });
 });

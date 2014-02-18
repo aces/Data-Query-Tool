@@ -40,7 +40,7 @@ self.ConvertObjectToTable = function (obj) {
         numRows = Object.keys(existingRows),
         el,
         identifier,
-        row;
+        row, objcol;
     self.RowNum = 0;
     for (el in obj) {
         if (obj.hasOwnProperty(el)) {
@@ -119,7 +119,16 @@ self.ConvertObjectToTable = function (obj) {
                     if (val === undefined || val === null) {
                         tblrow[idx] = '.';
                     } else {
-                        tblrow[idx] = objrow[Selected[j]];
+                        tblrow[idx] = objrow[Selected[j]]
+
+                        if(val.IsFile === true) {
+                            tblrow[idx] = '<a href="files/' 
+                                + val.DocID + "/" 
+                                + encodeURIComponent(val.TextValue) + '">' 
+                                + val.TextValue + '</a>' ;
+                        } else {
+                            tblrow[idx] = objrow[Selected[j]].TextValue;
+                        }
                     }
                 }
             }
