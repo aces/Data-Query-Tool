@@ -104,7 +104,6 @@ self.ConvertObjectToTable = function (obj) {
             }
             sPrefix = prefix.join("_").toUpperCase();
 
-            this.debug({ id: "I am", el: el });
             tblrow = existingRows[identifier.join(",")];
             objrow = obj[el];
             for (j = 0; j < Selected.length; j += 1) {
@@ -125,7 +124,10 @@ self.ConvertObjectToTable = function (obj) {
                             tblrow[idx] = '<a href="files/' 
                                 + val.DocID + "/" 
                                 + encodeURIComponent(val.TextValue) + '">' 
-                                + val.TextValue + '</a>' ;
+                                + val.TextValue + '</a>';
+                            if(val.TextValue !== '.') {
+                                self.postMessage({ cmd: 'AddFile', Filename: "files/" + val.DocID + "/" + encodeURIComponent(val.TextValue) });
+                            }
                         } else {
                             tblrow[idx] = objrow[Selected[j]].TextValue;
                         }

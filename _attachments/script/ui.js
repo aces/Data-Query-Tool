@@ -17,6 +17,7 @@ var resizeAll = function () {
     halfsizes = $(".half");
     $(".half").css("height", (workspace_height / 2) - 5);
 };
+var FileList = [];
 
 function plot(columns, data) {
     var yAxis, i, d, j, column, plots = [], subscale, identifier, dataSetNo = 1, columnData = {},
@@ -219,6 +220,8 @@ function convertObjectToTable(object) {
         cols = 0,
         headers;
 
+    FileList = [];
+
     worker.addEventListener('message', function (e) {
         var i, tbl, thead, trow, headers, headersEl, csvworker;
         if (e.data.cmd === 'Status') {
@@ -259,34 +262,15 @@ function convertObjectToTable(object) {
                 dataTable.fnDraw();
                 headers = [];
                 headersEl = $("#data thead th");
-                csvworker = new Worker('script/ui.savecsv.js');
-
                 for (i = 0; i < headersEl.length; i += 1) {
                     headers[i] = headersEl[i].textContent;
-                }
-
-                csvworker.addEventListener('message', function (e) {
-                    var dataURL, link;
-                    if (e.data.cmd === 'SaveCSV') {
-                        dataURL = window.URL.createObjectURL(e.data.message);
-                        link = document.getElementById("DownloadCSV");
-                        link.download = "data.csv";
-                        link.type = "text/csv";
-                        link.href = dataURL;
-                        //$(link).click();
-                        //window.URL.revokeObjectURL(dataURL);
-
-                    }
-                });
-                csvworker.postMessage({ cmd: 'SaveFile',
-                    data: $("#data").dataTable().fnGetData(),
-                    headers: headers
-                    });
-
+                }       
 
                 populateStatsTable(headers, dataTable.fnGetData().convertNumbers());
                 worker.terminate();
             }
+        } else if (e.data.cmd === 'AddFile') {
+            FileList.push(e.data.Filename);
         }
     }, true);
     worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelectedNames()});
@@ -848,8 +832,57 @@ $(document).ready(function () {
             }
         ]
     });
+    $("#SaveCSV").click(function() {
+        var headers = [], i,
+        headersEl = $("#data thead th"),
+        csvworker = new Worker('script/ui.savecsv.js');
+
+        for (i = 0; i < headersEl.length; i += 1) {
+            headers[i] = headersEl[i].textContent;
+        }
+
+        csvworker.addEventListener('message', function (e) {
+            var dataURL, link;
+            if (e.data.cmd === 'SaveCSV') {
+                dataURL = window.URL.createObjectURL(e.data.message);
+                link = document.getElementById("DownloadLink");
+                link.download = "data.csv";
+                link.type = "text/csv";
+                link.href = dataURL;
+                $(link)[0].click();
+                //window.URL.revokeObjectURL(dataURL);
+
+            }
+        });
+        csvworker.postMessage({ cmd: 'SaveFile',
+            data: $("#data").dataTable().fnGetData(),
+            headers: headers
+        });
+
+
+
+    });
     $("#SaveZip").click(function() {
-        var zip = new JSZip();
+        var zip = new JSZip(), 
+            i = 0, 
+            CompleteMask = new Array(FileList.length),
+            saveworker;
+    
+        saveworker = new Worker('script/ui.savezip.js');
+        saveworker.addEventListener('message', function (e) {
+            var dataURL = window.URL.createObjectURL(e.data.zip),
+                link = document.getElementById("DownloadLink");
+            link.download = "files.zip";
+            link.type = "application/zip";
+            link.href = dataURL;
+            $(link)[0].click();
+            //window.URL.revokeObjectURL(dataURL);
+            
+            this.terminate();
+        });
+
+        saveworker.postMessage({ Files: FileList });
+
         // Get list of files. Need helper function/
         // data structure for this?
         //

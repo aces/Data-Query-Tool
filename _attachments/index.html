@@ -162,8 +162,12 @@
                         <button id="SaveQuery">Save Query</button>
                     </div>
                     <div>
-                        <a download="download" id="DownloadCSV">Download Table Data as CSV</a>
+                        <button id="SaveCSV">Download Table Data as CSV</button>
                         <button id="SaveZip">Download All Files as ZIP</button>
+                        <!-- Don't display the below link, it's just used to tie a dataURL to
+                        which is then invoked/clicked via javascript when the above buttons are
+                        clicked -->
+                        <a download="download" id="DownloadLink" style="display: none">Download link</a>
                     </div>
 
                     <div id="progress"></div>
