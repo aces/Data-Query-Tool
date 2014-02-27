@@ -199,17 +199,17 @@ var SelectedManager = function (divname, options) {
                 removeCallback = function () {
                     that.remove(FieldName);
                 }, 
-                descriptionCallback = function (row) {
-                    var otherRow = row;
+                descriptionCallback = function (row2) {
+                    var otherRow = row2;
                     return function (d) {
                         var type, el, Description, 
                             row = d.rows[0].value;
                         Description = row.Description;
-                        $(row).find(".queryDescription").text(Description);
+                        $(otherRow).find(".queryDescription").text(Description);
                         if(row.IsFile === true) {
-                            $(row).find(".queryIsFile").text("Yes");
+                            $(otherRow).find(".queryIsFile").text("Yes");
                         } else {
-                            $(row).find(".queryIsFile").text("No");
+                            $(otherRow).find(".queryIsFile").text("No");
                         }
                     }
                 },
