@@ -153,7 +153,7 @@ Categories.show = function (category, output_div, options) {
         }
 
         for (i = 0; i < data.rows.length; i += 1) {
-                datarow = data.rows[i];
+            datarow = data.rows[i];
             if (datarow.value !== null || !options.showOptions) {
                 row = document.createElement("tr");
 
@@ -166,7 +166,7 @@ Categories.show = function (category, output_div, options) {
                 row = helpers.addCell(row, datarow.key);
                 row = helpers.addCell(row, datarow.value.Description);
 
-                if(datarow.value.IsFile === true) {
+                if (datarow.value.IsFile === true) {
                     row = helpers.addCell(row, "Yes");
                 } else {
                     row = helpers.addCell(row, "No");
@@ -194,26 +194,35 @@ var SelectedManager = function (divname, options) {
         },
         add: function (el, DefaultVal) {
             var AddedRow,
-                ClickedRow, FieldName, Description, 
-                cell, i, row,
+                ClickedRow,
+                FieldName,
+                Description,
+                cell,
+                i,
+                row,
                 removeCallback = function () {
                     that.remove(FieldName);
-                }, 
+                },
                 descriptionCallback = function (row2) {
                     var otherRow = row2;
                     return function (d) {
-                        var type, el, Description, 
+                        var type,
+                            el,
+                            Description,
                             row = d.rows[0].value;
                         Description = row.Description;
                         $(otherRow).find(".queryDescription").text(Description);
-                        if(row.IsFile === true) {
+                        if (row.IsFile === true) {
                             $(otherRow).find(".queryIsFile").text("Yes");
                         } else {
                             $(otherRow).find(".queryIsFile").text("No");
                         }
-                    }
+                    };
                 },
-                id, otherdivname, FieldNameArray, IsFile;
+                id,
+                otherdivname,
+                FieldNameArray,
+                IsFile;
             if (typeof el === "string") {
                 id = container.id + "_" + el;
                 otherdivname = divname.replace("selected", "");
@@ -221,7 +230,7 @@ var SelectedManager = function (divname, options) {
                 FieldNameArray = FieldName.split(",");
                 el = document.getElementById("selectable" + "_" + otherdivname + "_" + el);
 
-            };
+            }
             /*
             if (!$(el).hasClass("selectable")) {
                 return;
@@ -268,13 +277,14 @@ var SelectedManager = function (divname, options) {
                     }
                 }
 
-                if(FieldNameArray !== undefined) {
+                if (FieldNameArray !== undefined) {
                     // Was called by API, not by clicking.
                     $.getJSON("_view/datadictionary", {
                         key: JSON.stringify(FieldNameArray),
                         reduce: false
-                    }, descriptionCallback(row)
-                    );
+                    },
+                        descriptionCallback(row)
+                        );
                 }
                 container.appendChild(row);
 

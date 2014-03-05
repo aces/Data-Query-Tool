@@ -129,7 +129,13 @@ self.ConvertObjectToTable = function (obj) {
                                 self.postMessage({ cmd: 'AddFile', Filename: "files/" + val.DocID + "/" + encodeURIComponent(val.TextValue) });
                             }
                         } else {
+
                             tblrow[idx] = objrow[Selected[j]].TextValue;
+                            if(tblrow[idx] === undefined) {
+                                // Value was undefined, make it a . so that things
+                                // dont crash when processing the data
+                                tblrow[idx] = ".";
+                            }
                         }
                     }
                 }

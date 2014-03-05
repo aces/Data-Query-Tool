@@ -82,9 +82,9 @@ function populateStatsTable(headers, data) {
         trow,
         i,
         addStatsCol = function (header, data, i) {
-                el;
+            var el;
             el = document.createElement('td');
-            if(data[i] == null) {
+            if (data[i] === null) {
                 el.textContent = '.';
             }
             el.textContent = data[i];
@@ -105,7 +105,9 @@ function populateStatsTable(headers, data) {
         xaxis,
         yaxis,
         el,
-        groups, row, j;
+        groups,
+        row,
+        j;
 
     /*
     thead.children().remove();
@@ -153,22 +155,7 @@ function populateStatsTable(headers, data) {
 
         tbody.append(row);
     }
-    $("#stats").dataTable().fnGetData(),
-
-    /*
-
-    row.appendChild(addStatsCol('Maximum', d, d.max));
-    row.appendChild(addStatsCol('Mean', d, d.mean));
-    row.appendChild(addStatsCol('Standard Deviation', d, d.stdev));
-    // I'm not actually sure what these mean
-    row.appendChild(addStatsCol('Mean Deviation', d, d.meandev));
-    row.appendChild(addStatsCol('Mean Square Error', d, d.meansqerr));
-
-    quartiles = d.quartiles;
-    for (i = 1; i < (quartiles.length - 1); i += 1) {
-
-    }
-    */
+    $("#stats").dataTable().fnGetData();
 
     mean = d.mean();
     cols = [];
@@ -260,13 +247,6 @@ function convertObjectToTable(object) {
             if (e.data.RowNum === e.data.TotalRows) {
                 progress.textContent = '';
                 dataTable.fnDraw();
-                headers = [];
-                headersEl = $("#data thead th");
-                for (i = 0; i < headersEl.length; i += 1) {
-                    headers[i] = headersEl[i].textContent;
-                }       
-
-                populateStatsTable(headers, dataTable.fnGetData().convertNumbers());
                 worker.terminate();
             }
         } else if (e.data.cmd === 'AddFile') {
@@ -460,16 +440,16 @@ $(document).ready(function () {
                                             TextValue: row.doc.data[elements[j]],
                                             IsFile: false,
                                             DocID: row.id
-                                        }
+                                        };
                                     } else {
                                         DataObject[row.value][FieldName] = {
                                             TextValue: '.',
                                             IsFile: false,
                                             DocID: row.id
-                                        }
+                                        };
                                     }
 
-                                    if(defineManager.isFileField([DocType, elements[j]])) {
+                                    if (defineManager.isFileField([DocType, elements[j]])) {
                                         DataObject[row.value][FieldName].IsFile = true;
                                     }
                                 }
@@ -524,6 +504,17 @@ $(document).ready(function () {
             $("a[href='#ViewData']").fadeTo('fast', 0.25);
             $("a[href='#ViewData']").fadeTo('slow', 1);
         });
+    });
+
+    $("#CalculateStats").click(function (e) {
+        var headers = [],
+        headersEl = $("#data thead th"), i;
+        console.log("c/licked");
+        for (i = 0; i < headersEl.length; i += 1) {
+            headers[i] = headersEl[i].textContent;
+        }
+
+        populateStatsTable(headers, dataTable.fnGetData().convertNumbers());
     });
     $("#UploadPopulation").change(function (e) {
         var file = e.target.files[0],
@@ -833,13 +824,12 @@ $(document).ready(function () {
         ]
     });
     $("#SaveCSV").click(function() {
-        var headers = [], i,
-        headersEl = $("#data thead th"),
+        var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; }),
         csvworker = new Worker('script/ui.savecsv.js');
 
-        for (i = 0; i < headersEl.length; i += 1) {
+        /* for (i = 0; i < headersEl.length; i += 1) {
             headers[i] = headersEl[i].textContent;
-        }
+        } */
 
         csvworker.addEventListener('message', function (e) {
             var dataURL, link;
