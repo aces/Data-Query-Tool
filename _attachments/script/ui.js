@@ -507,15 +507,10 @@ $(document).ready(function () {
     });
 
     $("#CalculateStats").click(function (e) {
-        var headers = [],
-        headersEl = $("#data thead th"), i;
-        console.log("c/licked");
-        for (i = 0; i < headersEl.length; i += 1) {
-            headers[i] = headersEl[i].textContent;
-        }
-
+        var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; }),
         populateStatsTable(headers, dataTable.fnGetData().convertNumbers());
     });
+
     $("#UploadPopulation").change(function (e) {
         var file = e.target.files[0],
             reader = new FileReader();
