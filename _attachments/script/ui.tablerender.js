@@ -180,6 +180,7 @@ self.ConvertJSON = function (textObject) {
         group_level = self.GroupLevel,
         sessions = self.Sessions,
         elements = self.Elements,
+        dataRows,
         arrayClone = function (arr) {
             var a = [], i;
 
@@ -210,8 +211,9 @@ self.ConvertJSON = function (textObject) {
             return false;
         };
 
-    for (i = 0; i < data.rows.length; i += 1) {
-        row = data.rows[i];
+    dataRows = data.rows
+    for (i = 0; i < dataRows.length; i += 1) {
+        row = dataRows[i];
         RowID = row.value;
         prefix = arrayClone(row.value);
         j = group_level;
@@ -223,7 +225,9 @@ self.ConvertJSON = function (textObject) {
         if (arrayContainsPrefix(sessions, prefix)) {
             self.postMessage({
                 cmd: 'AddRow',
-                RowID: RowID
+                RowID: RowID,
+                Idx: i,
+                TotalRows: dataRows.length
             });
 
             for (j = 0; j < elements.length; j += 1) {

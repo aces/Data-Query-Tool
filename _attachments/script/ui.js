@@ -19,6 +19,21 @@ var resizeAll = function () {
 };
 var FileList = [];
 
+function getOrCreateProgressElement(id) {
+    var element = document.getElementById(id),
+        progress;
+
+    if (element) {
+        return element;
+    }
+
+    progress = document.getElementById("progress");
+
+    element = document.createElement("div");
+    element.setAttribute("id", id);
+    progress.appendChild(element);
+    return element;
+}
 function plot(columns, data) {
     var yAxis, i, d, j, column, plots = [], subscale, identifier, dataSetNo = 1, columnData = {},
         mean = data.mean(), stdev = data.stdev(), normal, showNormal = false, normals = [], min = data.min().min(), max = data.max().max(),
@@ -197,13 +212,19 @@ function populateStatsTable(headers, data) {
 
 function PopulateDataTable() {
 }
+
 function convertObjectToTable(object) {
     if (worker) {
         worker.terminate();
     }
     worker = new Worker('script/ui.tablerender.js');
-    worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelectedNames()});
-    var progress = document.getElementById("progress"),
+    worker.postMessage({
+        cmd: 'ConvertObject',
+        obj: object,
+        group_level: document.getElementById("group_level").value,
+        SelectedElements: defineManager.getSelectedNames()
+    });
+    var progress = getOrCreateProgressElement("progress_conversion"),
         cols = 0,
         headers;
 
@@ -212,7 +233,7 @@ function convertObjectToTable(object) {
     worker.addEventListener('message', function (e) {
         var i, tbl, thead, trow, headers, headersEl, csvworker;
         if (e.data.cmd === 'Status') {
-            progress.textContent = "Processed " + e.data.RowNum + " / " + e.data.Total;
+            progress.innerHTML = "Combining instrument data: <progress value=\"" + e.data.RowNum + "\" max=\"" + e.data.Total + "\">" + e.data.RowNum + " / " + e.data.Total + "</progress>";
         } else if (e.data.cmd === "PopulateHeaders") {
             if (dataTable && dataTable.fnClearTable) {
                 dataTable.fnClearTable();
@@ -240,7 +261,7 @@ function convertObjectToTable(object) {
             headers = e.data.Headers;
 
         } else if (e.data.cmd === 'AddRow') {
-            progress.textContent = ("Loading data " + e.data.RowNum + " / " + e.data.TotalRows);
+            progress.innerHTML = "Loading into data table: <progress value=\"" + e.data.RowNum + "\" max=\"" + e.data.TotalRows + "\">" + e.data.RowNum + " / " + e.data.TotalRows + "</progress>";
             if (dataTable.fnAddData) {
                 dataTable.fnAddData(e.data.Row, false);
             }
@@ -253,7 +274,12 @@ function convertObjectToTable(object) {
             FileList.push(e.data.Filename);
         }
     }, true);
-    worker.postMessage({ cmd: 'ConvertObject', obj: object, group_level: document.getElementById("group_level").value, SelectedElements: defineManager.getSelectedNames()});
+    worker.postMessage({
+        cmd: 'ConvertObject',
+        obj: object,
+        group_level: document.getElementById("group_level").value,
+        SelectedElements: defineManager.getSelectedNames()
+    });
 }
 
 
@@ -415,11 +441,17 @@ $(document).ready(function () {
                             jsonworker = new Worker('script/ui.tablerender.js');
 
                         jsonworker.addEventListener('message', function (e) {
-                            var i, msg = e.data;
+                            var i,
+                                msg = e.data,
+                                progressElement,
+                                progressDiv;
                             if (msg.cmd === 'AddRow') {
                                 if (!DataObject[msg.RowID]) {
                                     DataObject[msg.RowID] = [];
                                 }
+                                progressElement = getOrCreateProgressElement(DocType + "_progress");
+
+                                progressElement.innerHTML = DocType + " processing: <progress value=\"" + msg.Idx + "\" max=\"" + msg.TotalRows + "\">" + msg.Idx + " out of " + msg.TotalRows + "</progress>";
                             } else if (msg.cmd === 'AddValueToRow') {
                                 DataObject[msg.RowID][msg.Field] = {
                                     TextValue: msg.Value,
@@ -431,6 +463,8 @@ $(document).ready(function () {
                                 }
                             } else if (msg.cmd === 'FinishedConvertJSON') {
                                 this.terminate();
+                                progressElement = getOrCreateProgressElement(DocType + "_progress");
+                                progressElement.textContent = DocType + ": Finished processing";
                                 CompleteBitmask[docidx] = true;
                                 Completed = true;
                                 for (i = 0; i < maxdocidx; i += 1) {
@@ -441,6 +475,8 @@ $(document).ready(function () {
                                 }
 
                                 if (callback && Completed) {
+                                    progressElement = document.getElementById("progress");
+                                    progressElement.textContent = '';
                                     callback(convertObjectToTable(DataObject));
                                     $("#ViewData").css("cursor", "auto");
                                 }
@@ -454,6 +490,22 @@ $(document).ready(function () {
                             Elements: Fields[DocType]
                         });
 
+                    };
+                },
+                downloadProgressHandler = function (DocType) {
+                    return function (jqXHR, settings) {
+                        var xhr = this.xhr();
+                        xhr.addEventListener("progress", function (e) {
+                            var progressElement = getOrCreateProgressElement(DocType + "_progress"),
+                                msg = DocType + ": Downloaded " + Math.round(e.loaded / 1024) + " kilobytes";
+                            progressElement.textContent = msg;
+                        });
+                        xhr.addEventListener("load", function (e) {
+                            var progressElement = getOrCreateProgressElement(DocType + "_progress");
+                            progressElement.textContent = "Downloaded data for " + DocType;
+                        });
+                        this.OverloadedXHR = xhr;
+                        this.xhr = function () { return this.OverloadedXHR; };
                     };
                 };
             for (i = 0; i < fields.length; i += 1) {
@@ -480,6 +532,7 @@ $(document).ready(function () {
                 $.ajax({
                     type: "POST",
                     url: "_view/instruments?include_docs=true&reduce=false",
+                    beforeSend: downloadProgressHandler(DocTypes[i]),
                     data: JSON.stringify({ 'keys' : keys }),
                     success: create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable),
                     contentType: 'application/json',
@@ -856,15 +909,5 @@ $(document).ready(function () {
         });
 
         saveworker.postMessage({ Files: FileList });
-
-        // Get list of files. Need helper function/
-        // data structure for this?
-        //
-        // make ajax call to retrieve each file.
-        // for each one 
-        //    call zip.file(filename, content)
-        //
-        // Maybe do this in batches?
-        // .. then save
     });
 });
