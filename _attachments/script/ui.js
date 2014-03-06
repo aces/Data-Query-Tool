@@ -411,62 +411,48 @@ $(document).ready(function () {
                 merged,
                 create_callback = function (DocType, docidx, maxdocidx, callback) {
                     return function (data, textStatus) {
-                        var i = 0,
-                            j = 0,
-                            row,
-                            elements = Fields[DocType],
-                            group_level = document.getElementById("group_level").value,
-                            prefix,
-                            Completed,
-                            FieldName;
-                        for (i = 0; i < data.rows.length; i += 1) {
-                            row = data.rows[i];
-                            prefix = row.value.clone();
-                            j = group_level;
-                            while (j > 0) {
-                                j -= 1;
-                                prefix.pop();
-                            }
-                            if (sessions.containsPrefix(prefix)) {
-                                for (j = 0; j < elements.length; j += 1) {
-                                    if (!DataObject[row.value]) {
-                                        DataObject[row.value] = [];
-                                    }
+                        var Completed,
+                        jsonworker = new Worker('script/ui.tablerender.js');
 
-                                    FieldName = row.key[0] + "," + elements[j];
-
-                                    if (row.doc.data && row.doc.data[elements[j]] !== null) {
-                                        DataObject[row.value][FieldName] = {
-                                            TextValue: row.doc.data[elements[j]],
-                                            IsFile: false,
-                                            DocID: row.id
-                                        };
-                                    } else {
-                                        DataObject[row.value][FieldName] = {
-                                            TextValue: '.',
-                                            IsFile: false,
-                                            DocID: row.id
-                                        };
-                                    }
-
-                                    if (defineManager.isFileField([DocType, elements[j]])) {
-                                        DataObject[row.value][FieldName].IsFile = true;
+                        jsonworker.addEventListener('message', function (e) { 
+                            var i, msg = e.data;
+                            if (msg.cmd === 'AddRow') {
+                                if (!DataObject[msg.RowID]) {
+                                    DataObject[msg.RowID] = [];
+                                }
+                            } else if (msg.cmd === 'AddValueToRow') {
+                                DataObject[msg.RowID][msg.Field] = {
+                                    TextValue: msg.Value,
+                                    IsFile: false,
+                                    DocID: msg.DocID
+                                };
+                                if (defineManager.isFileField([DocType, msg.Column])) {
+                                    DataObject[msg.RowID][msg.Field].IsFile = true;
+                                }
+                            } else if (msg.cmd === 'FinishedConvertJSON') {
+                                this.terminate();
+                                CompleteBitmask[docidx] = true;
+                                Completed = true;
+                                for (i = 0;i < maxdocidx; i += 1) {
+                                    if(CompleteBitmask[i] !== true) {
+                                        Completed = false;
+                                        break;
                                     }
                                 }
-                            }
-                        }
-                        CompleteBitmask[docidx] = true;
-                        Completed = true;
-                        for (i = 0; i < maxdocidx; i += 1) {
-                            if (CompleteBitmask[i] !== true) {
-                                Completed = false;
-                            }
-                        }
 
-                        if (callback && Completed) {
-                            callback(convertObjectToTable(DataObject));
-                            $("#ViewData").css("cursor", "auto");
-                        }
+                                if(callback && Completed) {
+                                    callback(convertObjectToTable(DataObject));
+                                    $("#ViewData").css("cursor", "auto");
+                                }
+                            }
+                        });
+                        jsonworker.postMessage({ 
+                            cmd: 'ConvertJSON',
+                            data: data,
+                            GroupLevel: document.getElementById("group_level").value,
+                            Sessions: sessions,
+                            Elements: Fields[DocType]
+                        });
 
                     };
                 };
@@ -497,7 +483,7 @@ $(document).ready(function () {
                     data: JSON.stringify({ 'keys' : keys }),
                     success: create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable),
                     contentType: 'application/json',
-                    dataType: 'json'
+                    dataType: 'text'
                 });
             }
             document.getElementById("current_sessions").textContent = "[" + sessions.join("], [") + "]";

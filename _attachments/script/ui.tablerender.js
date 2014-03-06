@@ -13,7 +13,10 @@ self.addEventListener('message', function (e) {
         //self.postMessage(CreateTableBody(data.results);
         break;
     case 'ConvertJSON':
-        self.ConvertJSON(data);
+        self.GroupLevel = parseInt(data.group_level, 10);
+        self.Sessions   = data.Sessions;
+        self.Elements   = data.Elements;
+        self.ConvertJSON(data.data);
         break;
     default:
         self.postMessage('Unknown cmd');
@@ -163,6 +166,7 @@ self.ConvertObjectToTable = function (obj) {
     self.close();
 };
 
+
 self.ConvertJSON = function (textObject) {
     "use strict";
     var data = JSON.parse(textObject),
@@ -170,19 +174,80 @@ self.ConvertJSON = function (textObject) {
         j,
         row,
         prefix,
-        group_level;
+        FieldName,
+        RowID,
+        value,
+        group_level = self.GroupLevel,
+        sessions = self.Sessions,
+        elements = self.Elements,
+        arrayClone = function (arr) {
+            var a = [], i;
+
+            for (i = 0; i < arr.length; i += 1) {
+                a[i] = arr[i];
+            }
+
+            return a;
+        },
+        arrayContainsPrefix = function (arr, prefix) {
+            var match = false, i, j;
+
+            for (i = 0; i < arr.length; i += 1) {
+                match = true;
+                if (arr[i] instanceof Array) {
+                    for (j = 0; j < prefix.length; j += 1) {
+                        if (arr[i][j] !== prefix[j]) {
+                            match = false;
+                            break;
+                        }
+                    }
+
+                    if (match) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
 
     for (i = 0; i < data.rows.length; i += 1) {
         row = data.rows[i];
-        prefix = row.value.clone();
+        RowID = row.value;
+        prefix = arrayClone(row.value);
         j = group_level;
         while (j > 0) {
             j -= 1;
             prefix.pop();
         }
 
+        if (arrayContainsPrefix(sessions, prefix)) {
+            self.postMessage({
+                cmd: 'AddRow',
+                RowID: RowID
+            });
+
+            for (j = 0; j < elements.length; j += 1) {
+                FieldName = row.key[0] + "," + elements[j];
+                if (row.doc.data && row.doc.data[elements[j]] !== null) {
+                    value = row.doc.data[elements[j]];
+                    if (value === undefined || value === null) {
+                        value = '.';
+                    }
+                    self.postMessage({
+                        cmd : 'AddValueToRow',
+                        RowID : RowID,
+                        Field: FieldName,
+                        Column: elements[j],
+                        Value: value,
+                        DocID: row.id
+                    });
+                }
+
+            }
+        }
+
     }
-    self.postMessage({ cmd: 'ConvertedObject', data: { "abc" : "def" } });
+    self.postMessage({ cmd: 'FinishedConvertJSON' });
 };
 
 self.debug = function (message) {
