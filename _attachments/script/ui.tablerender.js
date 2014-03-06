@@ -12,6 +12,9 @@ self.addEventListener('message', function (e) {
     case 'ConvertResults':
         //self.postMessage(CreateTableBody(data.results);
         break;
+    case 'ConvertJSON':
+        self.ConvertJSON(data);
+        break;
     default:
         self.postMessage('Unknown cmd');
         break;
@@ -40,7 +43,8 @@ self.ConvertObjectToTable = function (obj) {
         numRows = Object.keys(existingRows),
         el,
         identifier,
-        row, objcol;
+        row,
+        objcol;
     self.RowNum = 0;
     for (el in obj) {
         if (obj.hasOwnProperty(el)) {
@@ -118,20 +122,20 @@ self.ConvertObjectToTable = function (obj) {
                     if (val === undefined || val === null) {
                         tblrow[idx] = '.';
                     } else {
-                        tblrow[idx] = objrow[Selected[j]]
+                        tblrow[idx] = objrow[Selected[j]];
 
-                        if(val.IsFile === true) {
-                            tblrow[idx] = '<a href="files/' 
-                                + val.DocID + "/" 
-                                + encodeURIComponent(val.TextValue) + '">' 
-                                + val.TextValue + '</a>';
-                            if(val.TextValue !== '.') {
+                        if (val.IsFile === true) {
+                            tblrow[idx] = '<a href="files/' +
+                                val.DocID + "/" +
+                                encodeURIComponent(val.TextValue) + '">' +
+                                val.TextValue + '</a>';
+                            if (val.TextValue !== '.') {
                                 self.postMessage({ cmd: 'AddFile', Filename: "files/" + val.DocID + "/" + encodeURIComponent(val.TextValue) });
                             }
                         } else {
 
                             tblrow[idx] = objrow[Selected[j]].TextValue;
-                            if(tblrow[idx] === undefined) {
+                            if (tblrow[idx] === undefined) {
                                 // Value was undefined, make it a . so that things
                                 // dont crash when processing the data
                                 tblrow[idx] = ".";
@@ -157,6 +161,28 @@ self.ConvertObjectToTable = function (obj) {
         }
     }
     self.close();
+};
+
+self.ConvertJSON = function (textObject) {
+    "use strict";
+    var data = JSON.parse(textObject),
+        i,
+        j,
+        row,
+        prefix,
+        group_level;
+
+    for (i = 0; i < data.rows.length; i += 1) {
+        row = data.rows[i];
+        prefix = row.value.clone();
+        j = group_level;
+        while (j > 0) {
+            j -= 1;
+            prefix.pop();
+        }
+
+    }
+    self.postMessage({ cmd: 'ConvertedObject', data: { "abc" : "def" } });
 };
 
 self.debug = function (message) {
