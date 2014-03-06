@@ -59,32 +59,6 @@ Array.prototype.contains = function (value) {
     return false;
 };
 
-Array.prototype.containsPrefix = function (prefix) {
-    var match = false, i, j;
-    for (i = 0; i < this.length; i += 1) {
-        match = true;
-        if (this[i] instanceof Array) {
-            for (j = 0; j < prefix.length; j += 1) {
-                if (this[i][j] !== prefix[j]) {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) {
-                return true;
-            }
-        }
-    }
-    return false;
-};
-
-Array.prototype.clone = function () {
-    var a = [], i;
-    for (i = 0; i < this.length; i += 1) {
-        a[i] = this[i];
-    }
-    return a;
-};
 
 Array.prototype.unique = function () {
     var r = [], i, j, alreadyAdded;
