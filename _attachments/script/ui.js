@@ -1,4 +1,4 @@
-/*global document: false, $: false, window: false, Worker: false, defineManager: false, QueryManager: false, popManager: false, jStat: false, FileReader: false, jQuery: false, User: false  */
+/*global document: false, $: false, window: false, Worker: false, defineManager: false, QueryManager: false, popManager: false, jStat: false, FileReader: false, jQuery: false, User: false, JSZip: false, Categories: false*/
 "use strict";
 var qmanager;
 var QueryRun = false;
@@ -412,9 +412,9 @@ $(document).ready(function () {
                 create_callback = function (DocType, docidx, maxdocidx, callback) {
                     return function (data, textStatus) {
                         var Completed,
-                        jsonworker = new Worker('script/ui.tablerender.js');
+                            jsonworker = new Worker('script/ui.tablerender.js');
 
-                        jsonworker.addEventListener('message', function (e) { 
+                        jsonworker.addEventListener('message', function (e) {
                             var i, msg = e.data;
                             if (msg.cmd === 'AddRow') {
                                 if (!DataObject[msg.RowID]) {
@@ -433,20 +433,20 @@ $(document).ready(function () {
                                 this.terminate();
                                 CompleteBitmask[docidx] = true;
                                 Completed = true;
-                                for (i = 0;i < maxdocidx; i += 1) {
-                                    if(CompleteBitmask[i] !== true) {
+                                for (i = 0; i < maxdocidx; i += 1) {
+                                    if (CompleteBitmask[i] !== true) {
                                         Completed = false;
                                         break;
                                     }
                                 }
 
-                                if(callback && Completed) {
+                                if (callback && Completed) {
                                     callback(convertObjectToTable(DataObject));
                                     $("#ViewData").css("cursor", "auto");
                                 }
                             }
                         });
-                        jsonworker.postMessage({ 
+                        jsonworker.postMessage({
                             cmd: 'ConvertJSON',
                             data: data,
                             GroupLevel: document.getElementById("group_level").value,
@@ -483,6 +483,8 @@ $(document).ready(function () {
                     data: JSON.stringify({ 'keys' : keys }),
                     success: create_callback(DocTypes[i], i, DocTypes.length, PopulateDataTable),
                     contentType: 'application/json',
+                    /* Even though the data is JSON, return it as text because
+                     * we want to parse it in a webworker, not the UI thread */
                     dataType: 'text'
                 });
             }
@@ -601,7 +603,7 @@ $(document).ready(function () {
             Categories.list("categories");
             Categories.list("categories_pop");
         } else {
-            if(window.user._explicitLogout !== true) {
+            if (window.user._explicitLogout !== true) {
                 window.user.logout();
             }
         }
@@ -616,18 +618,8 @@ $(document).ready(function () {
             row,
             j,
             label,
-            body = saved.querySelector("tbody");
-        $("#savedqueries").dataTable().fnDestroy();
-        body.textContent = '';
-        for (i = 0; i < data.length; i += 1) {
-            row = data[i];
-            tblRow = document.createElement("tr");
-
-            // Actions
-            tblEl  = document.createElement("td");
-            btn = document.createElement("button");
-            btn.textContent = "Load";
-            $(btn).click(function (row, tblRow) {
+            body = saved.querySelector("tbody"),
+            loadClickHandler = function (row, tblRow) {
                 return function () {
                     var i = 0, el, cell, addedEl;
                     /* Load fields */
@@ -660,11 +652,8 @@ $(document).ready(function () {
                     Categories.list("categories");
                     Categories.list("categories_pop");
                 };
-            }(row, tblRow));
-            tblEl.appendChild(btn);
-            btn = document.createElement("button");
-            btn.textContent = "Delete";
-            $(btn).click(function (row, tblRow) {
+            },
+            deleteClickHandler = function (row, tblRow) {
                 return function () {
                     var del = document.getElementById("deletequery");
 
@@ -674,7 +663,22 @@ $(document).ready(function () {
 
                     $("#DeleteDialog").dialog("open");
                 };
-            }(row, tblRow));
+            };
+        $("#savedqueries").dataTable().fnDestroy();
+        body.textContent = '';
+        for (i = 0; i < data.length; i += 1) {
+            row = data[i];
+            tblRow = document.createElement("tr");
+
+            // Actions
+            tblEl  = document.createElement("td");
+            btn = document.createElement("button");
+            btn.textContent = "Load";
+            $(btn).click(loadClickHandler(row, tblRow));
+            tblEl.appendChild(btn);
+            btn = document.createElement("button");
+            btn.textContent = "Delete";
+            $(btn).click(deleteClickHandler(row, tblRow));
             tblEl.appendChild(btn);
             tblRow.appendChild(tblEl);
 
@@ -722,21 +726,19 @@ $(document).ready(function () {
         // of if login happened through a cookie or through entering 
         // username/password
         $.ajax({
-                    type: "GET",
-                    url: "_view/runlog?reduce=false&limit=1&descending=true",
-                    /* data: JSON.stringify({ 'keys' : keys }),*/
-                    success: function(resp) {
-                        var el = document.getElementById("updatetime");
+            type: "GET",
+            url: "_view/runlog?reduce=false&limit=1&descending=true",
+            /* data: JSON.stringify({ 'keys' : keys }),*/
+            success: function (resp) {
+                var el = document.getElementById("updatetime");
 
-                        if(resp.rows[0]) {
-                        el.textContent = new Date(resp.rows[0].key);
-                        }
-                    },
-                    contentType: 'application/json',
-                    dataType: 'json'
+                if (resp.rows[0]) {
+                    el.textContent = new Date(resp.rows[0].key);
                 }
-
-              );
+            },
+            contentType: 'application/json',
+            dataType: 'json'
+        });
     };
     $("#DeleteDialog").dialog({
         autoOpen: false,
@@ -804,9 +806,9 @@ $(document).ready(function () {
             }
         ]
     });
-    $("#SaveCSV").click(function() {
+    $("#SaveCSV").click(function () {
         var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; }),
-        csvworker = new Worker('script/ui.savecsv.js');
+            csvworker = new Worker('script/ui.savecsv.js');
 
         /* for (i = 0; i < headersEl.length; i += 1) {
             headers[i] = headersEl[i].textContent;
@@ -825,7 +827,8 @@ $(document).ready(function () {
 
             }
         });
-        csvworker.postMessage({ cmd: 'SaveFile',
+        csvworker.postMessage({
+            cmd: 'SaveFile',
             data: $("#data").dataTable().fnGetData(),
             headers: headers
         });
@@ -833,12 +836,12 @@ $(document).ready(function () {
 
 
     });
-    $("#SaveZip").click(function() {
-        var zip = new JSZip(), 
-            i = 0, 
+    $("#SaveZip").click(function () {
+        var zip = new JSZip(),
+            i = 0,
             CompleteMask = new Array(FileList.length),
             saveworker;
-    
+
         saveworker = new Worker('script/ui.savezip.js');
         saveworker.addEventListener('message', function (e) {
             var dataURL = window.URL.createObjectURL(e.data.zip),
@@ -848,7 +851,7 @@ $(document).ready(function () {
             link.href = dataURL;
             $(link)[0].click();
             //window.URL.revokeObjectURL(dataURL);
-            
+
             this.terminate();
         });
 
