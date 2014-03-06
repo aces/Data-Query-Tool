@@ -507,7 +507,7 @@ $(document).ready(function () {
     });
 
     $("#CalculateStats").click(function (e) {
-        var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; }),
+        var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; });
         populateStatsTable(headers, dataTable.fnGetData().convertNumbers());
     });
 
