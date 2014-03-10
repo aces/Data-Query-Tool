@@ -4,15 +4,58 @@ self.addEventListener('message', function (e) {
     "use strict";
     var i = 0,
         FileList = e.data.Files,
-        onLoadHandler = function (File, idx) { return function (data) {
-            var dataVal = this.response, i, zipVal;
-            //console.log(File);
-            //console.log(data);
-            self.Zip.file(File, dataVal);
-            self.xhrMask[idx] = true;
+        generateZip = function () {
+            var zipVal;
+            self.postMessage({
+                cmd: "CreatingZip",
+                FileNo : self.FileNo
+            });
+            zipVal = self.Zip.generate({
+                base64: false,
+                type: "blob"
+            });
 
-            for(i = 0; i < self.xhrMask.length; i += 1) {
-                if(self.xhrMask[i] !== true) {
+            self.postMessage({
+                cmd : 'SaveFile',
+                message : 'Done',
+                zip : zipVal,
+                Filename : "files-" + self.FileNo + ".zip"
+            });
+
+            self.Zip = new JSZip();
+            self.TotalInCurrentZip = 0;
+            self.FileNo += 1;
+        },
+        onLoadHandler = function (File, idx) { return function (data) {
+            var dataVal = this.response,
+                i,
+                zipVal,
+                splitFile = File.split("/");
+
+            // File is currently "files/DocID/URIEncodedFilename"
+            // we want the decoded filename only, without the DocID
+            self.Zip.file("files/" + decodeURIComponent(splitFile[2]), dataVal);
+            self.xhrMask[idx] = true;
+            self.complete += 1;
+
+            self.TotalInCurrentZip += self.xhr[idx].response.byteLength;
+            // We don't need the XMLHttpRequest object anymore, let javascript 
+            // garbage collect it if it wants to.
+            self.xhr[idx] = undefined;
+
+            self.postMessage({
+                cmd: 'Progress',
+                Complete: self.complete,
+                Total: self.xhrMask.length
+            });
+
+
+            // Split into 512MB chunks
+            if (self.TotalInCurrentZip > 536870912) {
+                generateZip();
+            }
+            for (i = 0; i < self.xhrMask.length; i += 1) {
+                if (self.xhrMask[i] !== true) {
                     // They aren't all finished, so don't
                     // post the message below
                     return;
@@ -20,14 +63,20 @@ self.addEventListener('message', function (e) {
 
             }
             // Didn't return in the loop above, which means everything
-            // is finished. We can save the file.
-            zipVal = self.Zip.generate({ type: "blob" });
-            self.postMessage({ message: 'Done', zip:zipVal });
-            }
+            // is finished. We can save the file even if we haven't hit our
+            // splitting limit.
+            generateZip();
+            self.postMessage({
+                cmd: 'Finished'
+            });
         };
+    };
     self.Zip = new JSZip();
     self.xhr = [];
     self.xhrMask = [];
+    self.complete = 0;
+    self.FileNo = 1;
+    self.TotalInCurrentZip = 0;
 
     for (i = 0; i < FileList.length; i += 1) {
         // Not finished

@@ -237,6 +237,7 @@ function convertObjectToTable(object) {
         } else if (e.data.cmd === "PopulateHeaders") {
             if (dataTable && dataTable.fnClearTable) {
                 dataTable.fnClearTable();
+                dataTable.fnDestroy();
             }
             tbl = $("#data");
             thead = $("#data thead");
@@ -678,7 +679,7 @@ $(document).ready(function () {
                     /* Load fields */
                     defineManager.clear();
                     for (i = 0; i < row.Fields.length; i += 1) {
-                        console.log(row.Fields[i]);
+                        //console.log(row.Fields[i]);
                         defineManager.add(row.Fields[i]);
                     }
                     $("a[href='#DefineFields']").fadeTo('fast', 0.25);
@@ -697,6 +698,11 @@ $(document).ready(function () {
                         cell = document.createElement("td");
                         cell.textContent = "";
                         el.appendChild(cell);
+
+                        cell = document.createElement("td");
+                        cell.textContent = "";
+                        el.appendChild(cell);
+
                         addedEl = popManager.add(el, row.Conditions[i].Value);
                         $(addedEl).children(".queryOp").val(row.Conditions[i].Operator);
                     }
@@ -897,15 +903,32 @@ $(document).ready(function () {
 
         saveworker = new Worker('script/ui.savezip.js');
         saveworker.addEventListener('message', function (e) {
-            var dataURL = window.URL.createObjectURL(e.data.zip),
+            var dataURL,
+                link,
+                progress;
+            if(e.data.cmd === 'SaveFile') {
+                progress = getOrCreateProgressElement("download_progress")
+                progress.textContent = "Downloaded files";
+                dataURL = window.URL.createObjectURL(e.data.zip);
                 link = document.getElementById("DownloadLink");
-            link.download = "files.zip";
-            link.type = "application/zip";
-            link.href = dataURL;
-            $(link)[0].click();
-            //window.URL.revokeObjectURL(dataURL);
+                link.download = e.data.Filename;
+                link.type = "application/zip";
+                link.href = dataURL;
+                $(link)[0].click();
+                progress = getOrCreateProgressElement("zip_progress");
+                progress.textContent = "";
+                //window.URL.revokeObjectURL(dataURL);
 
-            this.terminate();
+            } else if (e.data.cmd === 'Progress') {
+                progress = getOrCreateProgressElement("download_progress")
+                progress.innerHTML = "Downloading files: <progress value=\"" + e.data.Complete + "\" max=\"" + e.data.Total + "\">" + e.data.Complete + " out of " + e.data.Total + "</progress>";
+            } else if (e.data.cmd === 'Finished') {
+                this.terminate();
+            } else if (e.data.cmd === 'CreatingZip') {
+                progress = getOrCreateProgressElement("zip_progress");
+                progress.textContent = "Creating zip #" + e.data.FileNo;
+            }
+
         });
 
         saveworker.postMessage({ Files: FileList });

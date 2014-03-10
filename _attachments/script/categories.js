@@ -422,9 +422,9 @@ $(document).ready(function () {
     $("#DefineFields .selectable").live("click", function (e) {
         var el = e.currentTarget;
         defineManager.toggle(el);
-        if (QueryRun === true) {
-            $("#runquery").click();
-        }
+        //if (QueryRun === true) {
+        //    $("#runquery").click();
+        //}
     });
 });
 
