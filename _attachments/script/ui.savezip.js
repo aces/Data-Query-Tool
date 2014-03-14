@@ -5,22 +5,23 @@ self.addEventListener('message', function (e) {
     var i = 0,
         FileList = e.data.Files,
         generateZip = function () {
-            var zipVal;
+            var zipVal, dataView, val, blobVal;
             self.postMessage({
                 cmd: "CreatingZip",
                 FileNo : self.FileNo
             });
-            zipVal = self.Zip.generate({
+            val = self.Zip.generate({
                 base64: false,
-                type: "blob"
+                type: "arraybuffer"
             });
 
             self.postMessage({
                 cmd : 'SaveFile',
                 message : 'Done',
-                zip : zipVal,
-                Filename : "files-" + self.FileNo + ".zip"
-            });
+                buffer : val,
+                Filename : "files-" + self.currentTime + "-" + self.FileNo + ".zip",
+                FileNo : self.FileNo
+            }, [val]);
 
             self.Zip = new JSZip();
             self.TotalInCurrentZip = 0;
@@ -50,8 +51,9 @@ self.addEventListener('message', function (e) {
             });
 
 
-            // Split into 512MB chunks
-            if (self.TotalInCurrentZip > 536870912) {
+            // Split into 256MB chunks. Chrome doesn't seem
+            // to be able to handle 512MB chunks in Blobs
+            if (self.TotalInCurrentZip > (512*1024*1024)) {
                 generateZip();
             }
             for (i = 0; i < self.xhrMask.length; i += 1) {
@@ -67,7 +69,11 @@ self.addEventListener('message', function (e) {
             // splitting limit.
             generateZip();
             self.postMessage({
-                cmd: 'Finished'
+                cmd: 'Finished',
+                /* have to subtract 1 from FileNo since 
+                 * it was incremented at the end of the
+                 * last generateZip.. */
+                NumFiles : (self.FileNo - 1)
             });
         };
     };
@@ -77,6 +83,7 @@ self.addEventListener('message', function (e) {
     self.complete = 0;
     self.FileNo = 1;
     self.TotalInCurrentZip = 0;
+    self.currentTime = new Date().toISOString();
 
     for (i = 0; i < FileList.length; i += 1) {
         // Not finished
@@ -84,7 +91,7 @@ self.addEventListener('message', function (e) {
         self.xhr[i] = new XMLHttpRequest();
         // WebWorker is in script directory, so file is up a level..
         self.xhr[i].open('GET', "../" + FileList[i]);
-        self.xhr[i].timeout = 3000;
+        self.xhr[i].timeout = 1000*60*60*5; // 5 hours
         self.xhr[i].responseType = "arraybuffer";
         self.xhr[i].onload = onLoadHandler(FileList[i], i);
         //xhr[i].onloadend = function (e) { self.postMessage({ hello: e}) };

@@ -18,6 +18,28 @@ var resizeAll = function () {
     $(".half").css("height", (workspace_height / 2) - 5);
 };
 var FileList = [];
+function getOrCreateDownloadLink(fileName, type) {
+    var element = document.getElementById("DownloadLink" + fileName),
+        parentEl,
+        el2;
+
+    if (element) {
+        return element;
+    }
+
+
+    parentEl = document.getElementById("downloadlinksUL");
+
+    element = document.createElement("a");
+    element.download = fileName;
+    element.type = type;
+    element.textContent = "Zip file: " + fileName;
+    element.setAttribute("id", "DownloadLink" + fileName);
+    el2 = document.createElement("li");
+    el2.appendChild(element);
+    parentEl.appendChild(el2);
+    return element;
+}
 
 function getOrCreateProgressElement(id) {
     var element = document.getElementById(id),
@@ -882,7 +904,6 @@ $(document).ready(function () {
                 link.type = "text/csv";
                 link.href = dataURL;
                 $(link)[0].click();
-                //window.URL.revokeObjectURL(dataURL);
 
             }
         });
@@ -899,38 +920,86 @@ $(document).ready(function () {
         var zip = new JSZip(),
             i = 0,
             CompleteMask = new Array(FileList.length),
-            saveworker;
+            saveworker,
+            dataURLs = [],
+            multiLinkHandler = function(buffer) { return function(ce) {
+                var downloadLink = document.getElementById("DownloadLink"),
+                    dv = new DataView(buffer),
+                    blb;
 
-        saveworker = new Worker('script/ui.savezip.js');
-        saveworker.addEventListener('message', function (e) {
-            var dataURL,
-                link,
-                progress;
-            if(e.data.cmd === 'SaveFile') {
-                progress = getOrCreateProgressElement("download_progress")
-                progress.textContent = "Downloaded files";
-                dataURL = window.URL.createObjectURL(e.data.zip);
-                link = document.getElementById("DownloadLink");
-                link.download = e.data.Filename;
-                link.type = "application/zip";
-                link.href = dataURL;
-                $(link)[0].click();
+                    ce.preventDefault();
+                    blb = new Blob([dv], { type : "application/zip" });
+
+                    downloadLink.href = window.URL.createObjectURL(blb);
+                    downloadLink.download = this.download;
+                    downloadLink.type = "application/zip";
+                    downloadLink.click();
+
+                    window.URL.revokeObjectURL(downloadLink.href);
+                }
+            };
+
+        // Does this work if we hold a global reference instead of a closure
+        // to the object URL?
+        window.dataBlobs = [];
+
+        if(FileList.length < 100 || confirm("You are trying to download more than 100 files. This may be slow or crash your web browser.\n\nYou may want to consider splitting your query into more, smaller queries by defining more restrictive filters.\n\nPress OK to continue with attempting to download current files or cancel to abort." )) {
+            saveworker = new Worker('script/ui.savezip.js');
+            saveworker.addEventListener('message', function (e) {
+                var link,
+                progress,
+                FileName,
+                NewFileName,
+                downloadLinks,
+                i;
+            if (e.data.cmd === 'SaveFile') {
+                progress = getOrCreateProgressElement("download_progress");
+                //progress.textContent = "Downloaded files";
+                //hold a reference to the blob so that chrome doesn't release it. This shouldn't
+                //be required.
+                window.dataBlobs[e.data.FileNo - 1] = new Blob([e.data.buffer], { type : "application/zip" });;
+                dataURLs[e.data.FileNo - 1] = window.URL.createObjectURL(window.dataBlobs[e.data.FileNo - 1]);
+
+                link = getOrCreateDownloadLink(e.data.Filename, "application/zip");
+                link.href = dataURLs[e.data.FileNo - 1];
+                //link.onclick = multiLinkHandler(e.data.buffer);
+                //link.href = "#";
                 progress = getOrCreateProgressElement("zip_progress");
                 progress.textContent = "";
-                //window.URL.revokeObjectURL(dataURL);
 
             } else if (e.data.cmd === 'Progress') {
-                progress = getOrCreateProgressElement("download_progress")
+                progress = getOrCreateProgressElement("download_progress");
                 progress.innerHTML = "Downloading files: <progress value=\"" + e.data.Complete + "\" max=\"" + e.data.Total + "\">" + e.data.Complete + " out of " + e.data.Total + "</progress>";
             } else if (e.data.cmd === 'Finished') {
-                this.terminate();
+                if (dataURLs.length === 1) {
+                    $("#downloadlinksUL li a")[0].click();
+                }
+
+                if (dataURLs.length > 1) {
+                    progress = document.getElementById("downloadlinks");
+                    progress.style.display = "initial";
+
+                    downloadLinks = $("#downloadlinksUL li a");
+                    for (i = 0; i < dataURLs.length; i += 1) {
+                        FileName = downloadLinks[i].id.slice("DownloadLinkFiles-".length, -4);
+                        NewFileName = "files-" + FileName + "of" + e.data.NumFiles + ".zip";
+                        downloadLinks[i].download = NewFileName;
+                        downloadLinks[i].href = dataURLs[i];
+                        downloadLinks[i].textContent = "Zip file: " + NewFileName;
+                    }
+                }
+                progress = getOrCreateProgressElement("download_progress");
+                progress.textContent = "Finished generating zip files";
+                //this.terminate();
+
             } else if (e.data.cmd === 'CreatingZip') {
                 progress = getOrCreateProgressElement("zip_progress");
-                progress.textContent = "Creating zip #" + e.data.FileNo;
+                progress.textContent = "Creating a zip file with current batch of downloaded files. Process may be slow before proceeding.";
             }
 
-        });
+            });
 
-        saveworker.postMessage({ Files: FileList });
+            saveworker.postMessage({ Files: FileList });
+        }
     });
 });
