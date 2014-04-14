@@ -631,7 +631,7 @@ $(document).ready(function () {
     $("#scatter-group").change(updateScatterplot);
 
     // HTML tooltips courtesy of Tarek
-    $(".html_tool_tip_trigger").live("mouseenter", function (event) {
+    $(".html_tool_tip_trigger").on("mouseenter", function (event) {
         var trigger = jQuery(this),
             tool_tip_id = trigger.attr("data-tool-tip-id"),
             tool_tip = jQuery("#" + tool_tip_id),
@@ -650,7 +650,7 @@ $(document).ready(function () {
         }
 
         tool_tip.show();
-    }).live("mouseleave", function (event) {
+    }).on("mouseleave", function (event) {
         var trigger = jQuery(this),
             tool_tip_id = trigger.attr("data-tool-tip-id"),
             tool_tip = jQuery("#" + tool_tip_id);

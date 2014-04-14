@@ -172,12 +172,16 @@ Categories.show = function (category, output_div, options) {
                     row = helpers.addCell(row, "No");
                 }
 
+                $(row).on("click", function(e) {
+                    options.selectedManager.toggle(this);
+                });
                 row.setAttribute("id", "selectable_" + output_div.replace("list", "") + "_" + data.rows[i].key);
                 fieldsSelect.appendChild(row);
             }
         }
         $("#tabs").css("cursor", "auto");
     });
+    Clickableize(popManager);
 };
 
 var SelectedManager = function (divname, options) {
@@ -410,21 +414,18 @@ var SelectedManager = function (divname, options) {
     };
 };
 
+function Clickableize(manager) {
+    $("#DefinePopulation .selectable").on("click", function (e) {
+        var el = e.currentTarget;
+        popManager.toggle(el);
+    });
+}
 $(document).ready(function () {
     defineManager = new SelectedManager("selectedfields", { order: ["actions", "field", "description", "isfile"] });
     popManager = new SelectedManager("selectedpopfields", { order: ["actions", "field", "operator", "value", "sessions"] });
     Categories.list("categories");
     Categories.list("categories_pop");
-    $("#DefinePopulation .selectable").live("click", function (e) {
-        var el = e.currentTarget;
-        popManager.toggle(el);
-    });
-    $("#DefineFields .selectable").live("click", function (e) {
-        var el = e.currentTarget;
-        defineManager.toggle(el);
-        //if (QueryRun === true) {
-        //    $("#runquery").click();
-        //}
-    });
+    //Clickableize(popManager);
+    //Clickableize(defineManager);
 });
 

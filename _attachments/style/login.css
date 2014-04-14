@@ -31,6 +31,7 @@ html, body {
 }
 
 /* anchor tags */
+/*
 	a:link, a:visited, .ui-widget-content a:link, .ui-widget-content a:visited {
 	color: #08245b; 
 	text-decoration: none;
@@ -41,8 +42,9 @@ a:active, .ui-widget-content a:active {
     }
 a:hover, .ui-widget-content a:hover {
 	color: #666;
-/*	text-decoration: underline;*/
+//	text-decoration: underline;
     }
+    */
 
 
 .button
