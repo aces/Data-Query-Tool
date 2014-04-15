@@ -56,181 +56,6 @@ function getOrCreateProgressElement(id) {
     progress.appendChild(element);
     return element;
 }
-function plot(columns, data) {
-    var yAxis, i, d, j, column, plots = [], subscale, identifier, dataSetNo = 1, columnData = {},
-        mean = data.mean(), stdev = data.stdev(), normal, showNormal = false, normals = [], min = data.min().min(), max = data.max().max(),
-        NormalPlot = function (x) { return [x, normal.pdf(x)]; };
-    if (document.getElementById("shownormals").checked === true) {
-        showNormal = true;
-    }
-    for (j = 0; j < columns.length; j += 1) {
-        column = columns[j].Index;
-        yAxis = [];
-        for (i = 0; i < data.length; i += 1) {
-            identifier = data[i][0].split(',');
-            subscale = identifier.pop();
-            d = data[i][column];
-            if (yAxis[d]) {
-                yAxis[d][1] += 1;
-            } else {
-                yAxis[d] = [d, 1];
-            }
-        }
-        plots.push({
-            label: columns[j].Header,
-            data: yAxis,
-            stack: false,
-            //xaxis: dataSetNo,
-            lines: { show: false, steps: false },
-            bars: { show: true, barWidth: 0.9, align: 'center' }
-        });
-        if (showNormal) {
-            if (columns[j].Header) {
-                normal = jStat.normal(mean[column], stdev[column]);
-                normals.push({
-                    label: 'Normal of ' + columns[j].Header,
-                    data: jStat.seq(min, max, 101, NormalPlot),
-                    //xaxis: 2,
-                    yaxis: 2,
-                    lines: { show: true, fill: true },
-                    bars: { show: false }
-                });
-            }
-        }
-        dataSetNo += 1;
-    }
-    // Normals are put into a separate array and concatenated so
-    // that we don't lose the order/colour of the already existing
-    // fields when "show normals" is toggled
-    if (showNormal) {
-        plots = plots.concat(normals);
-    }
-    $.plot("#plotdiv", plots, {
-        yaxes: [{}, { position: "right" } ]
-    });
-}
-
-// Move all the stats stuff to a different file?
-function populateStatsTable(headers, data) {
-    var d = jStat(data),
-        tbl = $("#stats"),
-        thead = $("#stats thead"),
-        tbody = $("#stats tbody"),
-        trow,
-        i,
-        addStatsCol = function (header, data, i) {
-            var el;
-            el = document.createElement('td');
-            if (data[i] === null) {
-                el.textContent = '.';
-            }
-            el.textContent = data[i];
-            return el;
-
-            /*
-            trow = $('<tr><th>' + header + '</th></tr>');
-            for (i = 1; i < (results.length - 1); i += 1) {
-                trow.append('<td>' + results[i] + '</td>');
-            }
-            tbody.append(trow);
-            */
-        },
-        quartiles,
-        mean,
-        cols,
-        group_cols,
-        xaxis,
-        yaxis,
-        el,
-        groups,
-        row,
-        j;
-
-    /*
-    thead.children().remove();
-    thead.append('<tr>');
-    trow = $("#stats thead tr");
-    trow.append('<th class="header">Measure</th>');
-    for (i = 1; i < headers.length; i += 1) {
-        trow.append('<th class="header">' + headers[i] + "</th>");
-    }
-    */
-
-    tbody.children().remove();
-
-    for (i = 1; i < headers.length; i += 1) {
-        row = document.createElement('tr');
-        el = document.createElement('td');
-        el.textContent = headers[i];
-        row.appendChild(el);
-
-        row.appendChild(addStatsCol('Minimum', d.min(), i));
-        row.appendChild(addStatsCol('Maximum', d.max(), i));
-        row.appendChild(addStatsCol('Standard Deviation', d.stdev(), i));
-        row.appendChild(addStatsCol('Mean', d.mean(), i));
-        row.appendChild(addStatsCol('Mean Deviation', d.meandev(), i));
-        row.appendChild(addStatsCol('Mean Squared Error', d.meansqerr(), i));
-
-        quartiles = d.quartiles();
-
-        // First Quartile
-        el = document.createElement('td');
-        el.textContent = quartiles[i][0];
-        row.appendChild(el);
-
-        // Second Quartile
-        el = document.createElement('td');
-        el.textContent = quartiles[i][1];
-        row.appendChild(el);
-
-        // Third Quartile
-        el = document.createElement('td');
-        el.textContent = quartiles[i][2];
-        row.appendChild(el);
-
-
-
-        tbody.append(row);
-    }
-    $("#stats").dataTable().fnGetData();
-
-    mean = d.mean();
-    cols = [];
-    group_cols = [];
-    for (i = 0; i < mean.length; i += 1) {
-        if (!isNaN(mean[i])) {
-            cols.push({ Header: headers[i], Index: i });
-        } else {
-            group_cols.push({ Header: headers[i], Index: i });
-        }
-    }
-    plot(cols, d);
-
-    // Update list of fields for scatterplot
-    xaxis = document.getElementById("scatter-xaxis");
-    yaxis = document.getElementById("scatter-yaxis");
-    $(xaxis).children().remove();
-    $(yaxis).children().remove();
-    for (i = 0; i < cols.length; i += 1) {
-        el = document.createElement('option');
-        el.textContent = cols[i].Header;
-        el.value = cols[i].Index;
-        xaxis.appendChild(el);
-        yaxis.appendChild(el.cloneNode(true));
-    }
-    groups = document.getElementById("scatter-group");
-    $(groups).children().remove();
-    $(groups).append("<option value=\"ungrouped\">Ungrouped</option>");
-    for (i = 1; i < group_cols.length; i += 1) {
-        // Start at 1, because grouping by identifier is meaningless
-        el = document.createElement('option');
-        el.textContent = group_cols[i].Header;
-        el.value = group_cols[i].Index;
-        groups.appendChild(el);
-    }
-
-
-}
 
 function PopulateDataTable() {
 }
@@ -308,128 +133,6 @@ function convertObjectToTable(object) {
 
 
 $(document).ready(function () {
-    var lsFit = function (data) {
-            var i = 0, means = jStat(data).mean(),
-                xmean = means[0], ymean = means[1], interim = 0,
-                numerator  = 0, denominator = 0, slope, xi, yi;
-
-            for (i = 0; i < data.length; i += 1) {
-                xi = data[i][0];
-                yi = data[i][1];
-                numerator += (xi - xmean) * (yi - ymean);
-                denominator += ((xi - xmean) * (xi - xmean));
-            }
-
-            slope = numerator / denominator;
-
-            return [(ymean - slope * xmean), slope];
-        },
-        minmaxx = function (arr) {
-            var i, min, max;
-
-            for (i = 0; i < arr.length; i += 1) {
-                if (arr[i][0] < min || min === undefined) {
-                    if (arr[i][0] !== undefined && arr[i][0] !== null) {
-                        min = arr[i][0];
-                    }
-                }
-                if (arr[i][0] > max || max === undefined) {
-                    if (arr[i][0] !== undefined && arr[i][0] !== null) {
-                        max = arr[i][0];
-                    }
-                }
-            }
-            return [min, max];
-        },
-        updateScatterplot = function () {
-            var xaxis = document.getElementById("scatter-xaxis").value,
-                yaxis = document.getElementById("scatter-yaxis").value,
-                grouping = document.getElementById("scatter-group").value,
-                data = dataTable.fnGetData(),
-                points = [],
-                min,
-                max,
-                field1 = [],
-                field2 = [],
-                grouped_points = {},
-                i = 0,
-                group_label,
-                minmax,
-                LS,
-                slope,
-                start,
-                plots = [],
-                label,
-                plotY = function (x) { return [x, start + (slope * x)]; },
-                dataset;
-
-            for (i = 0; i < data.length; i += 1) {
-                points.push([data[i][xaxis], data[i][yaxis]]);
-                field1.push(data[i][xaxis]);
-                field2.push(data[i][yaxis]);
-                if (grouping) {
-                    group_label = data[i][grouping];
-                    if (!(grouped_points[group_label] instanceof Array)) {
-                        grouped_points[group_label] = [];
-                    }
-                    grouped_points[group_label].push([data[i][xaxis], data[i][yaxis]]);
-                }
-            }
-
-
-
-            if (grouping === 'ungrouped') {
-                minmax = minmaxx(points.convertNumbers());
-                min = minmax[0];
-                max = minmax[1];
-                LS = lsFit(points.convertNumbers());
-                slope = LS[1];
-                start = LS[0];
-
-                $.plot("#scatterplotdiv", [{
-
-                    label: 'Data Points',
-                    data: points,
-                    points: { show: true }
-                }, // Least Squares Fit
-                    {
-                        label: 'Least Squares Fit',
-                        data: jStat.seq(min, max, 3, plotY),
-                        lines: { show: true }
-                    }], {});
-            } else {
-                minmax = minmaxx(points.convertNumbers());
-                min = minmax[0];
-                max = minmax[1];
-                i = 0;
-
-                for (dataset in grouped_points) {
-                    if (grouped_points.hasOwnProperty(dataset)) {
-                        label = document.getElementById("scatter-group").selectedOptions.item().textContent + " = " + dataset;
-                        plots.push({
-                            color: i,
-                            label: dataset,
-                            data: grouped_points[dataset],
-                            points: { show: true }
-                        });
-                        LS = lsFit(grouped_points[dataset].convertNumbers());
-                        slope = LS[1];
-                        start = LS[0];
-                        plots.push({
-                            color: i,
-                            // label: "LS Fit for " + dataset,
-                            data: jStat.seq(min, max, 3, plotY),
-                            lines: { show: true }
-                        });
-                        i += 1;
-                    }
-                }
-                $.plot("#scatterplotdiv", plots, {});
-            }
-
-            $("#correlationtbl tbody").children().remove();
-            $("#correlationtbl tbody").append("<tr><td>" + jStat.covariance(field1, field2) + "</td><td>" + jStat.corrcoeff(field1, field2) + "</td></tr>");
-        };
     qmanager = new QueryManager("current_filter");
     $("#tabs").tabs();
     // Enable the logout button so that it's not greyed out.
@@ -571,8 +274,48 @@ $(document).ready(function () {
     });
 
     $("#CalculateStats").click(function (e) {
-        var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; });
-        populateStatsTable(headers, dataTable.fnGetData().convertNumbers());
+        var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; }),
+            worker = new Worker("script/ui.stats.js"),
+            tbl = $("#stats tbody");
+        tbl.children().remove();
+        worker.postMessage({
+            cmd: 'PopulateTable',
+            Headers: headers,
+            Data: dataTable.fnGetData()
+        });
+        worker.addEventListener("message", function (e) {
+            var tbl, 
+                row, 
+                data = e.data,
+                addCell = function(row, data) {
+                    var cell = document.createElement("td");
+                    cell.textContent = data;
+                    row.appendChild(cell);
+                    return row;
+            };
+
+            if(data.Cmd === 'TableAddRow') {
+                tbl = $("#stats tbody");
+                row = document.createElement("tr");
+                addCell(row, data.Header);
+                addCell(row, data.RowData.Minimum);
+                addCell(row, data.RowData.Maximum);
+                addCell(row, data.RowData['Standard Deviation']);
+                addCell(row, data.RowData.Mean);
+                addCell(row, data.RowData.Mean);
+                addCell(row, data.RowData['Mean Squared Error']);
+                addCell(row, data.RowData['First Quartile']);
+                addCell(row, data.RowData['Second Quartile']);
+                addCell(row, data.RowData['Third Quartile']);
+
+
+                tbl.append(row);
+
+                console.log(row);
+            }
+
+
+        });
     });
 
     $("#UploadPopulation").change(function (e) {
@@ -625,10 +368,6 @@ $(document).ready(function () {
             }
         }
     });
-
-    $("#scatter-xaxis").change(updateScatterplot);
-    $("#scatter-yaxis").change(updateScatterplot);
-    $("#scatter-group").change(updateScatterplot);
 
     // HTML tooltips courtesy of Tarek
     $(".html_tool_tip_trigger").on("mouseenter", function (event) {
