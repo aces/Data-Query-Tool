@@ -1002,4 +1002,23 @@ $(document).ready(function () {
             saveworker.postMessage({ Files: FileList });
         }
     });
+    // This didn't work using within-document messaging, so we make a global
+    // function to call from loadConfigOptions 
+    //window.addEventListener("message", function(m) {
+    //    console.log("Received message", m);
+    //});
+    window.handleConfig = function (Config, Val) {
+        "use strict";
+        var el, i;
+        if(Config === 'GroupString') {
+            el = document.getElementById('GroupString');
+            el.textContent = Val;
+        } else if (Config === 'GroupOptions') {
+            el = document.getElementById('group_level');
+            $(el).children().remove();
+            for (i = 0; i < Val.length; i += 1) {
+                $(el).append(new Option(Val[i], i));
+            }
+        }
+    };
 });

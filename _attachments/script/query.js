@@ -189,6 +189,9 @@ var QueryManager = function (div_name) {
                     }
                     if (sessions[0]) {
                         selectBox = document.getElementById("group_level");
+                        // There was no config option set and a query hasn't
+                        // been run to determine the length of the identifiers.
+                        // So dynamically calculate it based on the first identifier.
                         if ($(selectBox).children().length === 0) {
                             identifier_length = sessions[0].length;
                             $(selectBox).children().remove();

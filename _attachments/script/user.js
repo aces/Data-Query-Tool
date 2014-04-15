@@ -45,6 +45,7 @@ var User = function () {
             that.getSavedQueries();
             Categories.list("categories");
             Categories.list("categories_pop");
+            that.loadConfigOptions();
         },
         _onLoginFailure : function () {
             var error = document.getElementById("loginerror");
@@ -97,6 +98,25 @@ var User = function () {
                 }
             };
             $.ajax(options);
+        },
+        loadConfigOptions: function () {
+            var options = {
+                type: "GET",
+                url: "_view/serverconfig",
+                dataType: "json",
+                success: function (data) {
+                    var rows = data.rows, i;
+                    for(i = 0; i < rows.length; i += 1) {
+                        window.handleConfig(rows[i].key, rows[i].value);
+                    }
+                },
+                data: {
+                    reduce: false,
+                    include_docs: false
+                }
+            };
+            $.ajax(options);
+
         },
         _loadSavedQueries: function(queries_json) {
             // This is overwritten by ui.js. It should
