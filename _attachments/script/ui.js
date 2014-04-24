@@ -133,6 +133,138 @@ function convertObjectToTable(object) {
 
 
 $(document).ready(function () {
+    var lsFit = function (data) {
+        var i = 0,
+            means = jStat(data).mean(),
+            xmean = means[0],
+            ymean = means[1],
+            interim = 0,
+            numerator  = 0,
+            denominator = 0,
+            slope,
+            xi,
+            yi;
+
+    for (i = 0; i < data.length; i += 1) {
+        xi = data[i][0];
+        yi = data[i][1];
+        numerator += (xi - xmean) * (yi - ymean);
+        denominator += ((xi - xmean) * (xi - xmean));
+    }
+
+    slope = numerator / denominator;
+
+    return [(ymean - slope * xmean), slope];
+},
+minmaxx = function (arr) {
+    var i, min, max;
+
+    for (i = 0; i < arr.length; i += 1) {
+        if (arr[i][0] < min || min === undefined) {
+            if (arr[i][0] !== undefined && arr[i][0] !== null) {
+                min = arr[i][0];
+            }
+        }
+        if (arr[i][0] > max || max === undefined) {
+            if (arr[i][0] !== undefined && arr[i][0] !== null) {
+                max = arr[i][0];
+            }
+        }
+    }
+    return [min, max];
+}, updateScatterplot = function () {
+            var xaxis = document.getElementById("scatter-xaxis").value,
+                yaxis = document.getElementById("scatter-yaxis").value,
+                grouping = document.getElementById("scatter-group").value,
+                data = dataTable.fnGetData(),
+                points = [],
+                min,
+                max,
+                field1 = [],
+                field2 = [],
+                grouped_points = {},
+                i = 0,
+                group_label,
+                minmax,
+                LS,
+                slope,
+                start,
+                plots = [],
+                label,
+                plotY = function (x) { return [x, start + (slope * x)]; },
+                dataset;
+
+            for (i = 0; i < data.length; i += 1) {
+                points.push([data[i][xaxis], data[i][yaxis]]);
+                field1.push(data[i][xaxis]);
+                field2.push(data[i][yaxis]);
+                if (grouping) {
+                    group_label = data[i][grouping];
+                    if (!(grouped_points[group_label] instanceof Array)) {
+                        grouped_points[group_label] = [];
+                    }
+                    grouped_points[group_label].push([data[i][xaxis], data[i][yaxis]]);
+                }
+            }
+
+
+
+            if (grouping === 'ungrouped') {
+                //minmax = minmaxx(points.convertNumbers());
+                minmax = minmaxx(points);
+                min = minmax[0];
+                max = minmax[1];
+                LS = lsFit(points);
+                //LS = lsFit(points.convertNumbers());
+                slope = LS[1];
+                start = LS[0];
+
+                $.plot("#scatterplotdiv", [{
+
+                    label: 'Data Points',
+                    data: points,
+                    points: { show: true }
+                }, // Least Squares Fit
+                    {
+                        label: 'Least Squares Fit',
+                        data: jStat.seq(min, max, 3, plotY),
+                        lines: { show: true }
+                    }], {});
+            } else {
+                minmax = minmaxx(points);
+                //minmax = minmaxx(points.convertNumbers());
+                min = minmax[0];
+                max = minmax[1];
+                i = 0;
+
+                for (dataset in grouped_points) {
+                    if (grouped_points.hasOwnProperty(dataset)) {
+                        label = document.getElementById("scatter-group").selectedOptions.item().textContent + " = " + dataset;
+                        plots.push({
+                            color: i,
+                            label: dataset,
+                            data: grouped_points[dataset],
+                            points: { show: true }
+                        });
+                        LS = lsFit(grouped_points[dataset]);
+                        //LS = lsFit(grouped_points[dataset].convertNumbers());
+                        slope = LS[1];
+                        start = LS[0];
+                        plots.push({
+                            color: i,
+                            // label: "LS Fit for " + dataset,
+                            data: jStat.seq(min, max, 3, plotY),
+                            lines: { show: true }
+                        });
+                        i += 1;
+                    }
+                }
+                $.plot("#scatterplotdiv", plots, {});
+            }
+
+            $("#correlationtbl tbody").children().remove();
+            $("#correlationtbl tbody").append("<tr><td>" + jStat.covariance(field1, field2) + "</td><td>" + jStat.corrcoeff(field1, field2) + "</td></tr>");
+    };
     qmanager = new QueryManager("current_filter");
     $("#tabs").tabs();
     // Enable the logout button so that it's not greyed out.
@@ -273,6 +405,7 @@ $(document).ready(function () {
         });
     });
 
+
     $("#CalculateStats").click(function (e) {
         var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; }),
             worker = new Worker("script/ui.stats.js"),
@@ -370,6 +503,10 @@ $(document).ready(function () {
 
         });
     });
+
+    $("#scatter-xaxis").change(updateScatterplot);
+    $("#scatter-yaxis").change(updateScatterplot);
+    $("#scatter-group").change(updateScatterplot);
 
     $("#UploadPopulation").change(function (e) {
         var file = e.target.files[0],
