@@ -22,16 +22,22 @@ self.addEventListener("message", function (e) {
             }
             return r;
         };
+    if(self.d === undefined) {
+        self.d = jStat(arrayConvertNumbers(data.Data));
+    }
     switch (data.cmd) {
     case 'PopulateTable':
-        self.populateStatsTable(data.Headers, arrayConvertNumbers(data.Data));
+        self.populateStatsTable(data.Headers);
+        break;
+    case 'PopulateHistogram':
+        self.createHistogramData(data.Columns);
         break;
     }
 });
 
-self.populateStatsTable = function (headers, data) {
+self.populateStatsTable = function (headers) {
     "use strict";
-    var d = jStat(data),
+    var d = self.d,
         quartiles = d.quartiles(),
         min = d.min(),
         max = d.max(),
@@ -46,6 +52,7 @@ self.populateStatsTable = function (headers, data) {
         self.postMessage({
             Cmd: 'TableAddRow',
             Header : headers[i],
+            Index  : i,
             RowData: {
                 'Minimum' : min[i],
                 'Maximum' : max[i],
@@ -59,4 +66,39 @@ self.populateStatsTable = function (headers, data) {
             }
         });
     }
+    self.postMessage({
+        Cmd: 'FinishedTable'
+    });
 };
+
+self.createHistogramData = function (SelectedColumns) {
+    var i = 0, idx, plots = [], yAxis, d = self.d, val;
+    for (i = 0; i < SelectedColumns.length; i += 1) {
+        idx = SelectedColumns[i];
+        yAxis = [];
+
+        // Go through each value
+        for (j = 0; j < d.length; j += 1) {
+            val = d[j][idx];
+            
+            if (yAxis[val]) {
+                yAxis[val][1] += 1
+            } else {
+                yAxis[val] = [val, 1];
+            }
+        }
+
+        plots.push({
+            data: yAxis,
+            stack: false,
+            lines: { show: false, steps: false },
+            bars: { show: true, barWidth: 0.9, align: 'center' }
+        });
+
+    }
+
+    self.postMessage({
+        Cmd: 'CreateHistogram',
+        Plots: plots
+    });
+}

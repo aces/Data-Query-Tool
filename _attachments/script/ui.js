@@ -142,7 +142,7 @@ $(document).ready(function () {
     $("#shownormals").click(function () {
         // All the data is already cached, so just rerun it to
         // update the graph
-        $("#runquery").click();
+        //$("#runquery").click();
     });
     $("#runquery").click(function () {
         var that = qmanager;
@@ -276,44 +276,97 @@ $(document).ready(function () {
     $("#CalculateStats").click(function (e) {
         var headers = dataTable.fnSettings().aoColumns.map(function (row) { return row.sTitle; }),
             worker = new Worker("script/ui.stats.js"),
-            tbl = $("#stats tbody");
+            tbl = $("#stats tbody"),
+            selectedColumns = [],
+            xaxis = document.getElementById("scatter-xaxis"),
+            yaxis = document.getElementById("scatter-yaxis"),
+            groups = document.getElementById("scatter-group");
+
         tbl.children().remove();
         worker.postMessage({
             cmd: 'PopulateTable',
             Headers: headers,
             Data: dataTable.fnGetData()
         });
+
+        $(xaxis).children().remove();
+        $(yaxis).children().remove();
+        $(groups).children().remove();
+
         worker.addEventListener("message", function (e) {
             var tbl, 
                 row, 
+                cell,
                 data = e.data,
                 addCell = function(row, data) {
                     var cell = document.createElement("td");
                     cell.textContent = data;
                     row.appendChild(cell);
-                    return row;
-            };
+                    return cell;
+                }, scatterdropdown;
 
             if(data.Cmd === 'TableAddRow') {
                 tbl = $("#stats tbody");
                 row = document.createElement("tr");
+
                 addCell(row, data.Header);
                 addCell(row, data.RowData.Minimum);
                 addCell(row, data.RowData.Maximum);
                 addCell(row, data.RowData['Standard Deviation']);
-                addCell(row, data.RowData.Mean);
                 addCell(row, data.RowData.Mean);
                 addCell(row, data.RowData['Mean Squared Error']);
                 addCell(row, data.RowData['First Quartile']);
                 addCell(row, data.RowData['Second Quartile']);
                 addCell(row, data.RowData['Third Quartile']);
 
+                if(!isNaN(data.RowData.Mean)) {
+                    // It's a numeric column, so add it to the x/y axis options
+                    // for the scatterplot dropdown.
+                    scatterdropdown = document.createElement("option");
+                    scatterdropdown.textContent = data.Header;
+                    scatterdropdown.value = e.data.Index;
+
+                    xaxis.appendChild(scatterdropdown);
+                    yaxis.appendChild(scatterdropdown.cloneNode(true));
+                } else {
+                    // It's not a numeric column, so add it to the Groups options for the
+                    // dropdown.
+                    scatterdropdown = document.createElement("option");
+                    scatterdropdown.textContent = data.Header;
+                    scatterdropdown.value = e.data.Index;
+                    groups.appendChild(scatterdropdown);
+                };
+                row.addEventListener("click", function (mousee) {
+                    $(this).toggleClass("selected");
+                    $(this).toggleClass("ui-state-highlight");
+                    if ($(this).hasClass("selected")) {
+                        selectedColumns.push(e.data.Index);
+                    } else {
+                        // Remove from selected columns
+                        if(selectedColumns.indexOf(e.data.Index) > -1) {
+                            selectedColumns.splice(selectedColumns.indexOf(e.data.Index), 1);
+                        }
+                    }
+
+                    worker.postMessage({
+                        cmd : "PopulateHistogram",
+                        Columns: selectedColumns
+                    });
+                });
+
 
                 tbl.append(row);
 
-                console.log(row);
-            }
-
+            } else if (data.Cmd === 'FinishedTable') {
+                $("#stats").dataTable();
+                //worker.terminate();
+            } else if (data.Cmd === 'CreateHistogram') {
+                $.plot("#plotdiv", data.Plots,
+                        {
+                            yaxes: [{}, { position: "right" }]
+                        }
+                      );
+            };
 
         });
     });
