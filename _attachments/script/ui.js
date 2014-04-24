@@ -901,7 +901,7 @@ $(document).ready(function () {
             if (e.data.cmd === 'SaveCSV') {
                 dataURL = window.URL.createObjectURL(e.data.message);
                 link = document.getElementById("DownloadLink");
-                link.download = "data_" + dataDate + .csv";
+                link.download = "data_" + dataDate + ".csv";
                 link.type = "text/csv";
                 link.href = dataURL;
                 $(link)[0].click();
