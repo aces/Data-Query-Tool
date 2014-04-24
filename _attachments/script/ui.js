@@ -896,11 +896,12 @@ $(document).ready(function () {
         } */
 
         csvworker.addEventListener('message', function (e) {
-            var dataURL, link;
+            var dataURL, dataDate, link;
+            dataDate = new Date().toISOString();
             if (e.data.cmd === 'SaveCSV') {
                 dataURL = window.URL.createObjectURL(e.data.message);
                 link = document.getElementById("DownloadLink");
-                link.download = "data.csv";
+                link.download = "data_" + dataDate + .csv";
                 link.type = "text/csv";
                 link.href = dataURL;
                 $(link)[0].click();
