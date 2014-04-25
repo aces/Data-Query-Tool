@@ -73,8 +73,13 @@ ul {
   list-style: none;
 }
 
-.selected {
-    /* background: red; */
+button.databutton {
+    width: 200px;
+    margin: 2px;
+}
+.selected, .selected td {
+    background: rgb(28, 112, 182) !important;
+    color: white !important;
 }
 
 .selectable {

@@ -145,34 +145,34 @@ $(document).ready(function () {
             xi,
             yi;
 
-    for (i = 0; i < data.length; i += 1) {
-        xi = data[i][0];
-        yi = data[i][1];
-        numerator += (xi - xmean) * (yi - ymean);
-        denominator += ((xi - xmean) * (xi - xmean));
-    }
+            for (i = 0; i < data.length; i += 1) {
+                xi = data[i][0];
+                yi = data[i][1];
+                numerator += (xi - xmean) * (yi - ymean);
+                denominator += ((xi - xmean) * (xi - xmean));
+            }
 
-    slope = numerator / denominator;
+            slope = numerator / denominator;
 
-    return [(ymean - slope * xmean), slope];
-},
-minmaxx = function (arr) {
-    var i, min, max;
+            return [(ymean - slope * xmean), slope];
+    },
+    minmaxx = function (arr) {
+        var i, min, max;
 
-    for (i = 0; i < arr.length; i += 1) {
-        if (arr[i][0] < min || min === undefined) {
-            if (arr[i][0] !== undefined && arr[i][0] !== null) {
-                min = arr[i][0];
+        for (i = 0; i < arr.length; i += 1) {
+            if (arr[i][0] < min || min === undefined) {
+                if (arr[i][0] !== undefined && arr[i][0] !== null) {
+                    min = arr[i][0];
+                }
+            }
+            if (arr[i][0] > max || max === undefined) {
+                if (arr[i][0] !== undefined && arr[i][0] !== null) {
+                    max = arr[i][0];
+                }
             }
         }
-        if (arr[i][0] > max || max === undefined) {
-            if (arr[i][0] !== undefined && arr[i][0] !== null) {
-                max = arr[i][0];
-            }
-        }
-    }
-    return [min, max];
-}, updateScatterplot = function () {
+        return [min, max];
+    }, updateScatterplot = function () {
             var xaxis = document.getElementById("scatter-xaxis").value,
                 yaxis = document.getElementById("scatter-yaxis").value,
                 grouping = document.getElementById("scatter-group").value,
@@ -210,12 +210,10 @@ minmaxx = function (arr) {
 
 
             if (grouping === 'ungrouped') {
-                //minmax = minmaxx(points.convertNumbers());
                 minmax = minmaxx(points);
                 min = minmax[0];
                 max = minmax[1];
                 LS = lsFit(points);
-                //LS = lsFit(points.convertNumbers());
                 slope = LS[1];
                 start = LS[0];
 
@@ -232,7 +230,6 @@ minmaxx = function (arr) {
                     }], {});
             } else {
                 minmax = minmaxx(points);
-                //minmax = minmaxx(points.convertNumbers());
                 min = minmax[0];
                 max = minmax[1];
                 i = 0;

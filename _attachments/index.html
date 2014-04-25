@@ -38,7 +38,6 @@
                     <li><a href="#DefinePopulation">Define Filters</a></li>
                     <li><a href="#ViewData">View Data</a></li>
                     <li><a href="#AnalyseData">Statistical Analysis</a></li>
-                    <!--li><a href="#ViewPopulation">Modify Population</a></li-->
                     <li><a onclick="javascript:window.user.logout(); return false;" href="#">Logout</a></li>
                 </ul>
                 <div id="Home" class="ui-widget-reset ui-widget">
@@ -65,9 +64,9 @@
                         <div class="ui-widget-header">
                             Choose category:
                             <select id="categories" onChange="javascript:Categories.show(this.value, 'fieldslist', { selectedManager: defineManager})";></select> <button id="addAll">Add all</button> <button id="removeAll">Remove all</button>
-                            <a href="help" class="ui-icon ui-icon-help">Help</a>
+                            <!--a href="help" class="ui-icon ui-icon-help">Help</a-->
                         </div>
-                        <table class="fieldlist" id="fields">
+                        <table class="fieldlist" id="fields" width="100%">
                             <thead>
                                 <tr>
                                     <th>Field</th>
@@ -101,7 +100,7 @@
                             Choose category: <select id="categories_pop" onChange="javascript:Categories.show(this.value, 'popfieldslist', { selectedManager: popManager })";></select> 
                         </div>
 
-                        <table class="fieldlist" id="popfields">
+                        <table class="fieldlist" id="popfields" width="100%">
                             <thead>
                                 <tr>
                                     <th>Field</th>
@@ -159,12 +158,12 @@
                     </div>
                     <h2>Actions</h2>
                     <div>
-                        <button id="runquery">Run Query</button>
-                        <button id="SaveQuery">Save Query</button>
+                        <button id="runquery" class="databutton">Run Query</button>
+                        <button id="SaveQuery" class="databutton">Save Query</button>
                     </div>
                     <div>
-                        <button id="SaveCSV">Download Table Data as CSV</button>
-                        <button id="SaveZip">Download All Files as ZIP</button>
+                        <button id="SaveCSV" class="databutton">Download Table as CSV</button>
+                        <button id="SaveZip" class="databutton">Download All Files as ZIP</button>
                         <!-- Don't display the below link, it's just used to tie a dataURL to
                         which is then invoked/clicked via javascript when the above buttons are
                         clicked -->
@@ -210,9 +209,9 @@
                         </tbody>
                     </table>
 
-                    <h2>Histogram of Numeric Columns</h2>
+                    <h2>Histogram of Selected Numeric Columns</h2>
                     <div>
-                        <p>Click on a row in the above table of statistics columns to add to histogram graph</p>
+                        <p>Click on a row in the above table of statistics to add a field to this histogram graph</p>
                         Show normals: <input type="checkbox" id="shownormals">
                     </div>
                     <div id="plotdiv" style="width: 500px; height: 500px"></div>
@@ -288,14 +287,6 @@
                     </tr>
                 </table>
             </form>
-
-            <!--form id="login">
-                Username: <input id="username_form" type="text"><br>
-                Password: <input type="password" id="password_form"><br>
-                <input type="submit" id="loginbutton">
-            </form-->
-
-
         </div>
     </body>
 </html>

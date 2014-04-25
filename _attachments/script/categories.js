@@ -143,6 +143,7 @@ Categories.show = function (category, output_div, options) {
             el,
             checkBox,
             row;
+        $(fieldsSelect).parent("table").dataTable().fnDestroy();
         fieldsSelect.textContent = '';
 
         // Remove the previous category
@@ -180,6 +181,7 @@ Categories.show = function (category, output_div, options) {
             }
         }
         $("#tabs").css("cursor", "auto");
+        $(fieldsSelect).parent("table").dataTable();
     });
     Clickableize(popManager);
 };
@@ -425,7 +427,5 @@ $(document).ready(function () {
     popManager = new SelectedManager("selectedpopfields", { order: ["actions", "field", "operator", "value", "sessions"] });
     Categories.list("categories");
     Categories.list("categories_pop");
-    //Clickableize(popManager);
-    //Clickableize(defineManager);
 });
 
