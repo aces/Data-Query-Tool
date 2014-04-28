@@ -531,7 +531,8 @@ $(document).ready(function () {
         reader.readAsText(file);
     });
     $("#addAll").click(function () {
-        var data = $("#fields").dataTable().fnGetData(),
+        var table = $("#fields").dataTable(),
+            data = table.fnGetData(),
             i,
             curEl;
 
@@ -541,10 +542,13 @@ $(document).ready(function () {
             curEl = data[i][0];
             defineManager.add(curEl);
         }
+        table.$("tr").addClass("selected");
+        table.$("tr").addClass("ui-state-highlight");
         //popManager.toggle(document.getElementById(selected[i]));
     });
     $("#removeAll").click(function () {
-        var data = $("#fields").dataTable().fnGetData(),
+        var table = $("#fields").dataTable(),
+            data = $("#fields").dataTable().fnGetData(),
             i,
             curEl;
 
@@ -552,6 +556,8 @@ $(document).ready(function () {
             curEl = data[i][0];
             defineManager.remove(curEl);
         }
+        table.$("tr").removeClass("selected");
+        table.$("tr").removeClass("ui-state-highlight");
     });
 
     // HTML tooltips courtesy of Tarek
