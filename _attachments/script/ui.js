@@ -531,28 +531,26 @@ $(document).ready(function () {
         reader.readAsText(file);
     });
     $("#addAll").click(function () {
-        var fields = document.getElementById("fields"),
-            allElements = $(fields).children("tbody").children(),
-            curEl,
-            i;
-        for (i = 0; i < allElements.length; i += 1) {
-            curEl = allElements[i];
-            if (!($(curEl).hasClass("selected"))) {
-                defineManager.add(curEl);
-            }
+        var data = $("#fields").dataTable().fnGetData(),
+            i,
+            curEl;
+
+        for (i = 0; i < data.length; i += 1) {
+            // 0 is the field name, 1 is the description, 2 is "Downloadable"
+            // in the data table. So add 0
+            curEl = data[i][0];
+            defineManager.add(curEl);
         }
         //popManager.toggle(document.getElementById(selected[i]));
     });
     $("#removeAll").click(function () {
-        var fields = document.getElementById("fields"),
-            allElements = $(fields).children("tbody").children(),
-            curEl,
-            i;
-        for (i = 0; i < allElements.length; i += 1) {
-            curEl = allElements[i];
-            if ($(curEl).hasClass("selected")) {
-                defineManager.remove(curEl);
-            }
+        var data = $("#fields").dataTable().fnGetData(),
+            i,
+            curEl;
+
+        for (i = 0; i < data.length; i += 1) {
+            curEl = data[i][0];
+            defineManager.remove(curEl);
         }
     });
 
