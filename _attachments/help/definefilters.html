@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>DQG 2.0 Help: Define Filters</title>
+		<link rel="stylesheet" href="../style/main.css" type="text/css">
+	</head>
+
+	<body>
+		<H3>Help: Define Filters</H3>
+		<p>Once all fields have been selected, please proceed to the "Define Filters" tab at the top of the page. Filters allow the user to narrow down the results of the query. For example, one may only want to include data from one particular site or from a specific visit. Filters can be selected by category (instrument) and field similar to the "Define Fields" tab: clicking on a field of interest will add it to the "Selected Filters" table at bottom. The "Selected Filters" table in the bottom half of the page allows users to specify what kind of information from that field should be included in the query.</p> 
+		
+		<p>For example, if the user only wants to query for data taken from the 6-month visit, choose 'demographics' from the 'Choose Category' drop-down, then select "demographics,Visit_label". In the "Selected Filters" table, define the filter using the "Operator" function and input the desired value.</p>
+ 
+		<p>The operators are as follows:
+			<ul>
+        		<li>= equal to</li>
+        		<li>!= does not equal</li>
+        		<li><= less than</li>
+        		<li>>= greater than</li>
+        		<li>startsWith: can filter for values that start with a specific character or string</li>
+        		<li>contains: can filter for values that contain a specific character or string</li>
+        	</ul>
+        </p>
+ 
+		<p>Input a specific value in the "Value" text box. For the visit label example mentioned above, "V06" would return data only for the 6 month visit.</p>
+
+		<p>Note that default values will be assigned automatically for fields that have specified values (e.g. Gender with Male and Female values that are specified in a drop down menu in the database). Please make sure to review all filters carefully before running a query.</p>
+ 
+		<p>The filter tab also allows for a list of candidates to be used as a filter so that only data for these candidates is included in the query.  At the bottom of the "Selected Filters" panel, click the "Choose File" button to upload a CSV file listing the PSCID of each candidate to include in the query. Optionally, the second column of the CSV file can specify the visit label.</p>
+
+		<p><a href="help.html">Return to main help page</a></p>
+	</body>
+</html>
