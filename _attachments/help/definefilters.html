@@ -1,32 +1,52 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>DQG 2.0 Help: Define Filters</title>
+		<title>Help: Define Filters</title>
 		<link rel="stylesheet" href="../style/main.css" type="text/css">
 	</head>
 
 	<body>
 		<H3>Help: Define Filters</H3>
-		<p>Once all fields have been selected, please proceed to the "Define Filters" tab at the top of the page. Filters allow the user to narrow down the results of the query. For example, one may only want to include data from one particular site or from a specific visit. Filters can be selected by category (instrument) and field similar to the "Define Fields" tab: clicking on a field of interest will add it to the "Selected Filters" table at bottom. The "Selected Filters" table in the bottom half of the page allows users to specify what kind of information from that field should be included in the query.</p> 
+		<p>Filters can be applied on any field in order to limit the set of results returned by a query, e.g. to extract data collected only at one specific site, or from a particular visit.</p> 
 		
-		<p>For example, if the user only wants to query for data taken from the 6-month visit, choose 'demographics' from the 'Choose Category' drop-down, then select "demographics,Visit_label". In the "Selected Filters" table, define the filter using the "Operator" function and input the desired value.</p>
- 
-		<p>The operators are as follows:
+		<p>The "Define Filters" tab is organized like "Define Fields", where data fields are grouped per instrument or category. Select a category, then click on a field of interest to add it to the list of Selected Filters at bottom.
+		</br>
+		Finally, in the Selected Filters panel, define the filter criteria on that field via the "Operator"  and "Value" columns. More than one filter may be added to a query.  Multiple filters will be applied using 'and' logic.
+		</br>
+ 		The operators are as follows:
 			<ul>
         		<li>= equal to</li>
         		<li>!= does not equal</li>
         		<li><= less than</li>
         		<li>>= greater than</li>
-        		<li>startsWith: can filter for values that start with a specific character or string</li>
-        		<li>contains: can filter for values that contain a specific character or string</li>
+        		<li>startsWith: filter for values starting with a specific character or string</li>
+        		<li>contains: filter for values containing a specific character or string</li>
         	</ul>
         </p>
  
-		<p>Input a specific value in the "Value" text box. For the visit label example mentioned above, "V06" would return data only for the 6 month visit.</p>
+		<p>Alternatively, a specific set of candidates or candidate visits can be defined as a filter by uploading a CSV file containing a list of candidate IDs with optional visit label (via the "Choose File" button).</p>
 
-		<p>Note that default values will be assigned automatically for fields that have specified values (e.g. Gender with Male and Female values that are specified in a drop down menu in the database). Please make sure to review all filters carefully before running a query.</p>
+		<p>Example: to query data collected at visit V01, select "demographics" from the Choose Category dropdown, then scroll down and click on "demographics,Visit_label".  This field should now be displayed in the Selected Filters panel below. Next, define the filter constraint under the "Operator" and "Values" columns, e.g. select "=" and enter "V01".</p>
  
-		<p>The filter tab also allows for a list of candidates to be used as a filter so that only data for these candidates is included in the query.  At the bottom of the "Selected Filters" panel, click the "Choose File" button to upload a CSV file listing the PSCID of each candidate to include in the query. Optionally, the second column of the CSV file can specify the visit label.</p>
+		<p>Once filters have been defined, continue to the "View Data" tab.</p>
+
+		<H4>Notes on querying behavioral data in LORIS</H4>
+
+		<p>To extract only fully administered and fully complete instrument datasets, include the following field filters for each instrument in your query:
+			<ul>
+        		<li>Administration = "All"  or "Partial" (Note that "Partial" Administration poses a potential caveat for analysis)</li>
+        		<li>Data_entry = "Complete" </li>
+        		<li>DDE_complete = "Y"  (for instruments where Double Data Entry applies)</li>
+        		<li>Conflicts_Exist = "N"  (all data entry quality issues have been resolved)</li>
+        	</ul>
+        </p>
+
+        <p>Additionally, under 'demographics' category: 
+			<ul>
+        		<li>Current_stage = "Visit"</li>
+        		<li>Failure = "Neither" (to exclude both Failed and Withdrawn candidates)</li>
+        	</ul>
+        </p>
 
 		<p><a href="help.html">Return to main help page</a></p>
 	</body>
