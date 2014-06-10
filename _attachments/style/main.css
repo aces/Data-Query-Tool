@@ -116,3 +116,7 @@ th.header {
 .help-section {
     text-align: right;
 }
+
+#help {
+  float: right;
+}
