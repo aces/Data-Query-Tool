@@ -112,3 +112,7 @@ th.header {
     padding: inherit;
     border-bottom: dotted black;
 }
+
+.help-section {
+    text-align: right;
+}
