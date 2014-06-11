@@ -116,3 +116,10 @@ th.header {
 #help {
   float: right;
 }
+
+#help .ui-button .ui-button-icon-primary {
+    background: url('../images/help.gif');
+    background-size: 20px 20px;
+    height: 20px;
+    top: 12px;
+}
