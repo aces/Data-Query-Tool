@@ -21,24 +21,6 @@
         		<li>contains: filter for values containing a specific character or string</li>
         	</ul>
         </p>
-		<p>Alternatively, a specific set of candidates or candidate visits can be defined as a filter by uploading a CSV file containing a list of candidate IDs with optional visit label (via the "Choose File" button).</p>
-		<p>Example: to query data collected at visit V01, select "demographics" from the Choose Category dropdown, then scroll down and click on "demographics,Visit_label".  This field should now be displayed in the Selected Filters panel below. Next, define the filter constraint under the "Operator" and "Values" columns, e.g. select "=" and enter "V01".</p>
-		<p>Once filters have been defined, continue to the "<a href="ViewData.html">View Data</a>" tab.</p>
-		<H4>Notes on querying behavioral data in LORIS</H4>
-		<p>To extract only fully administered and fully complete instrument datasets, include the following field filters for each instrument in your query:
-			<ul>
-        		<li>Administration = "All"  or "Partial" (Note that "Partial" Administration poses a potential caveat for analysis)</li>
-        		<li>Data_entry = "Complete"</li>
-        		<li>DDE_complete = "Y"  (for instruments where Double Data Entry applies)</li>
-        		<li>Conflicts_Exist = "N"  (all data entry quality issues have been resolved)</li>
-        	</ul>
-        </p>
-        <p>Additionally, under 'demographics' category: 
-			<ul>
-        		<li>Current_stage = "Visit"</li>
-        		<li>Failure = "Neither" (to exclude both Failed and Withdrawn candidates)</li>
-        	</ul>
-        </p>
 		<p><a href="Home.html">Return to main help page</a></p>
 	</body>
 </html>
