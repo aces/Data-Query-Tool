@@ -509,7 +509,7 @@ $(document).ready(function () {
         var file = e.target.files[0],
             reader = new FileReader();
         reader.onload = function (data) {
-            var lines = data.target.result.replace(/\r/g, '').split("\n"),
+            var lines = data.target.result.replace(/\r\n/g, '\n').replace(/\n\r/g, '\n').replace(/\r/g, '\n').split("\n"),
                 tabDelimited = lines[0].split("\t"),
                 commaDelimited = lines[0].split(","),
                 delimiter = '\t',
