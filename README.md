@@ -11,6 +11,21 @@ Before using this code, you must have the following prerequisites installed
 
 ##Installation
 
+### The Easy Way
+
+Create a database on your local CouchDB instance, and clone the code from
+the server http://couchdb.loris.ca:5984/dataquerytool-$VERSION where $VERSION
+is separated by underscores rather than dots (because dots are not allowed
+in CouchDB database names.)
+
+ie.
+
+```bash
+curl -H 'Content-Type: application/json' -X POST http://$YOURCOUCHDBADMIN:$YOURCOUCHADMINPASS@$YOURSERVERNAME:5984/_replicate -d '{"source":"http://couchdb.loris.ca:5984/dataquerytool-1_0_0", "target":"$YOURDATABASENAME"}'
+```
+
+### The Hard Way (for development)
+
 First, create a CouchDB database using Futon (http://127.0.0.1:5984/\_utils/index.html).
 In the following example, the database is named "dqg".
 
