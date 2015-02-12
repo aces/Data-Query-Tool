@@ -1,2 +1,1 @@
-function (keys, values, rereduce) {
-}
+_count
