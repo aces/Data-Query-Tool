@@ -32,14 +32,14 @@ In the following example, the database is named "dqg".
 Next, clone this repository:
 
 ```bash
-git clone git@github.com:aces/DQG-2.0.git
+git clone git@github.com:aces/Data-Query-Tool.git
 ```
 
 Finally, push to CouchDB using erica
 
 ```bash
-cd DQG-2.0
-erica push http://adminuser:adminpass@127.0.0.1:5984/dqg/
+cd Data-Query-Tool
+erica push http://adminuser:adminpass@127.0.0.1:5984/dqg
 ```
 
 Visit http://127.0.0.1:5984/dqg/_design/DQG-2.0/_rewrite/ to ensure code was pushed.
