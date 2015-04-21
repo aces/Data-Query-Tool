@@ -46,10 +46,11 @@ Visit http://127.0.0.1:5984/dqg/_design/DQG-2.0/_rewrite/ to ensure code was pus
 
 ##Populating data from Loris
 
-Add a section to your Loris config.xml for CouchDB 
+Amend the section of your LORIS config.xml
 
 ```xml
 <CouchDB>
+    <SyncAccounts>true</SyncAccounts>
     <database>dqg</database>
     <hostname>localhost</hostname>
     <port>5984</port>
