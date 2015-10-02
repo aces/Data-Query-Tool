@@ -9,6 +9,8 @@ Before using this code, you must have the following prerequisites installed
 * CouchDB >= 1.2 (http://couchdb.apache.org)
 * Erica (https://github.com/benoitc/erica)
 
+Note: Your version of Erlang should be the most recent version that is compatible with both your CouchDB and Erica
+
 ##Installation
 
 ### The Easy Way
