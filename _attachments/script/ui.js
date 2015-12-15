@@ -236,7 +236,7 @@ $(document).ready(function () {
 
                 for (dataset in grouped_points) {
                     if (grouped_points.hasOwnProperty(dataset)) {
-                        label = document.getElementById("scatter-group").selectedOptions.item().textContent + " = " + dataset;
+                        label = document.getElementById("scatter-group").selectedOptions.item(0).textContent + " = " + dataset;
                         plots.push({
                             color: i,
                             label: dataset,
