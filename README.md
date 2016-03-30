@@ -23,12 +23,12 @@ in CouchDB database names.)
 ie.
 
 ```bash
-curl -H 'Content-Type: application/json' -X POST http://$YOURCOUCHDBADMIN:$YOURCOUCHADMINPASS@$YOURSERVERNAME:5984/_replicate -d '{"source":"https://couchdb.loris.ca:5984/dataquerytool-1_0_0", "target":"$YOURDATABASENAME"}'
+curl -H 'Content-Type: application/json' -X POST http://$YOURCOUCHDBADMIN:$YOURCOUCHADMINPASS@$YOURSERVERNAME:5984/_replicate -d '{"source":"http://couchdb.loris.ca:5984/dataquerytool-1_0_0", "target":"$YOURDATABASENAME"}'
 ```
 
 ### The Hard Way (for development)
 
-First, create a CouchDB database using Futon (http://127.0.0.1:5984/\_utils/index.html).
+First, create a CouchDB database using Futon (http://127.0.0.1:5984/_utils/index.html).
 In the following example, the database is named "dqg".
 
 Next, clone this repository:
