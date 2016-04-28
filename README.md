@@ -16,7 +16,7 @@ Note: Your version of Erlang should be the most recent version that is compatibl
 ### The Easy Way
 
 Create a database on your local CouchDB instance, and clone the code from
-the server https://couchdb.loris.ca:5984/dataquerytool-$VERSION where $VERSION
+the server http://couchdb.loris.ca:5984/dataquerytool-$VERSION where $VERSION
 is separated by underscores rather than dots (because dots are not allowed
 in CouchDB database names.)
 
